@@ -1,0 +1,203 @@
+import React, { useState } from 'react';
+import { motion } from 'motion/react';
+import { useAuth } from '../contexts/FirebaseContext';
+import { 
+  Brain, Zap, Shield, Heart, Activity, Users, Star, 
+  Eye, Ear, ListChecks, AlertCircle, CloudRain, 
+  Sun, UserPlus, VolumeX, Target, BarChart3
+} from 'lucide-react';
+import { NEURO_PROFILES } from '../lib/neuro/profiles';
+import { NeuroProfile } from '../types';
+import LegalFooter from './LegalFooter';
+
+interface NeuroDiversionProps {
+  profile: NeuroProfile;
+  onProfileChange: (profileId: string) => void;
+  onNavigate: (tab: string) => void;
+}
+
+const CATEGORIES = [
+  { id: 'neuro', label: 'Neurodivergent' },
+  { id: 'military', label: 'Military' },
+  { id: 'standard', label: 'Standard' }
+];
+
+const PROFILE_ICONS: Record<string, any> = {
+  adhd: Zap,
+  asd: Shield,
+  dyslexia: Eye,
+  dyscalculia: Activity,
+  'dyspraxia-dcd': Target,
+  'tourette-tics': Activity,
+  ocd: ListChecks,
+  ptsd: Heart,
+  anxiety: AlertCircle,
+  bipolar: Sun,
+  'sensory-processing': CloudRain,
+  tbi: Activity,
+  'apd-capd': Ear,
+  'visual-processing': Eye,
+  'executive-function': ListChecks,
+  schizophrenia: Brain,
+  depression: CloudRain,
+  'fetal-alcohol': UserPlus,
+  'intellectual-disability': Star,
+  misophonia: VolumeX,
+  standard: Brain,
+  downs: Star,
+  military: Users
+};
+
+export default function NeuroDiversion({ profile, onProfileChange, onNavigate }: NeuroDiversionProps) {
+  const [activeCategory, setActiveCategory] = useState('neuro');
+
+  const handleSelect = (p: NeuroProfile) => {
+    onProfileChange(p.id);
+  };
+
+  const handleGoToCharts = (e: React.MouseEvent, p: NeuroProfile) => {
+    e.stopPropagation(); // Prevent card selection
+    onProfileChange(p.id); // Apply profile first
+    onNavigate('Home'); // Then go to charts
+  };
+
+  const filteredProfiles = Object.values(NEURO_PROFILES).filter(p => {
+    if (activeCategory === 'neuro') {
+      return p.id !== 'military' && p.id !== 'standard_trader';
+    }
+    if (activeCategory === 'military') {
+      return p.id === 'military';
+    }
+    return p.id === 'standard_trader';
+  });
+
+  return (
+    <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-12">
+      <div className="text-center space-y-4">
+        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter italic">
+          <span className="lava-hot-text">Interface</span> <span className="neon-indigo-text">Physics</span> <span className="lava-hot-text">Protocols</span>
+        </h2>
+        <p className="lava-hot-text font-mono uppercase tracking-widest text-sm">
+          Select a profile to modulate presentation for cognitive comfort
+        </p>
+      </div>
+
+      {/* Category Tabs */}
+      <div className="flex justify-center space-x-4">
+        {CATEGORIES.map(cat => (
+          <button
+            key={cat.id}
+            onClick={() => setActiveCategory(cat.id)}
+            className={`px-8 py-3 rounded-full font-black uppercase tracking-widest text-xs transition-all border-2 ${
+              activeCategory === cat.id 
+                ? 'bg-white text-black border-white' 
+                : 'text-gray-500 border-white/10 hover:border-white/30'
+            }`}
+            style={{ 
+              backgroundColor: activeCategory === cat.id ? profile.ui.accent : 'transparent',
+              borderColor: activeCategory === cat.id ? profile.ui.accent : undefined,
+              color: activeCategory === cat.id ? '#000' : undefined
+            }}
+          >
+            <span className="lava-hot-text">{cat.label}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredProfiles.map((p) => {
+          const Icon = PROFILE_ICONS[p.id] || Brain;
+          const isActive = profile.id === p.id;
+
+          return (
+            <motion.div
+              key={p.id}
+              whileHover={{ scale: 1.02 }}
+              onClick={() => handleSelect(p)}
+              className={`p-8 rounded-3xl text-left transition-all duration-500 space-y-4 relative overflow-hidden group border-2 glass cursor-pointer ${
+                isActive 
+                  ? 'bg-white/5 shadow-[0_0_50px_rgba(255,255,255,0.05)]' 
+                  : 'bg-[#0a0a0a] border-white/5 hover:border-white/20'
+              }`}
+              style={{ 
+                borderColor: isActive ? p.ui.accent : undefined,
+                background: isActive ? `linear-gradient(to bottom right, ${p.ui.bgTop}, ${p.ui.bgBottom})` : undefined
+              }}
+            >
+              {/* Active Glow */}
+              {isActive && (
+                <div 
+                  className="absolute top-0 right-0 w-40 h-40 blur-[80px] opacity-30"
+                  style={{ backgroundColor: p.ui.accent }}
+                />
+              )}
+
+              <div 
+                className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${
+                  isActive ? 'text-black scale-110' : 'bg-white/5 text-gray-500 group-hover:text-white'
+                }`}
+                style={{ 
+                  backgroundColor: isActive ? p.ui.accent : 'rgba(255,255,255,0.05)',
+                  boxShadow: isActive ? `0 0 20px ${p.ui.accent}` : 'none'
+                }}
+              >
+                <Icon size={28} />
+              </div>
+
+              <div className="space-y-2 relative z-10">
+                <h3 className={`text-2xl font-black uppercase tracking-tight transition-colors duration-500 ${isActive ? 'lava-hot-text' : 'text-gray-400'}`}>
+                  {p.name}
+                </h3>
+                <p className={`text-xs leading-relaxed font-sans group-hover:text-gray-400 transition-colors ${isActive ? 'lava-hot-text' : 'text-gray-500'}`}>
+                  {p.description}
+                </p>
+              </div>
+
+              <div className="pt-4 flex items-center justify-between relative z-10">
+                {isActive ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.ui.accent }} />
+                    <span className="text-[10px] font-mono uppercase tracking-widest font-bold" style={{ color: p.ui.accent }}>
+                      <span className="lava-hot-text">Protocol Active</span>
+                    </span>
+                  </div>
+                ) : (
+                  <div />
+                )}
+                
+                <button
+                  onClick={(e) => handleGoToCharts(e, p)}
+                  className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group/btn"
+                >
+                  <BarChart3 size={14} className="text-gray-400 group-hover/btn:text-white" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 group-hover/btn:text-white">
+                    Go to charts
+                  </span>
+                </button>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Profile Preview Info */}
+      <div className="bg-[#0a0a0a] border border-white/5 p-10 rounded-3xl text-center space-y-6 max-w-3xl mx-auto glass">
+        <div className="flex justify-center">
+          <Brain className="text-gray-600" size={40} />
+        </div>
+        <p className="text-gray-400 text-sm leading-relaxed font-sans">
+          Each profile regulates interface <span className="neon-indigo-text">physics</span>—flicker rates, color saturation, motion smoothing, and data density—to provide an accessible cognitive environment. This system does not evaluate or advise on trading decisions.
+        </p>
+        <div className="pt-4">
+          <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+            <div className="w-2 h-2 rounded-full bg-green-500" />
+            <span className="text-[10px] font-mono uppercase tracking-widest text-gray-500"><span className="neon-indigo-text">Physics</span> Resolver Online</span>
+          </div>
+        </div>
+      </div>
+      <div className="mt-12">
+        <LegalFooter profile={profile} />
+      </div>
+    </div>
+  );
+}

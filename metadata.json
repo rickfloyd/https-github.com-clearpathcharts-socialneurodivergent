@@ -1,0 +1,7 @@
+{
+  "name": "CLEARPATHTRADER.ORG DASHBOARD-A",
+  "description": "Institutional-grade digital news publication featuring real-time analysis at the intersection of quantitative trading and high-level architectural design.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}

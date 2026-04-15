@@ -1,0 +1,47 @@
+{
+  "name": "ClearPath Institutional Intelligence",
+  "short_name": "ClearPath",
+  "description": "High-velocity institutional intelligence and neuro-adaptive trading interface.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#4D00FF",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "https://api.dicebear.com/7.x/shapes/svg?seed=clearpath&backgroundColor=4D00FF",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "https://api.dicebear.com/7.x/shapes/svg?seed=clearpath&backgroundColor=4D00FF",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "https://api.dicebear.com/7.x/shapes/svg?seed=clearpath&backgroundColor=4D00FF",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["finance", "productivity", "business"],
+  "screenshots": [
+    {
+      "src": "https://picsum.photos/seed/clearpath-desktop/1920/1080",
+      "sizes": "1920x1080",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Institutional Dashboard"
+    },
+    {
+      "src": "https://picsum.photos/seed/clearpath-mobile/1080/1920",
+      "sizes": "1080x1920",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Mobile Intelligence Feed"
+    }
+  ]
+}

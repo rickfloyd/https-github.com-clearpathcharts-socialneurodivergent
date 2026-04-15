@@ -1,0 +1,168 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile and accessibility preferences",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "displayName": { "type": "string", "description": "User's public name" },
+        "username": { "type": "string", "description": "Unique handle" },
+        "email": { "type": "string", "format": "email" },
+        "photoURL": { "type": "string", "format": "uri" },
+        "coverURL": { "type": "string", "format": "uri" },
+        "isVerified": { "type": "boolean" },
+        "neuroType": { 
+          "type": "string", 
+          "enum": [
+            "calm_focus", "low_stim_emergency", "dyslexia_readable", "dyscalculia_numeric_relief",
+            "visual_processing_safe", "apd_assist", "executive_function_support", "motor_friendly",
+            "adhd_dopamine_balanced", "adhd_hyperfocus", "autism_predictable", "tourette_tic_friendly",
+            "plain_language", "high_contrast", "custom_neuro_mix", "corporate_open", "retail_chaos",
+            "retail_modular", "vr_assistive", "standard_trader"
+          ],
+          "description": "The user's neurodivergent profile type"
+        },
+        "customTheme": {
+          "type": "object",
+          "properties": {
+            "primaryColor": { "type": "string" },
+            "secondaryColor": { "type": "string" },
+            "fontSize": { "type": "string" },
+            "highContrast": { "type": "boolean" }
+          }
+        },
+        "bio": { "type": "string" },
+        "keywords": { "type": "array", "items": { "type": "string" } },
+        "linkInBio": { "type": "string", "format": "uri" },
+        "contactInfo": {
+          "type": "object",
+          "properties": {
+            "email": { "type": "string", "format": "email" },
+            "twitter": { "type": "string" },
+            "discord": { "type": "string" }
+          }
+        },
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "followers": { "type": "integer" },
+            "following": { "type": "integer" },
+            "mutuals": { "type": "integer" }
+          }
+        },
+        "intro": {
+          "type": "object",
+          "properties": {
+            "bio": { "type": "string" },
+            "location": { "type": "string" },
+            "company": { "type": "string" }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "neuroType"]
+    },
+    "TimelinePost": {
+      "title": "TimelinePost",
+      "description": "A post on the community timeline",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Author UID" },
+        "authorName": { "type": "string" },
+        "authorPhoto": { "type": "string" },
+        "content": { "type": "string" },
+        "mediaUrl": { "type": "string", "format": "uri" },
+        "mediaType": { "type": "string", "enum": ["image", "video", "none"] },
+        "chartMarkup": { "type": "string", "description": "JSON string of chart annotations" },
+        "market_layer": { "type": "string", "description": "The market layer this post belongs to (e.g., CRY, FRX)" },
+        "likesCount": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "content", "createdAt"]
+    },
+    "MarketRoom": {
+      "title": "MarketRoom",
+      "description": "Statistics and state for a specific market layer room",
+      "type": "object",
+      "properties": {
+        "sheep_count": { "type": "integer", "description": "Number of active users in the room" },
+        "pulse_state": { "type": "string", "description": "Current market sentiment/state" }
+      }
+    },
+    "AboutContent": {
+      "title": "AboutContent",
+      "description": "Content for the about section",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "body": { "type": "string" },
+        "lastUpdated": { "type": "string", "format": "date-time" }
+      }
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "A message in a multi-turn chat",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "model"] },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "role", "text", "timestamp"]
+    },
+    "AIAsset": {
+      "title": "AIAsset",
+      "description": "A generated image or video asset",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "type": { "type": "string", "enum": ["image", "video"] },
+        "url": { "type": "string", "format": "uri" },
+        "prompt": { "type": "string" },
+        "model": { "type": "string" },
+        "config": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "type", "url", "prompt", "model", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "UserProfile",
+      "description": "User profiles and settings"
+    },
+    "/posts/{postId}": {
+      "schema": "TimelinePost",
+      "description": "Global community timeline posts"
+    },
+    "/rooms/{roomId}": {
+      "schema": "MarketRoom",
+      "description": "Market layer room statistics"
+    },
+    "/about/main": {
+      "schema": "AboutContent",
+      "description": "Static content for the about section"
+    },
+    "/chats/{chatId}/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Messages in a specific chat session"
+    },
+    "/ai_assets/{assetId}": {
+      "schema": "AIAsset",
+      "description": "Generated AI images and videos"
+    },
+    "/system/intelligence_status": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "lastRun": { "type": "string", "format": "date-time" },
+          "itemCount": { "type": "integer" }
+        }
+      },
+      "description": "Throttling status for the AI intelligence cycle"
+    }
+  }
+}
