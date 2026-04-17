@@ -13,7 +13,7 @@ const RSS_FEEDS = [
   { name: 'MarketWatch', url: 'https://www.marketwatch.com/rss/topstories' },
   { name: 'Yahoo Finance', url: 'https://finance.yahoo.com/rss/' },
   { name: 'FreshRSS Institutional', url: 'https://freshrss.org/feed.xml' },
-  { name: 'ForexLive', url: 'https://www.forexlive.com/rss' },
+  { name: 'Investing.com Markets', url: 'https://www.investing.com/rss/market_overview.rss' },
   { name: 'ET Markets (SentiTrade)', url: 'https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms' },
   { name: 'Livemint Markets', url: 'https://www.livemint.com/rss/markets' }
 ];

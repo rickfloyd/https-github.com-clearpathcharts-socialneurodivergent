@@ -8,7 +8,7 @@ const SOURCES = [
   'https://www.cnbc.com/id/100003114/device/rss/rss.html',
   'https://www.marketwatch.com/rss/topstories',
   'https://finance.yahoo.com/rss/',
-  'https://www.forexlive.com/rss',
+  'https://www.investing.com/rss/market_overview.rss',
   'https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms',
   'https://www.livemint.com/rss/markets',
   'https://www.investing.com/rss/news_25.rss'

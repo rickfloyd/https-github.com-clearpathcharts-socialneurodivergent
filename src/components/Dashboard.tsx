@@ -29,7 +29,8 @@ import {
   BookOpen,
   Building2,
   BarChart3,
-  Shield
+  Shield,
+  Bot
 } from 'lucide-react';
 import { getFriendlyLocation } from '../services/locationService';
 import { motion, AnimatePresence } from 'motion/react';
@@ -79,6 +80,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
   const [leftSide, setLeftSide] = useState(false);
   const [rightSide, setRightSide] = useState(false);
   const [activeTab, setActiveTab] = useState('Home');
+  const [isAiWidgetOpen, setIsAiWidgetOpen] = useState(false);
   const [isEditingIntro, setIsEditingIntro] = useState(false);
   const [statusText, setStatusText] = useState('');
   const [introForm, setIntroForm] = useState({
@@ -349,27 +351,34 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                 </label>
               </div>
 
-              <div className="absolute bottom-0 left-0 w-full h-[60px] flex items-center px-[200px] overflow-x-auto custom-scrollbar glass"
+              <div className="absolute bottom-0 left-0 w-full h-[60px] flex items-center glass"
                    style={{ borderTop: `1px solid ${profile.ui.accent}22` }}>
-                {['Home', 'Market', 'AI Lab', 'Journal', 'Biography', 'neurodivergent', 'Photos', 'Settings'].map((tab) => (
-                  <button 
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`h-full px-4 text-[15px] font-bold uppercase transition-all border-b-2 whitespace-nowrap ${
-                      tab === 'Settings' 
-                        ? 'neon-indigo-tab' 
-                        : ['Home', 'Market', 'AI Lab', 'Journal', 'Biography', 'neurodivergent', 'Photos'].includes(tab) 
-                          ? 'lava-hot-tab' 
-                          : activeTab === tab ? 'bg-black/20' : 'text-[#5c5e6e] border-transparent hover:text-white'
-                    }`}
-                    style={{ 
-                      color: (tab !== 'Settings' && !['Home', 'Market', 'AI Lab', 'Journal', 'Biography', 'neurodivergent', 'Photos'].includes(tab) && activeTab === tab) ? profile.ui.accent : undefined,
-                      borderColor: (tab !== 'Settings' && !['Home', 'Market', 'AI Lab', 'Journal', 'Biography', 'neurodivergent', 'Photos'].includes(tab) && activeTab === tab) ? profile.ui.accent : 'transparent'
-                    }}
-                  >
-                    {tab}
-                  </button>
-                ))}
+                <div className="flex items-center gap-4 px-6 w-full overflow-x-auto custom-scrollbar no-scrollbar scroll-smooth">
+                  {/* Space for the surfboard avatar on desktop */}
+                  <div className="hidden lg:block w-[160px] flex-shrink-0" />
+                  
+                  {['Home', 'Market', 'Journal', 'Biography', 'Clear Path Hub', 'Photos', 'Settings'].map((tab) => {
+                    const tabKey = tab === 'Clear Path Hub' ? 'neurodivergent' : tab;
+                    return (
+                      <button 
+                        key={tab}
+                        onClick={() => setActiveTab(tabKey)}
+                        className={`h-[36px] px-6 rounded-lg text-[10px] font-black tracking-[0.2em] uppercase transition-all whitespace-nowrap flex-shrink-0 shadow-lg border border-transparent hover:border-white/10 ${
+                          tab === 'Settings' 
+                            ? 'neon-indigo-tab' 
+                            : ['Home', 'Market', 'Journal', 'Biography', 'Clear Path Hub', 'Photos'].includes(tab) 
+                              ? 'lava-hot-tab' 
+                              : activeTab === tabKey ? 'bg-white/5 border-white/20' : 'text-[#5c5e6e] hover:text-white hover:bg-white/5'
+                        } ${activeTab === tabKey ? 'scale-105 border-white/20' : ''}`}
+                        style={{ 
+                          color: (tab !== 'Settings' && !['Home', 'Market', 'Journal', 'Biography', 'Clear Path Hub', 'Photos'].includes(tab) && activeTab === tabKey) ? profile.ui.accent : undefined,
+                        }}
+                      >
+                        {tab}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="absolute bottom-4 left-6 flex items-center z-10">
@@ -571,18 +580,6 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
               </motion.div>
             )}
 
-            {activeTab === 'AI Lab' && (
-              <motion.div 
-                key="ailab"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="h-[800px] max-w-7xl mx-auto px-4 pt-8"
-              >
-                <AILab />
-              </motion.div>
-            )}
-
             {activeTab === 'news' && (
               <motion.div 
                 key="news"
@@ -707,6 +704,42 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
           />
         )}
       </AnimatePresence>
+
+      {/* Global Floating AI Chat Widget */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end pointer-events-auto">
+        <button
+          onClick={() => setIsAiWidgetOpen(!isAiWidgetOpen)}
+          className="w-14 h-14 rounded-full shadow-[0_0_20px_rgba(77,0,255,0.4)] flex items-center justify-center transition-all hover:scale-105 active:scale-95 z-50 relative"
+          style={{ background: isAiWidgetOpen ? '#FF4500' : profile.ui.accent, color: isAiWidgetOpen ? '#fff' : '#000' }}
+        >
+          {isAiWidgetOpen ? <span className="text-xl font-bold">×</span> : <Bot size={28} />}
+        </button>
+
+        <AnimatePresence>
+          {isAiWidgetOpen && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              className="absolute bottom-20 right-0 w-[400px] h-[600px] z-[40] rounded-2xl overflow-hidden glass shadow-2xl border"
+              style={{ borderColor: `${profile.ui.accent}33` }}
+            >
+              <div className="absolute top-0 w-full h-full bg-[#0a0a0a]/90 backdrop-blur-3xl overflow-y-auto flex flex-col">
+                <div className="p-4 border-b flex justify-between items-center flex-shrink-0" style={{ borderColor: `${profile.ui.accent}22`, background: `${profile.ui.accent}11` }}>
+                  <div className="flex items-center space-x-2">
+                    <Bot size={20} style={{ color: profile.ui.accent }} />
+                    <span className="font-bold uppercase tracking-widest text-sm" style={{ color: profile.ui.accent }}>Global Trading Assistant</span>
+                  </div>
+                </div>
+                <div className="flex-1 overflow-hidden relative">
+                  <AILab />
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
     </div>
   );
 }

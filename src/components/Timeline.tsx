@@ -28,7 +28,7 @@ const ASSET_LIST = [
   { id: "DXY", symbol: "DXY", name: "DXY" },
 ];
 
-const ChartWidget = ({ asset }: { asset: typeof ASSET_LIST[0] }) => {
+const ChartWidget = ({ asset, profile }: { asset: typeof ASSET_LIST[0], profile: NeuroProfile }) => {
   const containerId = `chart_home_${asset.id}`;
 
   useEffect(() => {
@@ -51,12 +51,12 @@ const ChartWidget = ({ asset }: { asset: typeof ASSET_LIST[0] }) => {
           "backgroundColor": "#131722",
           "gridColor": "rgba(255, 255, 255, 0.05)",
           "overrides": {
-            "mainSeriesProperties.candleStyle.upColor": "#FF007F",
-            "mainSeriesProperties.candleStyle.downColor": "#0000FF",
-            "mainSeriesProperties.candleStyle.borderUpColor": "#FF007F",
-            "mainSeriesProperties.candleStyle.borderDownColor": "#0000FF",
-            "mainSeriesProperties.candleStyle.wickUpColor": "#FF007F",
-            "mainSeriesProperties.candleStyle.wickDownColor": "#0000FF",
+            "mainSeriesProperties.candleStyle.upColor": profile.candles.upColor,
+            "mainSeriesProperties.candleStyle.downColor": profile.candles.downColor,
+            "mainSeriesProperties.candleStyle.borderUpColor": profile.candles.borderUpColor,
+            "mainSeriesProperties.candleStyle.borderDownColor": profile.candles.borderDownColor,
+            "mainSeriesProperties.candleStyle.wickUpColor": profile.candles.wickUpColor,
+            "mainSeriesProperties.candleStyle.wickDownColor": profile.candles.wickDownColor,
           }
         });
       } else {
@@ -102,13 +102,25 @@ export default function Timeline({ profile }: TimelineProps) {
   const [markupDataUrl, setMarkupDataUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const liveInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
     const file = e.target.files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setSelectedMedia({ url, type });
-      setMarkupDataUrl(null);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedMedia({ url: reader.result as string, type });
+        setMarkupDataUrl(null);
+      };
+      
+      // If video, we might want to warn about size, but for now we'll just read it
+      // as base64 to persist it reliably for this demo PWA context.
+      if (file.size > 1024 * 1024 && type === 'video') {
+         // Optionally warn, but let's just proceed
+         console.warn("Video is large, might fail Firestore 1MB document limit");
+      }
+      
+      reader.readAsDataURL(file);
     }
   };
 
@@ -151,7 +163,7 @@ export default function Timeline({ profile }: TimelineProps) {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {ASSET_LIST.map((asset) => (
-            <ChartWidget key={asset.id} asset={asset} />
+            <ChartWidget key={asset.id} asset={asset} profile={profile} />
           ))}
         </div>
       </div>
@@ -236,6 +248,7 @@ export default function Timeline({ profile }: TimelineProps) {
               </button>
               <button 
                 type="button"
+                onClick={() => liveInputRef.current?.click()}
                 className="flex items-center space-x-2 transition-colors text-xs font-bold uppercase tracking-wider"
                 style={{ color: `${profile.ui.accent}88` }}
               >
@@ -256,6 +269,19 @@ export default function Timeline({ profile }: TimelineProps) {
                 accept="video/*" 
                 className="hidden" 
                 onChange={(e) => handleFileSelect(e, 'video')} 
+              />
+              <input 
+                type="file" 
+                ref={liveInputRef} 
+                accept="image/*,video/*" 
+                capture="environment"
+                className="hidden" 
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleFileSelect(e, file.type.startsWith('video') ? 'video' : 'image');
+                  }
+                }} 
               />
             </div>
             <button
