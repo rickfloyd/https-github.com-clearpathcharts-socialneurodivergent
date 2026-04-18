@@ -1,8 +1,8 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { createChart, IChartApi, ISeriesApi, CandlestickData, Time, CandlestickSeries } from 'lightweight-charts';
-import { NEURO_PROFILES } from '../../lib/neuro/profiles';
-import { resolveChartPhysics } from '../../lib/neuro/chartPhysics';
+import { INTERFACE_PROFILES } from '../../lib/interface/profiles';
+import { resolveInterfacePhysics } from '../../lib/interface/interfacePhysics';
 import { adaptLightweightTheme, adaptCandleSeriesOptions } from '../../lib/charts/lightweightThemeAdapter';
 
 interface LightweightCandlesProps {
@@ -23,8 +23,8 @@ export const LightweightCandles: React.FC<LightweightCandlesProps> = ({
   const seriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
   const [isReady, setIsReady] = useState(false);
 
-  const profile = NEURO_PROFILES[profileId] || NEURO_PROFILES.standard_trader;
-  const physics = resolveChartPhysics(profile);
+  const profile = INTERFACE_PROFILES[profileId] || INTERFACE_PROFILES.standard_trader;
+  const physics = resolveInterfacePhysics(profile);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;

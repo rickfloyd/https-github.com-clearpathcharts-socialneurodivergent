@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { NEURO_PROFILES } from '../../lib/neuro/profiles';
+import { INTERFACE_PROFILES } from '../../lib/interface/profiles';
 import { LightweightCandles } from '../charts/LightweightCandles';
 import { BackToDashboard } from '../nav/BackToDashboard';
 
@@ -14,7 +14,7 @@ const ChartWidget = ({ asset, profile }: { asset: typeof ASSETS[0], profile: any
   return (
     <div className="individual-chart-wrapper !h-[450px] relative overflow-hidden rounded-2xl border border-white/5 shadow-2xl glass" id={`wrapper_${asset.value.replace('/', '_')}`}>
       <div className="absolute top-2 left-4 z-50 text-[10px] font-bold text-white bg-black/50 px-2 py-1 rounded border border-indigo-500/30 backdrop-blur-md">
-        {asset.label} | NEURO-ADAPTIVE FEED
+        {asset.label} | INSTITUTIONAL FEED
       </div>
       <div className="w-full h-full">
         <LightweightCandles profileId={profile.id} symbol={asset.label} timeframe="1h" />
@@ -138,7 +138,7 @@ export const LightweightMarketUI: React.FC<LightweightMarketUIProps> = ({ onBack
           color: profile.ui.text,
         }}
       >
-        ⚖ Legal Positioning — “Provides financial data visualization with optional user-controlled presentation adjustments for accessibility and cognitive comfort. The system does not evaluate, alter, or advise on financial decisions.”
+        ⚖ Legal Positioning — “Provides financial data visualization with optional user-controlled presentation adjustments for accessibility and visual clarity. The system does not evaluate, alter, or advise on financial decisions.”
       </div>
     </div>
   );

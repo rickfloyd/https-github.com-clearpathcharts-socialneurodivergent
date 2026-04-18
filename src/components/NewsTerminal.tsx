@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { TrendingUp, Zap, Calendar, Book } from 'lucide-react';
-import { NeuroProfile, TraderProfile, EventObject, NewsItem as NewsItemType } from '../types';
+import { InterfaceProfile, TraderProfile, EventObject, NewsItem as NewsItemType } from '../types';
 import { DataStreamService } from '../services/dataStreamService';
 import { RSSService } from '../services/rssService';
 
 interface NewsTerminalProps {
-  profile: NeuroProfile;
+  profile: InterfaceProfile;
 }
 
 const RSS_FEEDS = [
@@ -70,7 +70,7 @@ function calculateImpactScore(event: any, profile: TraderProfile): { score: numb
 
   if (event.source === 'FED_REG' || event.source === 'SEC_EDGAR' || event.source === 'CAISO_GRID') {
     score += 25;
-    matches.push(`High-Signal Source: ${event.source}`);
+    matches.push(`Verified Source: ${event.source}`);
   }
 
   score = Math.min(score, 100);
@@ -501,7 +501,7 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
                     <span className="text-xs font-bold text-green-400">+42%</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Neural Liquidity</span>
+                      <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Market Liquidity</span>
                     <span className="text-xs font-bold text-green-400">+12%</span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -558,7 +558,7 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
           <div className="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-600 rounded flex items-center justify-center">
             <i className="fas fa-chart-line text-[10px] text-white"></i>
           </div>
-          <span className="text-[10px] font-black uppercase tracking-widest opacity-50">NEURO ADAPTIVE INSIGHTS // 2026</span>
+          <span className="text-[10px] font-black uppercase tracking-widest opacity-50">INSTITUTIONAL ADAPTIVE INSIGHTS // 2026</span>
         </div>
         <div className="flex space-x-6 opacity-30">
           <i className="fa-brands fa-twitter cursor-pointer hover:text-indigo-400 transition-colors" />

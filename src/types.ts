@@ -1,4 +1,4 @@
-import { ClinicalNeuroId } from './core/ClinicalNeuroProfiles';
+import { InterfaceProfileId } from './core/InterfaceProfiles';
 
 export type GlowLevel = 'none' | 'low' | 'medium' | 'high';
 
@@ -24,8 +24,8 @@ export interface UIProfile {
 
 export type MotionLevel = 'static' | 'smooth' | 'dynamic';
 
-export interface NeuroProfile {
-  id: ClinicalNeuroId;
+export interface InterfaceProfile {
+  id: InterfaceProfileId;
   name: string;
   description: string;
   ui: UIProfile;
@@ -59,7 +59,7 @@ export interface UserProfile {
   photoURL: string;
   coverURL?: string;
   isVerified?: boolean;
-  neuroType: ClinicalNeuroId;
+  interfaceType: InterfaceProfileId;
   customTheme?: {
     primaryColor: string;
     secondaryColor: string;
@@ -73,6 +73,8 @@ export interface UserProfile {
     email?: string;
     twitter?: string;
     discord?: string;
+    instagram?: string;
+    website?: string;
   };
   metrics?: {
     followers: number;

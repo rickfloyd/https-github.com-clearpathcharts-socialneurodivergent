@@ -105,7 +105,7 @@ export const VoiceAssistant = () => {
         model: 'gemini-3-flash-preview',
         contents: `The user said: "${text}". 
         Determine if they are asking to navigate to a section or change their cognitive profile.
-        Available sections: Home, Insights, Corporate, Market, Standard, neurodivergent, Journal, news, Photos, Settings, AI Lab.
+        Available sections: Home, Insights, Corporate, Market, Standard, InterfaceHub, Journal, news, Photos, Settings, AI Lab.
         Available profiles: standard_trader, adhd_trader, autism_trader, ptsd_trader, tbi_trader, downs_trader, veteran_trader.
         Return a JSON object with 'action' (either 'navigate', 'change-profile', or 'none') and 'target' (the section or profile ID).`,
         config: {

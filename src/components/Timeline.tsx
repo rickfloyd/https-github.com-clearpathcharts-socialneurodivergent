@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import ChartMarkupTool from './ChartMarkupTool';
-import { NeuroProfile } from '../types';
+import { InterfaceProfile } from '../types';
 
 const ASSET_LIST = [
   { id: "XAUUSD", symbol: "OANDA:XAUUSD", name: "Gold" },
@@ -28,7 +28,7 @@ const ASSET_LIST = [
   { id: "DXY", symbol: "DXY", name: "DXY" },
 ];
 
-const ChartWidget = ({ asset, profile }: { asset: typeof ASSET_LIST[0], profile: NeuroProfile }) => {
+const ChartWidget = ({ asset, profile }: { asset: typeof ASSET_LIST[0], profile: InterfaceProfile }) => {
   const containerId = `chart_home_${asset.id}`;
 
   useEffect(() => {
@@ -90,7 +90,7 @@ const ChartWidget = ({ asset, profile }: { asset: typeof ASSET_LIST[0], profile:
 };
 
 interface TimelineProps {
-  profile: NeuroProfile;
+  profile: InterfaceProfile;
 }
 
 export default function Timeline({ profile }: TimelineProps) {
@@ -184,7 +184,7 @@ export default function Timeline({ profile }: TimelineProps) {
             <textarea
               value={newPost}
               onChange={(e) => setNewPost(e.target.value)}
-              placeholder="Share your neurological insights or chart markups..."
+              placeholder="Post market intelligence or institutional chart analysis..."
               className="w-full bg-transparent border-none focus:ring-0 placeholder-gray-500 resize-none h-24 font-sans text-lg"
               style={{ color: profile.ui.text }}
             />
@@ -404,7 +404,7 @@ export default function Timeline({ profile }: TimelineProps) {
             <div className="space-y-4">
               {[
                 { tag: '#XAUUSD', count: '12.4k', trend: 'up' },
-                { tag: '#NeuroTrading', count: '8.2k', trend: 'up' },
+                { tag: '#ClearPathAlpha', count: '8.2k', trend: 'up' },
                 { tag: '#ZeroGreyArea', count: '5.1k', trend: 'down' },
                 { tag: '#InstitutionalFeed', count: '3.9k', trend: 'up' },
                 { tag: '#ClearPath', count: '2.8k', trend: 'up' },

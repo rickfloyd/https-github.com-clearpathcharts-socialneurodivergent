@@ -30,20 +30,24 @@ import {
   Building2,
   BarChart3,
   Shield,
-  Bot
+  Bot,
+  AlertTriangle,
+  LogOut,
+  Zap,
+  Edit3,
+  Link as LinkIcon
 } from 'lucide-react';
 import { getFriendlyLocation } from '../services/locationService';
 import { motion, AnimatePresence } from 'motion/react';
-import { NeuroProfile, UserProfile } from '../types';
+import { InterfaceProfile, UserProfile } from '../types';
 
 interface DashboardProps {
-  profile: NeuroProfile;
+  profile: InterfaceProfile;
   onProfileChange: (profileId: string) => void;
 }
 
-import { NEURO_PROFILES } from '../lib/neuro/profiles';
+import { INTERFACE_PROFILES } from '../lib/interface/profiles';
 import { useAuth } from '../contexts/FirebaseContext';
-import { logout } from '../firebase';
 
 // Lazy load sub-components
 const NewsTerminal = lazy(() => import('./NewsTerminal'));
@@ -54,12 +58,12 @@ const LegalFooter = lazy(() => import('./LegalFooter'));
 const Timeline = lazy(() => import('./Timeline'));
 const LiveChart = lazy(() => import('./LiveChart'));
 const About = lazy(() => import('./About'));
-const NeuroDiversion = lazy(() => import('./NeuroDiversion'));
+const InterfaceOptimizationHub = lazy(() => import('./InterfaceOptimizationHub'));
 const SentinelContainer = lazy(() => import('./SentinelContainer'));
 const Photos = lazy(() => import('./Photos'));
 const ExecutivePerformance = lazy(() => import('./ExecutivePerformance').then(m => ({ default: m.ExecutivePerformance })));
 const TerminalSettings = lazy(() => import('./Settings'));
-const NeuroWelcomeDashboard = lazy(() => import('./dashboard/NeuroWelcomeDashboard').then(m => ({ default: m.NeuroWelcomeDashboard })));
+const IntelligenceGateway = lazy(() => import('./dashboard/IntelligenceGateway').then(m => ({ default: m.IntelligenceGateway })));
 const CorporateMultiChartLayout = lazy(() => import('./dashboard/CorporateMultiChartLayout').then(m => ({ default: m.CorporateMultiChartLayout })));
 const LightweightMarketUI = lazy(() => import('./markets/LightweightMarketUI').then(m => ({ default: m.LightweightMarketUI })));
 const StandardMarketUI = lazy(() => import('./markets/StandardMarketUI').then(m => ({ default: m.StandardMarketUI })));
@@ -75,14 +79,16 @@ function TabLoading() {
 }
 
 export default function Dashboard({ profile: initialProfile, onProfileChange }: DashboardProps) {
-  const profile = initialProfile || NEURO_PROFILES.standard_trader;
-  const { user: authUser, userProfile, updateUserImages, updateIntro, createPost, posts, toggleLike } = useAuth();
+  const profile = initialProfile || INTERFACE_PROFILES.standard_trader;
+  const { user: authUser, userProfile, updateUserImages, updateIntro, createPost, posts, toggleLike, quotaExceeded, retryConnection } = useAuth();
+  const { logout } = useAuth(); // Assuming logout is in context, if not I will check
   const [leftSide, setLeftSide] = useState(false);
   const [rightSide, setRightSide] = useState(false);
   const [activeTab, setActiveTab] = useState('Home');
   const [isAiWidgetOpen, setIsAiWidgetOpen] = useState(false);
   const [isEditingIntro, setIsEditingIntro] = useState(false);
   const [statusText, setStatusText] = useState('');
+  const [showMarketPulse, setShowMarketPulse] = useState(true);
   const [introForm, setIntroForm] = useState({
     bio: '',
     location: '',
@@ -107,15 +113,16 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
           'corporate': 'Corporate',
           'market': 'Market',
           'standard': 'Standard',
-          'neurodivergent': 'neurodivergent',
-          'clear path hub': 'neurodivergent',
+          'interface hub': 'InterfaceHub',
+          'clear path hub': 'InterfaceHub',
+          'neurodivergent': 'InterfaceHub',
           'journal': 'Journal',
           'news': 'news',
           'photos': 'Photos',
           'settings': 'Settings',
           'biography': 'Biography',
           'ai lab': 'AI Lab',
-          'neural lab': 'AI Lab'
+          'intelligence lab': 'AI Lab'
         };
         const mappedTarget = targetMap[target.toLowerCase()] || target;
         setActiveTab(mappedTarget);
@@ -126,7 +133,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
   }, []);
   
   const user = {
-    name: userProfile?.displayName || authUser?.displayName || 'NEURO USER',
+    name: userProfile?.displayName || authUser?.displayName || 'TRADES USER',
     avatar: userProfile?.photoURL || authUser?.photoURL || 'https://picsum.photos/seed/profile/150/150',
     cover: userProfile?.coverURL || 'https://images.unsplash.com/photo-1508247967583-7d982ea01526?ixlib=rb-1.2.1&auto=format&fit=crop&w=2250&q=80',
     email: authUser?.email,
@@ -137,16 +144,59 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
     await logout();
   };
 
+  const compressImage = (base64: string, maxWidth = 800, quality = 0.7): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = base64;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = (maxWidth / width) * height;
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        } else {
+          resolve(base64);
+        }
+      };
+      img.onerror = () => resolve(base64);
+    });
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'avatar' | 'cover') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onloadend = async () => {
-      const base64 = reader.result as string;
+      let base64 = reader.result as string;
+      // Auto-compress high-res uploads to fit within Firestore limits
+      if (base64.length > 300000) { 
+        console.log('[Dashboard] Compressing high-res upload...');
+        base64 = await compressImage(base64);
+      }
       await updateUserImages({ [type]: base64 });
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleImageUrlPrompt = async (type: 'avatar' | 'cover') => {
+    const promptMsg = type === 'avatar' ? 'Enter Avatar URL (Direct Image or GIF Link):' : 'Enter Banner URL (Direct Image or GIF Link):';
+    const currentUrl = type === 'avatar' ? user.avatar : user.cover;
+    const url = window.prompt(promptMsg, currentUrl || '');
+    
+    if (url !== null && url.trim() !== '') {
+      await updateUserImages({ [type]: url });
+    }
   };
 
   const handleSaveIntro = async () => {
@@ -177,15 +227,15 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
   };
 
   const menuItems = [
-    { id: 'Home', icon: Home, label: 'Home' },
-    { id: 'Sentinel', icon: Shield, label: 'The Sentinel' },
-    { id: 'Insights', icon: LayoutDashboard, label: 'Insights' },
-    { id: 'Corporate', icon: Building2, label: 'Corporate Mode' },
-    { id: 'Market', icon: TrendingUp, label: 'Market Terminal' },
-    { id: 'Standard', icon: BarChart3, label: 'Standard Exchange' },
-    { id: 'neurodivergent', icon: Brain, label: 'Clear Path Hub' },
-    { id: 'Journal', icon: BookOpen, label: 'Journal' },
-    { id: 'news', icon: Newspaper, label: 'Latest News' },
+    { id: 'Home', icon: TrendingUp, label: 'MARKET HUB' },
+    { id: 'InterfaceHub', icon: Brain, label: 'NEURODIVERGENCE HUB' },
+    { id: 'Intelligence', icon: MessageSquare, label: 'INTELLIGENCE FEED' },
+    { id: 'Biography', icon: Bot, label: 'NEURAL IDENTITY' },
+    { id: 'Corporate', icon: Building2, label: 'COGNITIVE SUITE' },
+    { id: 'Sentinel', icon: Shield, label: 'NEURAL SENTINEL' },
+    { id: 'Journal', icon: BookOpen, label: 'TRADING JOURNAL' },
+    { id: 'AILab', icon: Zap, label: 'AI RESEARCH' },
+    { id: 'Settings', icon: SettingsIcon, label: 'SYSTEM SETTINGS' },
   ];
 
   const stories = [
@@ -219,65 +269,112 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
       style={{ borderColor: `${profile.ui.accent}22` }}
       >
         <div 
-          className="flex items-center justify-center h-[68px] sticky top-0 z-10 cursor-pointer hover:opacity-80 transition-opacity" 
-          style={{ background: profile.ui.bgBottom }}
+          className="flex items-center px-6 h-[80px] border-b border-[#ffffff08] sticky top-0 z-10 cursor-pointer hover:opacity-80 transition-opacity" 
           onClick={() => setActiveTab('Home')}
         >
-          <div className={`font-black tracking-tighter text-[10px] leading-none transition-all duration-300 ${!leftSide && 'lg:rotate-180 lg:[writing-mode:vertical-lr] lg:mt-[-10px]'}`}
-               style={{ color: profile.ui.accent }}>
-            NEURO<br />ADAPTIVE<br />INSIGHTS
+          <div className="flex items-center space-x-3">
+            <div className={`w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 transition-all duration-300 ${!leftSide && 'lg:scale-0 lg:opacity-0'}`}>
+              <Brain className="text-indigo-400" size={18} />
+            </div>
+            <div className={`transition-all duration-300 ${!leftSide && 'lg:rotate-180 lg:[writing-mode:vertical-lr] lg:ml-[-5px]'}`}>
+              <div className="font-black tracking-tighter text-[11px] leading-tight text-white uppercase italic">
+                CLEARPATH
+              </div>
+              <div className="text-[7px] font-bold tracking-[0.3em] text-[#5c5e6e] uppercase mt-0.5">
+                INTELLIGENCE
+              </div>
+            </div>
           </div>
         </div>
 
-        <button 
-          onClick={() => setLeftSide(!leftSide)}
-          className="absolute top-4 right-[-48px] w-12 h-12 flex items-center justify-center rounded-r shadow-lg z-[60]"
-          style={{ background: `${profile.ui.accent}ee`, color: '#000' }}
-        >
-          {leftSide ? <ArrowLeft size={24} /> : <Menu size={24} />}
-        </button>
+        {/* Sidebar Toggle button removed per user request to avoid covering other buttons */}
 
-        <div className={`flex-1 overflow-y-auto custom-scrollbar px-[30px] py-4 transition-opacity duration-300 ${!leftSide && 'lg:opacity-0 lg:pointer-events-none'}`}>
-          <div className="text-[#5c5e6e] text-[15px] font-semibold mb-5 uppercase tracking-wider">Menu</div>
-          <nav className="flex flex-col space-y-5">
+        <div className={`flex-1 overflow-y-auto custom-scrollbar px-4 py-8 transition-opacity duration-300 ${!leftSide && 'lg:opacity-0 lg:pointer-events-none'}`}>
+          <div className="text-[#5c5e6e] text-[8px] font-black mb-6 uppercase tracking-[0.3em] px-4">
+            Institutional Navigation
+          </div>
+          <nav className="flex flex-col space-y-2">
             {menuItems.map((item) => (
               <button 
                 key={item.id} 
                 onClick={() => setActiveTab(item.id)}
-                className={`flex items-center transition-colors group ${activeTab === item.id ? 'text-white' : 'text-[#9c9cab] hover:text-white'}`}
-                style={{ color: activeTab === item.id ? profile.ui.accent : undefined }}
+                className={`flex items-center px-4 py-3 rounded-xl transition-all group relative overflow-hidden ${
+                  activeTab === item.id 
+                    ? 'bg-indigo-500/10 text-white' 
+                    : 'text-[#9c9cab] hover:text-white hover:bg-white/5'
+                }`}
               >
-                <item.icon size={16} className="mr-4 group-hover:scale-110 transition-transform" />
-                <span className="text-[15px] whitespace-nowrap">{item.label}</span>
+                {activeTab === item.id && (
+                  <motion.div 
+                    layoutId="sidebar-accent"
+                    className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-500 rounded-r-full shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                  />
+                )}
+                <item.icon size={16} className={`mr-4 transition-transform duration-300 group-hover:scale-110 ${activeTab === item.id ? 'text-indigo-400' : ''}`} />
+                <span className="text-[10px] font-black uppercase tracking-widest whitespace-nowrap">{item.label}</span>
               </button>
             ))}
           </nav>
 
-          <div className="text-[#5c5e6e] text-[15px] font-semibold mt-10 mb-5 uppercase tracking-wider">Your Favourite</div>
-          <nav className="flex flex-col space-y-5">
-            <a href="#" className="flex items-center text-[#9c9cab] hover:lava-hot-text transition-colors">
-              <ImageIcon size={16} className="mr-4 text-[#88b337]" />
-              <span className="text-[15px]">Foresto</span>
-            </a>
-            <a href="#" className="flex items-center text-[#9c9cab] hover:lava-hot-text transition-colors">
-              <ImageIcon size={16} className="mr-4 text-[#f0c419]" />
-              <span className="text-[15px]">Birds</span>
-            </a>
-            <a href="#" className="flex items-center text-[#9c9cab] hover:lava-hot-text transition-colors">
-              <ImageIcon size={16} className="mr-4 text-[#ff9940]" />
-              <span className="text-[15px]">Nature</span>
-            </a>
-          </nav>
+          <div className="mt-auto pt-10">
+            <div className="space-y-3">
+              <button 
+                onClick={() => logout()}
+                className="w-full flex items-center px-4 py-4 rounded-xl border border-red-500/10 bg-red-500/5 text-red-500/80 hover:bg-red-500 hover:text-black transition-all group"
+              >
+                <LogOut size={16} className="mr-3 transition-transform group-hover:-translate-x-1" />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Logout Session</span>
+              </button>
+
+              <button 
+                onClick={() => setShowMarketPulse(!showMarketPulse)}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-[#ffffff10] bg-[#ffffff05] hover:bg-[#ffffff08] group transition-all"
+              >
+                <div className="flex items-center">
+                  <Activity size={12} className="mr-3 text-indigo-500" />
+                  <span className="text-[8px] font-bold uppercase tracking-widest text-[#5c5e6e]">Modulate Stream</span>
+                </div>
+                <div className={`w-8 h-4 rounded-full border border-[#ffffff20] relative transition-colors duration-300 ${showMarketPulse ? 'bg-indigo-500/20' : 'bg-black'}`}>
+                  <motion.div 
+                    animate={{ x: showMarketPulse ? 16 : 0 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    className={`absolute left-1 top-1 w-2 h-2 rounded-full shadow-lg ${showMarketPulse ? 'bg-indigo-400 shadow-indigo-500/50' : 'bg-gray-600'}`} 
+                  />
+                </div>
+              </button>
+
+              <div className="px-4 py-6 space-y-2">
+                <div className="flex justify-between items-center text-[7px] font-black uppercase tracking-[0.3em] text-[#5c5e6e]">
+                  <span>System Utilization</span>
+                  <span className="text-orange-500">Performance: 67%</span>
+                </div>
+                <div className="h-1 bg-black rounded-full overflow-hidden border border-[#ffffff10]">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: '67%' }}
+                    className="h-full bg-gradient-to-r from-orange-500 to-red-600 shadow-[0_0_10px_rgba(249,115,22,0.3)]"
+                  />
+                </div>
+              </div>
+
+              <div className="px-4 pb-4">
+                <div className="flex items-center space-x-2 text-[6px] font-black uppercase tracking-[0.4em] text-indigo-500/50">
+                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_5px_rgba(99,102,241,0.8)]" />
+                  <span>Institutional Bridge: Cloud-Sync Active</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <a href="#" className="flex items-center h-[52px] px-5 border-t border-[#272a3a] text-[#9c9cab] text-sm relative group overflow-hidden">
+        <a href="#" className="flex items-center h-[52px] px-5 border-t border-[#ffffff08] text-[#9c9cab] text-sm relative group overflow-hidden">
           <div className="flex items-center transition-transform duration-300 group-hover:translate-y-full">
             <Share2 size={16} className="mr-2" />
-            Follow me on Twitter
+            ClearPath Protocol Access
           </div>
-          <div className="absolute inset-0 bg-[#272a3a] lava-hot-text flex items-center px-5 translate-y-[-100%] group-hover:translate-y-0 transition-transform duration-300">
-            <img src={user.avatar} className="w-[26px] h-[26px] rounded-full mr-2 object-cover" />
-            <span className="name-text font-bold">{user.name}</span>
+          <div className="absolute inset-0 bg-[#ffffff05] lava-hot-text flex items-center px-5 translate-y-[-100%] group-hover:translate-y-0 transition-transform duration-300">
+            <img src={userProfile?.photoURL || authUser?.photoURL || ''} className="w-[26px] h-[26px] rounded-full mr-2 object-cover border border-[#ffffff20]" />
+            <span className="text-[10px] font-black uppercase tracking-widest">{userProfile?.displayName || authUser?.displayName || 'EXECUTIVE'}</span>
           </div>
         </a>
       </div>
@@ -289,6 +386,14 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
           <>
             <div className="h-[60px] flex items-center px-6 relative z-30 border-b glass" style={{ borderColor: `${profile.ui.accent}11` }}>
               <div className="flex items-center space-x-4 mr-8">
+                <button 
+                  onClick={() => setLeftSide(!leftSide)}
+                  className="p-2 mr-2 rounded-lg transition-all hover:bg-white/5"
+                  style={{ color: profile.ui.accent }}
+                  title={leftSide ? "Collapse Sidebar" : "Expand Sidebar"}
+                >
+                  <Menu size={20} />
+                </button>
                 <button 
                   onClick={() => setActiveTab('Home')}
                   className="flex items-center space-x-2 px-4 py-1.5 rounded-full border transition-all hover:scale-105"
@@ -337,11 +442,18 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
               />
               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
               
-              <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-                <label className="flex items-center space-x-2 bg-black/40 hover:bg-black/60 backdrop-blur-md px-4 py-2 rounded-lg cursor-pointer transition-all border"
+              <div className="absolute top-4 right-4 z-20 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button 
+                  onClick={() => handleImageUrlPrompt('cover')}
+                  className="flex items-center space-x-2 bg-black/40 hover:bg-black/60 backdrop-blur-md px-3 py-2 rounded-lg cursor-pointer transition-all border border-indigo-500/20 text-white"
+                >
+                  <LinkIcon size={14} className="text-white" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">URL/GIF</span>
+                </button>
+                <label className="flex items-center space-x-2 bg-black/40 hover:bg-black/60 backdrop-blur-md px-3 py-2 rounded-lg cursor-pointer transition-all border"
                        style={{ color: profile.ui.accent, borderColor: `${profile.ui.accent}33` }}>
-                  <ImageIcon size={16} />
-                  <span className="text-sm font-semibold lava-hot-text">Change Banner</span>
+                  <ImageIcon size={14} />
+                  <span className="text-[10px] font-black uppercase tracking-widest lava-hot-text">Upload</span>
                   <input 
                     type="file" 
                     className="hidden" 
@@ -354,30 +466,9 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
               <div className="absolute bottom-0 left-0 w-full h-[60px] flex items-center glass"
                    style={{ borderTop: `1px solid ${profile.ui.accent}22` }}>
                 <div className="flex items-center gap-4 px-6 w-full overflow-x-auto custom-scrollbar no-scrollbar scroll-smooth">
-                  {/* Space for the surfboard avatar on desktop */}
-                  <div className="hidden lg:block w-[160px] flex-shrink-0" />
-                  
-                  {['Home', 'Market', 'Journal', 'Biography', 'Clear Path Hub', 'Photos', 'Settings'].map((tab) => {
-                    const tabKey = tab === 'Clear Path Hub' ? 'neurodivergent' : tab;
-                    return (
-                      <button 
-                        key={tab}
-                        onClick={() => setActiveTab(tabKey)}
-                        className={`h-[36px] px-6 rounded-lg text-[10px] font-black tracking-[0.2em] uppercase transition-all whitespace-nowrap flex-shrink-0 shadow-lg border border-transparent hover:border-white/10 ${
-                          tab === 'Settings' 
-                            ? 'neon-indigo-tab' 
-                            : ['Home', 'Market', 'Journal', 'Biography', 'Clear Path Hub', 'Photos'].includes(tab) 
-                              ? 'lava-hot-tab' 
-                              : activeTab === tabKey ? 'bg-white/5 border-white/20' : 'text-[#5c5e6e] hover:text-white hover:bg-white/5'
-                        } ${activeTab === tabKey ? 'scale-105 border-white/20' : ''}`}
-                        style={{ 
-                          color: (tab !== 'Settings' && !['Home', 'Market', 'Journal', 'Biography', 'Clear Path Hub', 'Photos'].includes(tab) && activeTab === tabKey) ? profile.ui.accent : undefined,
-                        }}
-                      >
-                        {tab}
-                      </button>
-                    );
-                  })}
+                   <div className="text-[10px] font-black uppercase tracking-[0.3em] opacity-30 px-4">
+                     Identity Header Active // Use Sidebar for Navigation
+                   </div>
                 </div>
               </div>
 
@@ -390,20 +481,35 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                   />
                   <div className="absolute bottom-2 right-2 w-5 h-5 border-4 rounded-full" style={{ background: profile.ui.accent, borderColor: profile.ui.bgBottom }} />
                   
-                  <label className="absolute inset-0 flex items-center justify-center bg-black/40 surfboard-profile-outline opacity-0 group-hover/avatar:opacity-100 cursor-pointer transition-opacity" style={{ width: '100%', height: '100%', padding: 0 }}>
-                    <User size={24} style={{ color: profile.ui.accent }} />
-                    <span className="lava-hot-text text-[10px] font-bold uppercase ml-1">Change</span>
-                    <input 
-                      type="file" 
-                      className="hidden" 
-                      accept="image/*"
-                      onChange={(e) => handleImageUpload(e, 'avatar')}
-                    />
-                  </label>
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 surfboard-profile-outline opacity-0 group-hover/avatar:opacity-100 transition-opacity flex-col space-y-2 z-20" style={{ width: '100%', height: '100%', padding: 0 }}>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleImageUrlPrompt('avatar'); }}
+                      className="p-2 bg-indigo-500 rounded-full text-white hover:scale-110 transition-all shadow-lg"
+                      title="Link GIF/Photo"
+                    >
+                      <LinkIcon size={16} />
+                    </button>
+                    <label 
+                      className="p-2 bg-white rounded-full text-black cursor-pointer hover:scale-110 transition-all shadow-lg"
+                      title="Upload Photo"
+                    >
+                      <ImageIcon size={16} />
+                      <input 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/*"
+                        onChange={(e) => handleImageUpload(e, 'avatar')}
+                      />
+                    </label>
+                  </div>
                 </div>
-                <div className="ml-6 mb-6">
-                  <h1 className="text-2xl font-bold tracking-tight" style={{ color: profile.ui.accent }}>{user.name}</h1>
-                  <p className="text-sm opacity-70 font-mono" style={{ color: profile.ui.accent }}>@{user.name.toLowerCase().replace(/\s/g, '_')}</p>
+                <div className="ml-6 mb-8">
+                  <h2 className="text-4xl font-black tracking-tighter uppercase italic flex items-center gap-2" style={{ color: profile.ui.accent }}>
+                    {user.name} <CheckCircle2 size={24} className="fill-indigo-500/20 text-indigo-500" />
+                  </h2>
+                  <p className="text-xs font-mono uppercase tracking-[0.3em] opacity-50" style={{ color: profile.ui.text }}>
+                    Institutional Executive // ClearPath Bridge Active
+                  </p>
                 </div>
               </div>
             </div>
@@ -439,18 +545,6 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                       <ExecutivePerformance />
                     </div>
                   </div>
-                </div>
-
-                <div className="max-w-6xl mx-auto px-4">
-                  <div className="flex items-center space-x-3 mb-6">
-                    <Activity size={20} className="text-indigo-500" />
-                    <h3 className="text-xl font-black tracking-tighter uppercase italic" style={{ color: profile.ui.text }}>
-                      Live <span style={{ color: profile.ui.accent }}>Market Pulse</span>
-                    </h3>
-                  </div>
-                  <MarketAssetsList profile={profile} onAddChart={(symbol) => {
-                    // Navigate to market tab or update local chart
-                  }} />
                 </div>
 
                 <Timeline profile={profile} />
@@ -510,7 +604,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                     <div className="flex items-center space-x-3 mb-6">
                       <Activity size={20} className="text-indigo-500" />
                       <h3 className="text-xl font-black tracking-tighter uppercase italic" style={{ color: profile.ui.text }}>
-                        Market <span style={{ color: profile.ui.accent }}>Pulse</span>
+                        System <span style={{ color: profile.ui.accent }}>Inventory</span>
                       </h3>
                     </div>
                     <MarketAssetsList profile={profile} onAddChart={(symbol) => {
@@ -543,17 +637,20 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
               </motion.div>
             )}
 
-            {activeTab === 'neurodivergent' && (
+            {activeTab === 'InterfaceHub' && (
               <motion.div 
-                key="neurodivergent"
+                key="interface-hub"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
               >
-                <NeuroDiversion 
+                <InterfaceOptimizationHub 
                   profile={profile} 
                   onProfileChange={onProfileChange} 
-                  onNavigate={(tab) => setActiveTab(tab)}
+                  onNavigate={(tab) => {
+                    const mapped = tab === 'interface-hub' || tab === 'neurodivergent' ? 'InterfaceHub' : tab;
+                    setActiveTab(mapped);
+                  }}
                 />
               </motion.div>
             )}

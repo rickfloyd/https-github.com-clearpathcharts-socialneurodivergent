@@ -2,11 +2,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { TrendingUp, TrendingDown, Activity } from 'lucide-react';
-import { NeuroProfile } from '../types';
+import { InterfaceProfile } from '../types';
 import { DataStreamService } from '../services/dataStreamService';
 
 interface MarketTickerProps {
-  profile: NeuroProfile;
+  profile: InterfaceProfile;
 }
 
 const TICKER_ASSETS = [

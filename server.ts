@@ -1,5 +1,4 @@
 import express from 'express';
-import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import axios from 'axios';
 import cookieParser from 'cookie-parser';
@@ -70,17 +69,17 @@ async function startServer() {
     }
   });
 
-  // API to broadcast sentiment signal from frontend
+  // API to broadcast sentiment insight from frontend
   app.post('/api/sentiment/broadcast', (req, res) => {
-    const { signal } = req.body;
-    if (signal) {
+    const { insight } = req.body;
+    if (insight) {
       broadcastToAll({
-        type: 'SENTIMENT_SIGNAL',
-        data: signal
+        type: 'SENTIMENT_INSIGHT',
+        data: insight
       });
       res.json({ status: 'ok' });
     } else {
-      res.status(400).json({ error: 'Invalid signal format' });
+      res.status(400).json({ error: 'Invalid insight format' });
     }
   });
 
@@ -411,6 +410,7 @@ async function startServer() {
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',

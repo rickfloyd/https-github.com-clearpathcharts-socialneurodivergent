@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MarketGroup, NeuroProfile } from '../types';
+import { MarketGroup, InterfaceProfile } from '../types';
 import { fetchPopularAssets } from '../services/marketService';
 import { TrendingUp, Activity, DollarSign, Globe, BarChart3, Coins, Maximize2 } from 'lucide-react';
 
 interface MarketAssetsListProps {
-  profile: NeuroProfile;
+  profile: InterfaceProfile;
   onAddChart: (symbol: string) => void;
 }
 

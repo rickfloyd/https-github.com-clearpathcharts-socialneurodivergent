@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { NEURO_PROFILES } from '../../lib/neuro/profiles';
+import { INTERFACE_PROFILES } from '../../lib/interface/profiles';
 import { BackToDashboard } from '../nav/BackToDashboard';
 
 const ASSETS = [
@@ -186,7 +186,7 @@ export const StandardMarketUI: React.FC<StandardMarketUIProps> = ({ onBack, prof
           color: profile.ui.text,
         }}
       >
-        ⚖ Legal Positioning — “Provides financial data visualization with optional user-controlled presentation adjustments for accessibility and cognitive comfort. The system does not evaluate, alter, or advise on financial decisions.”
+        ⚖ Legal Positioning — “Provides financial data visualization with optional user-controlled presentation adjustments for accessibility and visual clarity. The system does not evaluate, alter, or advise on financial decisions.”
       </div>
     </div>
   );

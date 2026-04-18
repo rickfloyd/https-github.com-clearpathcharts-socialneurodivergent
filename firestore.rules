@@ -16,7 +16,7 @@ service cloud.firestore {
     //   - photoURL: string (optional) - User's photo URL
     //   - coverURL: string (optional) - User's cover photo URL
     //   - isVerified: boolean (optional) - Verification status
-    //   - neuroType: string (required) - Neurodivergent profile ID
+    //   - interfaceType: string (required) - Institutional profile ID
     //   - customTheme: map (optional) - primaryColor, secondaryColor, fontSize, highContrast
     //   - bio: string (optional) - User's bio
     //   - linkInBio: string (optional) - External link
@@ -69,23 +69,15 @@ service cloud.firestore {
     function isValidUserCreate(data) {
       let allowedFields = [
         'uid', 'displayName', 'username', 'email', 'photoURL', 'coverURL', 
-        'isVerified', 'neuroType', 'customTheme', 'bio', 'keywords', 
+        'isVerified', 'interfaceType', 'customTheme', 'bio', 'keywords', 
         'linkInBio', 'contactInfo', 'metrics', 'intro', 'createdAt', 'updatedAt',
-        'role', 'pinnedPostId'
-      ];
-      let neuroTypes = [
-        'calm_focus', 'low_stim_emergency', 'dyslexia_readable', 'dyscalculia_numeric_relief',
-        'visual_processing_safe', 'apd_assist', 'executive_function_support', 'motor_friendly',
-        'adhd_dopamine_balanced', 'adhd_hyperfocus', 'autism_predictable', 'tourette_tic_friendly',
-        'plain_language', 'high_contrast', 'custom_neuro_mix', 'corporate_open', 'retail_chaos',
-        'retail_modular', 'vr_assistive', 'standard_trader',
-        'ADHD', 'AUTISM', 'PTSD', 'TBI', 'DOWNS', 'VETERAN', 'STANDARD', 'adhd', 'asd', 'dyslexia', 'dyscalculia', 'dyspraxia-dcd', 'tourette-tics', 'ocd', 'ptsd', 'anxiety', 'bipolar', 'sensory-processing', 'tbi', 'apd-capd', 'visual-processing', 'executive-function', 'schizophrenia', 'depression', 'fetal-alcohol', 'intellectual-disability', 'misophonia', 'standard', 'downs', 'military'
+        'role', 'pinnedPostId', 'instagram', 'website'
       ];
       
-      return data.keys().hasAll(['uid', 'neuroType']) &&
+      return data.keys().hasAll(['uid', 'interfaceType']) &&
              data.keys().hasOnly(allowedFields) &&
              data.uid is string &&
-             data.neuroType in neuroTypes &&
+             data.interfaceType is string && data.interfaceType.size() < 100 &&
              (!('displayName' in data) || (data.displayName is string && data.displayName.size() < 100)) &&
              (!('username' in data) || (data.username is string && data.username.size() < 50)) &&
              (!('email' in data) || (data.email is string && data.email.size() < 200)) &&
@@ -106,22 +98,14 @@ service cloud.firestore {
     function isValidUserUpdate(data) {
       let allowedFields = [
         'uid', 'displayName', 'username', 'email', 'photoURL', 'coverURL', 
-        'isVerified', 'neuroType', 'customTheme', 'bio', 'keywords', 
+        'isVerified', 'interfaceType', 'customTheme', 'bio', 'keywords', 
         'linkInBio', 'contactInfo', 'metrics', 'intro', 'createdAt', 'updatedAt',
-        'role', 'pinnedPostId'
-      ];
-      let neuroTypes = [
-        'calm_focus', 'low_stim_emergency', 'dyslexia_readable', 'dyscalculia_numeric_relief',
-        'visual_processing_safe', 'apd_assist', 'executive_function_support', 'motor_friendly',
-        'adhd_dopamine_balanced', 'adhd_hyperfocus', 'autism_predictable', 'tourette_tic_friendly',
-        'plain_language', 'high_contrast', 'custom_neuro_mix', 'corporate_open', 'retail_chaos',
-        'retail_modular', 'vr_assistive', 'standard_trader',
-        'ADHD', 'AUTISM', 'PTSD', 'TBI', 'DOWNS', 'VETERAN', 'STANDARD', 'adhd', 'asd', 'dyslexia', 'dyscalculia', 'dyspraxia-dcd', 'tourette-tics', 'ocd', 'ptsd', 'anxiety', 'bipolar', 'sensory-processing', 'tbi', 'apd-capd', 'visual-processing', 'executive-function', 'schizophrenia', 'depression', 'fetal-alcohol', 'intellectual-disability', 'misophonia', 'standard', 'downs', 'military'
+        'role', 'pinnedPostId', 'instagram', 'website'
       ];
       
       return data.keys().hasOnly(allowedFields) &&
              (!('uid' in data) || data.uid is string) &&
-             (!('neuroType' in data) || data.neuroType in neuroTypes) &&
+             (!('interfaceType' in data) || (data.interfaceType is string && data.interfaceType.size() < 100)) &&
              (!('displayName' in data) || (data.displayName is string && data.displayName.size() < 100)) &&
              (!('username' in data) || (data.username is string && data.username.size() < 50)) &&
              (!('email' in data) || (data.email is string && data.email.size() < 200)) &&

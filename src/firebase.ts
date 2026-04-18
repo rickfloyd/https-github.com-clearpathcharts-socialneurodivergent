@@ -58,8 +58,17 @@ export interface FirestoreErrorInfo {
 }
 
 export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const message = error instanceof Error ? error.message : String(error);
+  const lowercaseMessage = message.toLowerCase();
+  const isQuotaError = 
+    lowercaseMessage.includes('quota limit exceeded') || 
+    lowercaseMessage.includes('quota metric') || 
+    lowercaseMessage.includes('resource_exhausted') ||
+    lowercaseMessage.includes('rate limit exceeded') ||
+    lowercaseMessage.includes('too many requests');
+
   const errInfo: FirestoreErrorInfo = {
-    error: error instanceof Error ? error.message : String(error),
+    error: message,
     authInfo: {
       userId: auth.currentUser?.uid,
       email: auth.currentUser?.email,
@@ -76,7 +85,25 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     operationType,
     path
   }
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  
+  console.group(`Firestore Error [${operationType}] - ${path}`);
+  console.log('Error Message:', message);
+  console.log('Auth State:', errInfo.authInfo);
+  console.groupEnd();
+  
+  // If it's a quota error, we alert the user but don't necessarily crash the whole app load
+  if (isQuotaError) {
+    console.warn("Firebase Quota Limit Reached. Some features may be unavailable until tomorrow.");
+    // We still return the error info for the UI to consume if it wants
+    return errInfo;
+  }
+
+  // Critical Directive: throw for permission issues
+  if (message.includes('Missing or insufficient permissions')) {
+    throw new Error(JSON.stringify(errInfo));
+  }
+  
+  // For other errors, we throw to ensure they are caught by boundaries
   throw new Error(JSON.stringify(errInfo));
 }
 

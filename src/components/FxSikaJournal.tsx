@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NeuroProfile } from '../types';
+import { InterfaceProfile } from '../types';
 
 interface FxSikaJournalProps {
-  profile: NeuroProfile;
+  profile: InterfaceProfile;
   onBackToDashboard?: () => void;
 }
 import { 

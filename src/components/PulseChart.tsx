@@ -1,11 +1,11 @@
 
 import React from 'react';
 import LiveChart from './LiveChart';
-import { NeuroProfile } from '../types';
+import { InterfaceProfile } from '../types';
 
 interface PulseChartProps {
   marketId: string;
-  profile: NeuroProfile;
+  profile: InterfaceProfile;
 }
 
 const MARKET_MAP: Record<string, string> = {
@@ -21,13 +21,13 @@ const MARKET_MAP: Record<string, string> = {
   'AGR': 'CORN'
 };
 
-export default function PulseChart({ marketId, profile }: PulseChartProps) {
-  const symbol = MARKET_MAP[marketId] || 'BTCUSDT';
+export default function PulseChart({ marketId, symbol, profile }: PulseChartProps & { symbol?: string }) {
+  const finalSymbol = symbol || MARKET_MAP[marketId] || 'BTCUSDT';
   
   return (
     <div className="w-full h-full min-h-[500px]">
       <LiveChart 
-        symbol={symbol} 
+        symbol={finalSymbol} 
         theme={{ 
           upColor: profile.candles.upColor, 
           downColor: profile.candles.downColor, 

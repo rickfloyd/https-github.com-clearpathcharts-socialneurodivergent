@@ -12,9 +12,15 @@ export default defineConfig(({mode}) => {
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
+        injectRegister: 'auto',
+        manifestFilename: 'manifest.json',
+        devOptions: {
+          enabled: false
+        },
+        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
         manifest: {
-          name: 'CLEARPATH SOCIAL',
-          short_name: 'ClearPath',
+          name: 'CLEARPATH INTELLIGENCE',
+          short_name: 'Clr Path',
           description: 'Institutional-grade digital news publication featuring real-time analysis',
           theme_color: '#000000',
           background_color: '#000000',

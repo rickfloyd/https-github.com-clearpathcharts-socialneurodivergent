@@ -1,8 +1,8 @@
 
 import { DeepPartial, ChartOptions, ColorType } from 'lightweight-charts';
-import { NeuroProfile } from '../../types';
+import { InterfaceProfile } from '../../types';
 
-export const adaptLightweightTheme = (profile: NeuroProfile): DeepPartial<ChartOptions> => {
+export const adaptLightweightTheme = (profile: InterfaceProfile): DeepPartial<ChartOptions> => {
   const { ui, candles } = profile;
 
   return {
@@ -44,7 +44,7 @@ export const adaptLightweightTheme = (profile: NeuroProfile): DeepPartial<ChartO
   };
 };
 
-export const adaptCandleSeriesOptions = (profile: NeuroProfile) => {
+export const adaptCandleSeriesOptions = (profile: InterfaceProfile) => {
   const { candles } = profile;
 
   return {

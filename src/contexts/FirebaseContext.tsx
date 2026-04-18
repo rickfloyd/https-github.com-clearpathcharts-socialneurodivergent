@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, onAuthStateChanged, auth, db, doc, getDoc, setDoc, collection, query, orderBy, onSnapshot, addDoc, updateDoc, arrayUnion, arrayRemove, limit, serverTimestamp, handleFirestoreError, OperationType } from '../firebase';
-import { NeuroProfile, UserProfile, TimelinePost, AboutContent } from '../types';
-import { NEURO_PROFILES } from '../lib/neuro/profiles';
+import { InterfaceProfile, UserProfile, TimelinePost, AboutContent } from '../types';
+import { INTERFACE_PROFILES } from '../lib/interface/profiles';
 
 interface FirebaseContextType {
   user: User | null;
@@ -9,12 +9,15 @@ interface FirebaseContextType {
   userProfile: UserProfile | null;
   posts: TimelinePost[];
   aboutContent: AboutContent | null;
+  quotaExceeded: boolean;
+  retryConnection: () => Promise<void>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
   updateUserImages: (updates: { avatar?: string; cover?: string }) => Promise<void>;
   updateIntro: (intro: { bio: string; location: string; company: string }) => Promise<void>;
   createPost: (content: string, media?: { url: string; type: 'image' | 'video' }, market_layer?: string) => Promise<void>;
   toggleLike: (postId: string, currentLikes: number) => Promise<void>;
   updateAbout: (content: Partial<AboutContent>) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const FirebaseContext = createContext<FirebaseContextType | undefined>(undefined);
@@ -25,43 +28,78 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [posts, setPosts] = useState<TimelinePost[]>([]);
   const [aboutContent, setAboutContent] = useState<AboutContent | null>(null);
+  const [quotaExceeded, setQuotaExceeded] = useState(false);
+  const [retryTick, setRetryTick] = useState(0);
+
+  // Auto-healing: Propagate refresh when quota is exceeded
+  useEffect(() => {
+    if (quotaExceeded) {
+      // Relaxed retry interval (5 mins) for daily quota resets
+      const timer = setInterval(() => {
+        console.log('[FirebaseContext] Auto-healing: Attempting to synchronize stream...');
+        setRetryTick(prev => prev + 1);
+      }, 300000); 
+      return () => clearInterval(timer);
+    }
+  }, [quotaExceeded]);
+
+  const checkUserProfile = async (currentUser: User) => {
+    const path = `users/${currentUser.uid}`;
+    
+    // Safety timeout to prevent infinite sync hang
+    const timeout = setTimeout(() => {
+      console.warn('[FirebaseContext] Initialization timeout - forcing loading: false');
+      setLoading(false);
+    }, 8000);
+
+    try {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        // Migration: ensure new interfaceType field exists if old neuroType was present
+        const processedData = {
+          ...data,
+          interfaceType: data.interfaceType || data.neuroType || 'standard_trader'
+        } as UserProfile;
+        setUserProfile(processedData);
+      } else {
+        const initialData: UserProfile = {
+          uid: currentUser.uid,
+          email: currentUser.email || '',
+          displayName: currentUser.displayName || 'Anonymous',
+          photoURL: currentUser.photoURL || '',
+          interfaceType: 'standard_trader',
+          createdAt: serverTimestamp()
+        };
+        await setDoc(userDocRef, initialData);
+        setUserProfile(initialData);
+      }
+      setQuotaExceeded(false); // Reset if successful
+    } catch (error) {
+      const err = handleFirestoreError(error, OperationType.GET, path);
+      if (err) setQuotaExceeded(true);
+    } finally {
+      clearTimeout(timeout);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       
       if (currentUser) {
-        const path = `users/${currentUser.uid}`;
-        try {
-          const userDocRef = doc(db, 'users', currentUser.uid);
-          const userDoc = await getDoc(userDocRef);
-          
-          if (userDoc.exists()) {
-            setUserProfile(userDoc.data() as UserProfile);
-          } else {
-            const initialData: UserProfile = {
-              uid: currentUser.uid,
-              email: currentUser.email || '',
-              displayName: currentUser.displayName || 'Anonymous',
-              photoURL: currentUser.photoURL || '',
-              neuroType: 'standard_trader',
-              createdAt: serverTimestamp()
-            };
-            await setDoc(userDocRef, initialData);
-            setUserProfile(initialData);
-          }
-        } catch (error) {
-          handleFirestoreError(error, OperationType.GET, path);
-        }
+        await checkUserProfile(currentUser);
       } else {
         setUserProfile(null);
+        setLoading(false);
       }
-      
-      setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [retryTick]);
 
   useEffect(() => {
     if (!user) {
@@ -77,11 +115,12 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
       })) as TimelinePost[];
       setPosts(postsData);
     }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, path);
+      const err = handleFirestoreError(error, OperationType.LIST, path);
+      if (err) setQuotaExceeded(true);
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, [user, retryTick]);
 
   useEffect(() => {
     const path = 'about/main';
@@ -90,11 +129,12 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
         setAboutContent(doc.data() as AboutContent);
       }
     }, (error) => {
-      handleFirestoreError(error, OperationType.GET, path);
+      const err = handleFirestoreError(error, OperationType.GET, path);
+      if (err) setQuotaExceeded(true);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [retryTick]);
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
     if (!user) return;
@@ -175,6 +215,23 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const retryConnection = async () => {
+    console.log('[FirebaseContext] Hard Force Sync initiated...');
+    // Clear local throttles to allow fresh institutional checks
+    localStorage.removeItem('intelligence_last_run_local');
+    
+    setQuotaExceeded(false);
+    setRetryTick(prev => prev + 1);
+    
+    if (user) {
+      setLoading(true);
+      await checkUserProfile(user);
+      // Re-trigger services
+      const { IntelligenceService } = await import('../services/intelligenceService');
+      await IntelligenceService.runCycle();
+    }
+  };
+
   return (
     <FirebaseContext.Provider value={{ 
       user, 
@@ -182,12 +239,18 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
       userProfile, 
       posts, 
       aboutContent,
+      quotaExceeded,
+      retryConnection,
       updateProfile, 
       updateUserImages,
       updateIntro,
       createPost,
       toggleLike,
-      updateAbout
+      updateAbout,
+      logout: async () => {
+        const { logout: firebaseLogout } = await import('../firebase');
+        await firebaseLogout();
+      }
     }}>
       {children}
     </FirebaseContext.Provider>

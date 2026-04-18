@@ -2,71 +2,61 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { useAuth } from '../contexts/FirebaseContext';
 import { 
-  Brain, Zap, Shield, Heart, Activity, Users, Star, 
+  BarChart3, Zap, Shield, Heart, Activity, Users, Star, 
   Eye, Ear, ListChecks, AlertCircle, CloudRain, 
-  Sun, UserPlus, VolumeX, Target, BarChart3
+  Sun, UserPlus, VolumeX, Target, Layout
 } from 'lucide-react';
-import { NEURO_PROFILES } from '../lib/neuro/profiles';
-import { NeuroProfile } from '../types';
+import { INTERFACE_PROFILES } from '../lib/interface/profiles';
+import { InterfaceProfile } from '../types';
 import LegalFooter from './LegalFooter';
 
-interface NeuroDiversionProps {
-  profile: NeuroProfile;
+interface InterfaceOptimizationHubProps {
+  profile: InterfaceProfile;
   onProfileChange: (profileId: string) => void;
   onNavigate: (tab: string) => void;
 }
 
 const CATEGORIES = [
-  { id: 'neuro', label: 'Neurodivergent' },
-  { id: 'military', label: 'Military' },
-  { id: 'standard', label: 'Standard' }
+  { id: 'analytical', label: 'Analytical Flow' },
+  { id: 'tactical', label: 'Tactical Workspace' },
+  { id: 'standard', label: 'Standard Gateway' }
 ];
 
 const PROFILE_ICONS: Record<string, any> = {
-  adhd: Zap,
-  asd: Shield,
-  dyslexia: Eye,
-  dyscalculia: Activity,
-  'dyspraxia-dcd': Target,
-  'tourette-tics': Activity,
-  ocd: ListChecks,
-  ptsd: Heart,
-  anxiety: AlertCircle,
-  bipolar: Sun,
-  'sensory-processing': CloudRain,
-  tbi: Activity,
-  'apd-capd': Ear,
-  'visual-processing': Eye,
-  'executive-function': ListChecks,
-  schizophrenia: Brain,
-  depression: CloudRain,
-  'fetal-alcohol': UserPlus,
-  'intellectual-disability': Star,
-  misophonia: VolumeX,
-  standard: Brain,
-  downs: Star,
-  military: Users
+  dynamic_balance: Zap,
+  focused_analysis: Shield,
+  readable_terminal: Eye,
+  numeric_precision: Activity,
+  interface_friendly: Target,
+  stable_rhythm: Activity,
+  order_system: ListChecks,
+  calm_concentration: Heart,
+  low_stim_focus: AlertCircle,
+  consistency_matrix: Sun,
+  low_glare_mode: CloudRain,
+  standard_trader: Layout,
+  high_intensity: Users
 };
 
-export default function NeuroDiversion({ profile, onProfileChange, onNavigate }: NeuroDiversionProps) {
-  const [activeCategory, setActiveCategory] = useState('neuro');
+export default function InterfaceOptimizationHub({ profile, onProfileChange, onNavigate }: InterfaceOptimizationHubProps) {
+  const [activeCategory, setActiveCategory] = useState('analytical');
 
-  const handleSelect = (p: NeuroProfile) => {
+  const handleSelect = (p: InterfaceProfile) => {
     onProfileChange(p.id);
   };
 
-  const handleGoToCharts = (e: React.MouseEvent, p: NeuroProfile) => {
+  const handleGoToCharts = (e: React.MouseEvent, p: InterfaceProfile) => {
     e.stopPropagation(); // Prevent card selection
     onProfileChange(p.id); // Apply profile first
     onNavigate('Home'); // Then go to charts
   };
 
-  const filteredProfiles = Object.values(NEURO_PROFILES).filter(p => {
-    if (activeCategory === 'neuro') {
-      return p.id !== 'military' && p.id !== 'standard_trader';
+  const filteredProfiles = (Object.values(INTERFACE_PROFILES) as InterfaceProfile[]).filter(p => {
+    if (activeCategory === 'analytical') {
+      return p.id !== 'high_intensity' && p.id !== 'standard_trader';
     }
-    if (activeCategory === 'military') {
-      return p.id === 'military';
+    if (activeCategory === 'tactical') {
+      return p.id === 'high_intensity';
     }
     return p.id === 'standard_trader';
   });
@@ -75,16 +65,20 @@ export default function NeuroDiversion({ profile, onProfileChange, onNavigate }:
     <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-12">
       <div className="text-center space-y-4">
         <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter italic">
-          <span className="lava-hot-text">Interface</span> <span className="neon-indigo-text">Physics</span> <span className="lava-hot-text">Protocols</span>
+          <span className="lava-hot-text">NEURODIVERGENT</span> <span className="neon-indigo-text">INTERFACE</span> <span className="lava-hot-text">PROTOCOLS</span>
         </h2>
         <p className="lava-hot-text font-mono uppercase tracking-widest text-sm">
-          Select a profile to modulate presentation for cognitive comfort
+          Calibrate visual sensory input for peak neuro-cognitive market performance
         </p>
       </div>
 
       {/* Category Tabs */}
       <div className="flex justify-center space-x-4">
-        {CATEGORIES.map(cat => (
+        {[
+          { id: 'analytical', label: 'NEURO-ANALYTICAL' },
+          { id: 'tactical', label: 'NEURO-TACTICAL' },
+          { id: 'standard', label: 'BASE PROTOCOL' }
+        ].map(cat => (
           <button
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
@@ -106,7 +100,7 @@ export default function NeuroDiversion({ profile, onProfileChange, onNavigate }:
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProfiles.map((p) => {
-          const Icon = PROFILE_ICONS[p.id] || Brain;
+          const Icon = PROFILE_ICONS[p.id] || Layout;
           const isActive = profile.id === p.id;
 
           return (
@@ -158,7 +152,7 @@ export default function NeuroDiversion({ profile, onProfileChange, onNavigate }:
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.ui.accent }} />
                     <span className="text-[10px] font-mono uppercase tracking-widest font-bold" style={{ color: p.ui.accent }}>
-                      <span className="lava-hot-text">Protocol Active</span>
+                      <span className="lava-hot-text">Adaptation Protocol Active</span>
                     </span>
                   </div>
                 ) : (
@@ -171,7 +165,7 @@ export default function NeuroDiversion({ profile, onProfileChange, onNavigate }:
                 >
                   <BarChart3 size={14} className="text-gray-400 group-hover/btn:text-white" />
                   <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 group-hover/btn:text-white">
-                    Go to charts
+                    Go to workspace
                   </span>
                 </button>
               </div>
@@ -183,15 +177,15 @@ export default function NeuroDiversion({ profile, onProfileChange, onNavigate }:
       {/* Profile Preview Info */}
       <div className="bg-[#0a0a0a] border border-white/5 p-10 rounded-3xl text-center space-y-6 max-w-3xl mx-auto glass">
         <div className="flex justify-center">
-          <Brain className="text-gray-600" size={40} />
+          <Brain className="text-indigo-500" size={40} />
         </div>
         <p className="text-gray-400 text-sm leading-relaxed font-sans">
-          Each profile regulates interface <span className="neon-indigo-text">physics</span>—flicker rates, color saturation, motion smoothing, and data density—to provide an accessible cognitive environment. This system does not evaluate or advise on trading decisions.
+          The <span className="neon-indigo-text">Neurodivergence Hub</span> regulates terminal atmospheric sensory physics—refresh rates, saturation, and data density profiles—to provide a high-performance cognitive environment specifically built for neurodivergent institutional operators. Purge all noise. Retain all clarity.
         </p>
         <div className="pt-4">
           <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
             <div className="w-2 h-2 rounded-full bg-green-500" />
-            <span className="text-[10px] font-mono uppercase tracking-widest text-gray-500"><span className="neon-indigo-text">Physics</span> Resolver Online</span>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-gray-500"><span className="neon-indigo-text">Neural</span> Sync Online</span>
           </div>
         </div>
       </div>

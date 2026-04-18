@@ -1,11 +1,10 @@
+import { GlowLevel, MotionLevel, InterfaceProfile } from '../../types';
 
-import { GlowLevel, MotionLevel, NeuroProfile } from '../../types';
-
-export const NEURO_PROFILES: Record<string, NeuroProfile> = {
-  calm_focus: {
-    id: 'calm_focus',
-    name: 'Calm Focus',
-    description: 'Reduced stimulus for deep concentration.',
+export const INTERFACE_PROFILES: Record<string, InterfaceProfile> = {
+  focused_analysis: {
+    id: 'focused_analysis',
+    name: 'Focused Analysis',
+    description: 'Reduced stimulus for deep concentration and market strategy.',
     ui: {
       bgTop: '#000000',
       bgBottom: '#000000',
@@ -31,10 +30,10 @@ export const NEURO_PROFILES: Record<string, NeuroProfile> = {
       motion: 'smooth',
     },
   },
-  low_stim_emergency: {
-    id: 'low_stim_emergency',
-    name: 'Low Stim Emergency',
-    description: 'Minimalist interface for high-stress moments.',
+  emergency_relief: {
+    id: 'emergency_relief',
+    name: 'Critical Data Stream',
+    description: 'Minimalist interface for high-volatility institutional moments.',
     ui: {
       bgTop: '#000000',
       bgBottom: '#000000',
@@ -60,10 +59,10 @@ export const NEURO_PROFILES: Record<string, NeuroProfile> = {
       motion: 'static',
     },
   },
-  dyslexia_readable: {
-    id: 'dyslexia_readable',
-    name: 'Dyslexia Readable',
-    description: 'High legibility and visual grounding.',
+  readable_terminal: {
+    id: 'readable_terminal',
+    name: 'Clear Text Protocol',
+    description: 'High legibility and visual grounding for fast market reading.',
     ui: {
       bgTop: '#000000',
       bgBottom: '#000000',
@@ -89,10 +88,10 @@ export const NEURO_PROFILES: Record<string, NeuroProfile> = {
       motion: 'smooth',
     },
   },
-  dyscalculia_numeric_relief: {
-    id: 'dyscalculia_numeric_relief',
-    name: 'Dyscalculia Numeric Relief',
-    description: 'Visual-first data with reduced numeric strain.',
+  numeric_precision: {
+    id: 'numeric_precision',
+    name: 'Visual Pattern Logic',
+    description: 'Visual-first data presentation for intuitive market flows.',
     ui: {
       bgTop: '#000000',
       bgBottom: '#000000',
@@ -118,10 +117,10 @@ export const NEURO_PROFILES: Record<string, NeuroProfile> = {
       motion: 'smooth',
     },
   },
-  visual_processing_safe: {
-    id: 'visual_processing_safe',
-    name: 'Visual Processing Safe',
-    description: 'Stable, flicker-free rendering.',
+  visual_safety: {
+    id: 'visual_safety',
+    name: 'Stable Data View',
+    description: 'Consistent, flicker-free rendering for institutional stability.',
     ui: {
       bgTop: '#000000',
       bgBottom: '#000000',
@@ -147,10 +146,10 @@ export const NEURO_PROFILES: Record<string, NeuroProfile> = {
       motion: 'static',
     },
   },
-  apd_assist: {
-    id: 'apd_assist',
-    name: 'APD Assist',
-    description: 'Visual cues for auditory events.',
+  assistive_feed: {
+    id: 'assistive_feed',
+    name: 'Visual Protocol Feed',
+    description: 'Visual cues for all institutional event updates.',
     ui: {
       bgTop: '#000000',
       bgBottom: '#000000',
@@ -176,10 +175,10 @@ export const NEURO_PROFILES: Record<string, NeuroProfile> = {
       motion: 'smooth',
     },
   },
-  executive_function_support: {
-    id: 'executive_function_support',
-    name: 'Executive Function Support',
-    description: 'Simplified flow and clear visual hierarchy.',
+  workflow_support: {
+    id: 'workflow_support',
+    name: 'Hierarchical Analysis',
+    description: 'Simplified workflow and clear tactical visual hierarchy.',
     ui: {
       bgTop: '#000000',
       bgBottom: '#000000',
@@ -205,10 +204,10 @@ export const NEURO_PROFILES: Record<string, NeuroProfile> = {
       motion: 'smooth',
     },
   },
-  motor_friendly: {
-    id: 'motor_friendly',
-    name: 'Motor Friendly',
-    description: 'Large targets and simplified interactions.',
+  interface_friendly: {
+    id: 'interface_friendly',
+    name: 'Direct Access Layout',
+    description: 'Large targets and simplified institutional interactions.',
     ui: {
       bgTop: '#000000',
       bgBottom: '#000000',
@@ -234,10 +233,10 @@ export const NEURO_PROFILES: Record<string, NeuroProfile> = {
       motion: 'smooth',
     },
   },
-  adhd_dopamine_balanced: {
-    id: 'adhd_dopamine_balanced',
-    name: 'ADHD Dopamine Balanced',
-    description: 'Engaging but structured visual feedback.',
+  dynamic_balance: {
+    id: 'dynamic_balance',
+    name: 'Dynamic Precision',
+    description: 'Engaging but structured market feedback protocols.',
     ui: {
       bgTop: '#000000',
       bgBottom: '#000000',
@@ -263,39 +262,10 @@ export const NEURO_PROFILES: Record<string, NeuroProfile> = {
       motion: 'dynamic',
     },
   },
-  adhd_hyperfocus: {
-    id: 'adhd_hyperfocus',
-    name: 'ADHD Hyperfocus',
-    description: 'High-velocity pattern detection mode.',
-    ui: {
-      bgTop: '#000000',
-      bgBottom: '#000000',
-      panel: '#0a0a0a',
-      text: '#ffffff',
-      accent: '#4D00FF',
-      gridColor: 'rgba(77, 0, 255, 0.1)',
-      borderA: '#4D00FF',
-      borderB: '#4D00FF',
-    },
-    candles: {
-      upColor: '#FF007F',
-      downColor: '#0000FF',
-      wickUpColor: '#FF007F',
-      wickDownColor: '#0000FF',
-      borderUpColor: '#FF007F',
-      borderDownColor: '#0000FF',
-    },
-    behavior: {
-      glow: 'high',
-      spacing: 'tight',
-      dataDensity: 'high',
-      motion: 'dynamic',
-    },
-  },
-  autism_predictable: {
-    id: 'autism_predictable',
-    name: 'Autism Predictable',
-    description: 'Stable, symmetrical, and consistent interface.',
+  predictable_matrix: {
+    id: 'predictable_matrix',
+    name: 'Symmetrical Workflow',
+    description: 'Stable, symmetrical, and consistent trading interface.',
     ui: {
       bgTop: '#000000',
       bgBottom: '#000000',
@@ -319,64 +289,6 @@ export const NEURO_PROFILES: Record<string, NeuroProfile> = {
       spacing: 'relaxed',
       dataDensity: 'low',
       motion: 'static',
-    },
-  },
-  tourette_tic_friendly: {
-    id: 'tourette_tic_friendly',
-    name: 'Tourette Tic Friendly',
-    description: 'Low-surprise UI with stable visual rhythm.',
-    ui: {
-      bgTop: '#000000',
-      bgBottom: '#000000',
-      panel: '#0a0a0a',
-      text: '#bbe1fa',
-      accent: '#4D00FF',
-      gridColor: 'rgba(77, 0, 255, 0.1)',
-      borderA: '#4D00FF',
-      borderB: '#4D00FF',
-    },
-    candles: {
-      upColor: '#38bdf8',
-      downColor: '#94a3b8',
-      wickUpColor: '#38bdf8',
-      wickDownColor: '#94a3b8',
-      borderUpColor: '#38bdf8',
-      borderDownColor: '#94a3b8',
-    },
-    behavior: {
-      glow: 'low',
-      spacing: 'relaxed',
-      dataDensity: 'low',
-      motion: 'smooth',
-    },
-  },
-  plain_language: {
-    id: 'plain_language',
-    name: 'Plain Language',
-    description: 'Simplified terminology and clear visual cues.',
-    ui: {
-      bgTop: '#000000',
-      bgBottom: '#000000',
-      panel: '#0a0a0a',
-      text: '#ffffff',
-      accent: '#4D00FF',
-      gridColor: 'rgba(77, 0, 255, 0.05)',
-      borderA: '#4D00FF',
-      borderB: '#4D00FF',
-    },
-    candles: {
-      upColor: '#10b981',
-      downColor: '#dc2626',
-      wickUpColor: '#10b981',
-      wickDownColor: '#dc2626',
-      borderUpColor: '#10b981',
-      borderDownColor: '#dc2626',
-    },
-    behavior: {
-      glow: 'none',
-      spacing: 'relaxed',
-      dataDensity: 'low',
-      motion: 'smooth',
     },
   },
   high_contrast: {
@@ -408,151 +320,6 @@ export const NEURO_PROFILES: Record<string, NeuroProfile> = {
       motion: 'static',
     },
   },
-  custom_neuro_mix: {
-    id: 'custom_neuro_mix',
-    name: 'Custom Neuro Mix',
-    description: 'Balanced hybrid for mixed neuro-types.',
-    ui: {
-      bgTop: '#000000',
-      bgBottom: '#000000',
-      panel: '#0a0a0a',
-      text: '#e0e0e0',
-      accent: '#4D00FF',
-      gridColor: 'rgba(77, 0, 255, 0.05)',
-      borderA: '#4D00FF',
-      borderB: '#4D00FF',
-    },
-    candles: {
-      upColor: '#8b5cf6',
-      downColor: '#f97316',
-      wickUpColor: '#8b5cf6',
-      wickDownColor: '#f97316',
-      borderUpColor: '#8b5cf6',
-      borderDownColor: '#f97316',
-    },
-    behavior: {
-      glow: 'low',
-      spacing: 'relaxed',
-      dataDensity: 'normal',
-      motion: 'smooth',
-    },
-  },
-  corporate_open: {
-    id: 'corporate_open',
-    name: 'Corporate Open',
-    description: 'Clean, professional multi-chart layout.',
-    ui: {
-      bgTop: '#000000',
-      bgBottom: '#000000',
-      panel: '#0a0a0a',
-      text: '#ffffff',
-      accent: '#4D00FF',
-      gridColor: 'rgba(77, 0, 255, 0.05)',
-      borderA: '#4D00FF',
-      borderB: '#4D00FF',
-    },
-    candles: {
-      upColor: '#0284c7',
-      downColor: '#be123c',
-      wickUpColor: '#0284c7',
-      wickDownColor: '#be123c',
-      borderUpColor: '#0284c7',
-      borderDownColor: '#be123c',
-    },
-    behavior: {
-      glow: 'none',
-      spacing: 'normal',
-      dataDensity: 'high',
-      motion: 'smooth',
-    },
-  },
-  retail_chaos: {
-    id: 'retail_chaos',
-    name: 'Retail Chaos',
-    description: 'High-intensity, high-information density.',
-    ui: {
-      bgTop: '#000000',
-      bgBottom: '#000000',
-      panel: '#0a0a0a',
-      text: '#4D00FF',
-      accent: '#4D00FF',
-      gridColor: 'rgba(77, 0, 255, 0.1)',
-      borderA: '#4D00FF',
-      borderB: '#ff00ff',
-    },
-    candles: {
-      upColor: '#16a34a',
-      downColor: '#dc2626',
-      wickUpColor: '#16a34a',
-      wickDownColor: '#dc2626',
-      borderUpColor: '#16a34a',
-      borderDownColor: '#dc2626',
-    },
-    behavior: {
-      glow: 'high',
-      spacing: 'tight',
-      dataDensity: 'high',
-      motion: 'dynamic',
-    },
-  },
-  retail_modular: {
-    id: 'retail_modular',
-    name: 'Retail Modular',
-    description: 'Flexible, widget-based interface.',
-    ui: {
-      bgTop: '#000000',
-      bgBottom: '#000000',
-      panel: '#0a0a0a',
-      text: '#ffffff',
-      accent: '#4D00FF',
-      gridColor: 'rgba(77, 0, 255, 0.05)',
-      borderA: '#4D00FF',
-      borderB: '#4D00FF',
-    },
-    candles: {
-      upColor: '#0891b2',
-      downColor: '#e11d48',
-      wickUpColor: '#0891b2',
-      wickDownColor: '#e11d48',
-      borderUpColor: '#0891b2',
-      borderDownColor: '#e11d48',
-    },
-    behavior: {
-      glow: 'none',
-      spacing: 'relaxed',
-      dataDensity: 'normal',
-      motion: 'smooth',
-    },
-  },
-  vr_assistive: {
-    id: 'vr_assistive',
-    name: 'VR Assistive',
-    description: 'Optimized for spatial computing and depth.',
-    ui: {
-      bgTop: '#000000',
-      bgBottom: '#000000',
-      panel: 'rgba(0, 0, 0, 0.5)',
-      text: '#ffffff',
-      accent: '#4D00FF',
-      gridColor: 'rgba(77, 0, 255, 0.1)',
-      borderA: '#4D00FF',
-      borderB: '#4D00FF',
-    },
-    candles: {
-      upColor: '#c026d3',
-      downColor: '#0284c7',
-      wickUpColor: '#c026d3',
-      wickDownColor: '#0284c7',
-      borderUpColor: '#c026d3',
-      borderDownColor: '#0284c7',
-    },
-    behavior: {
-      glow: 'high',
-      spacing: 'relaxed',
-      dataDensity: 'low',
-      motion: 'smooth',
-    },
-  },
   standard_trader: {
     id: 'standard_trader',
     name: 'Standard Trader',
@@ -582,10 +349,10 @@ export const NEURO_PROFILES: Record<string, NeuroProfile> = {
       motion: 'smooth',
     },
   },
-  military: {
-    id: 'military',
-    name: 'Military Veteran',
-    description: 'Structured, tactical interface for veterans.',
+  high_intensity: {
+    id: 'high_intensity',
+    name: 'Tactical Workspace',
+    description: 'Structured, mission-critical interface for high stakes.',
     ui: {
       bgTop: '#000000',
       bgBottom: '#000000',

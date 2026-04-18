@@ -3,10 +3,10 @@ import { motion } from 'motion/react';
 import { Image as ImageIcon, Heart, MessageSquare, Maximize2 } from 'lucide-react';
 import { useAuth } from '../contexts/FirebaseContext';
 import LegalFooter from './LegalFooter';
-import { NeuroProfile } from '../types';
+import { InterfaceProfile } from '../types';
 
 interface PhotosProps {
-  profile: NeuroProfile;
+  profile: InterfaceProfile;
 }
 
 const Photos: React.FC<PhotosProps> = ({ profile }) => {

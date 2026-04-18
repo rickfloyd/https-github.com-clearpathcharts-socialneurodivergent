@@ -19,14 +19,14 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/FirebaseContext';
 import { logout } from '../firebase';
-import { NeuroProfile } from '../types';
+import { InterfaceProfile } from '../types';
 import LegalFooter from './LegalFooter';
 
 interface SettingsProps {
-  profile: NeuroProfile;
+  profile: InterfaceProfile;
 }
 
-const Settings: React.FC<SettingsProps> = ({ profile: neuroProfile }) => {
+const Settings: React.FC<SettingsProps> = ({ profile: interfaceProfile }) => {
   const { user, userProfile, updateProfile } = useAuth();
 
   const handleLogout = async () => {
@@ -45,12 +45,12 @@ const Settings: React.FC<SettingsProps> = ({ profile: neuroProfile }) => {
   return (
     <div className="p-5 max-w-4xl mx-auto">
       <div className="flex items-center space-x-4 mb-10">
-        <div className="p-3 rounded-2xl border shadow-xl glass" style={{ background: `${neuroProfile.ui.bgBottom}33`, borderColor: `${neuroProfile.ui.accent}22` }}>
-          <SettingsIcon size={24} style={{ color: neuroProfile.ui.accent }} />
+        <div className="p-3 rounded-2xl border shadow-xl glass" style={{ background: `${interfaceProfile.ui.bgBottom}33`, borderColor: `${interfaceProfile.ui.accent}22` }}>
+          <SettingsIcon size={24} style={{ color: interfaceProfile.ui.accent }} />
         </div>
         <div>
-          <h2 className="text-3xl font-black tracking-tighter uppercase" style={{ color: neuroProfile.ui.accent }}>Settings</h2>
-          <p className="text-sm font-medium opacity-50" style={{ color: neuroProfile.ui.text }}>Manage your account and preferences</p>
+          <h2 className="text-3xl font-black tracking-tighter uppercase" style={{ color: interfaceProfile.ui.accent }}>Settings</h2>
+          <p className="text-sm font-medium opacity-50" style={{ color: interfaceProfile.ui.text }}>Manage your account and preferences</p>
         </div>
       </div>
 
@@ -63,7 +63,7 @@ const Settings: React.FC<SettingsProps> = ({ profile: neuroProfile }) => {
             { id: 'notifications', label: 'Notifications', icon: Bell },
             { id: 'appearance', label: 'Appearance', icon: Palette },
             { id: 'accessibility', label: 'Accessibility', icon: Accessibility },
-            { id: 'neuro', label: 'Neuro-Adaptive', icon: BrainCircuit },
+            { id: 'neuro', label: 'Workflow Adaptive', icon: BrainCircuit },
           ].map((item) => (
             <button
               key={item.id}
@@ -71,9 +71,9 @@ const Settings: React.FC<SettingsProps> = ({ profile: neuroProfile }) => {
                 item.id === 'account' ? '' : 'border-transparent opacity-50 hover:opacity-100'
               }`}
               style={{ 
-                background: item.id === 'account' ? `${neuroProfile.ui.accent}11` : 'transparent',
-                borderColor: item.id === 'account' ? `${neuroProfile.ui.accent}33` : 'transparent',
-                color: item.id === 'account' ? neuroProfile.ui.accent : neuroProfile.ui.text
+                background: item.id === 'account' ? `${interfaceProfile.ui.accent}11` : 'transparent',
+                borderColor: item.id === 'account' ? `${interfaceProfile.ui.accent}33` : 'transparent',
+                color: item.id === 'account' ? interfaceProfile.ui.accent : interfaceProfile.ui.text
               }}
             >
               <div className="flex items-center space-x-3">
@@ -98,41 +98,41 @@ const Settings: React.FC<SettingsProps> = ({ profile: neuroProfile }) => {
         {/* Content Area */}
         <div className="space-y-8">
           {/* Profile Section */}
-          <section className="rounded-3xl p-6 shadow-xl border glass" style={{ background: `${neuroProfile.ui.bgBottom}33`, borderColor: `${neuroProfile.ui.accent}22` }}>
-            <h3 className="text-lg font-bold mb-6 flex items-center" style={{ color: neuroProfile.ui.accent }}>
+          <section className="rounded-3xl p-6 shadow-xl border glass" style={{ background: `${interfaceProfile.ui.bgBottom}33`, borderColor: `${interfaceProfile.ui.accent}22` }}>
+            <h3 className="text-lg font-bold mb-6 flex items-center" style={{ color: interfaceProfile.ui.accent }}>
               <User size={18} className="mr-3" /> Public Profile
             </h3>
             <div className="space-y-6">
               <div className="flex items-center space-x-6">
                 <div className="relative group">
-                  <img src={userProfile?.photoURL || user?.photoURL || ''} className="w-20 h-20 rounded-full object-cover border-2 transition-all" style={{ borderColor: neuroProfile.ui.accent }} />
+                  <img src={userProfile?.photoURL || user?.photoURL || ''} className="w-20 h-20 rounded-full object-cover border-2 transition-all" style={{ borderColor: interfaceProfile.ui.accent }} />
                   <button className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full text-white text-[10px] font-bold uppercase">
                     <span className="lava-hot-text">Change</span>
                   </button>
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-bold" style={{ color: neuroProfile.ui.text }}>{userProfile?.displayName || user?.displayName}</h4>
-                  <p className="text-xs font-medium opacity-50" style={{ color: neuroProfile.ui.text }}>{userProfile?.email || user?.email}</p>
+                  <h4 className="font-bold" style={{ color: interfaceProfile.ui.text }}>{userProfile?.displayName || user?.displayName}</h4>
+                  <p className="text-xs font-medium opacity-50" style={{ color: interfaceProfile.ui.text }}>{userProfile?.email || user?.email}</p>
                 </div>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest opacity-50" style={{ color: neuroProfile.ui.text }}>Display Name</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest opacity-50" style={{ color: interfaceProfile.ui.text }}>Display Name</label>
                   <input 
                     type="text" 
                     defaultValue={userProfile?.displayName || user?.displayName || ''}
                     className="w-full bg-black/20 border rounded-xl p-3 text-sm focus:outline-none transition-all"
-                    style={{ color: neuroProfile.ui.text, borderColor: `${neuroProfile.ui.accent}22` }}
+                    style={{ color: interfaceProfile.ui.text, borderColor: `${interfaceProfile.ui.accent}22` }}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest opacity-50" style={{ color: neuroProfile.ui.text }}>Location</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest opacity-50" style={{ color: interfaceProfile.ui.text }}>Location</label>
                   <input 
                     type="text" 
                     defaultValue={userProfile?.intro?.location || ''}
                     className="w-full bg-black/20 border rounded-xl p-3 text-sm focus:outline-none transition-all"
-                    style={{ color: neuroProfile.ui.text, borderColor: `${neuroProfile.ui.accent}22` }}
+                    style={{ color: interfaceProfile.ui.text, borderColor: `${interfaceProfile.ui.accent}22` }}
                   />
                 </div>
               </div>
@@ -140,8 +140,8 @@ const Settings: React.FC<SettingsProps> = ({ profile: neuroProfile }) => {
           </section>
 
           {/* Preferences Section */}
-          <section className="rounded-3xl p-6 shadow-xl border glass" style={{ background: `${neuroProfile.ui.bgBottom}33`, borderColor: `${neuroProfile.ui.accent}22` }}>
-            <h3 className="text-lg font-bold mb-6 flex items-center" style={{ color: neuroProfile.ui.accent }}>
+          <section className="rounded-3xl p-6 shadow-xl border glass" style={{ background: `${interfaceProfile.ui.bgBottom}33`, borderColor: `${interfaceProfile.ui.accent}22` }}>
+            <h3 className="text-lg font-bold mb-6 flex items-center" style={{ color: interfaceProfile.ui.accent }}>
               <Palette size={18} className="mr-3" /> Preferences
             </h3>
             <div className="space-y-4">
@@ -151,9 +151,9 @@ const Settings: React.FC<SettingsProps> = ({ profile: neuroProfile }) => {
                 { id: 'reduced_motion', label: 'Reduced Motion', icon: Monitor, value: false },
                 { id: 'sound_effects', label: 'Sound Effects', icon: Volume2, value: true },
               ].map((setting) => (
-                <div key={setting.id} className="flex items-center justify-between p-4 rounded-xl border" style={{ background: `${neuroProfile.ui.accent}05`, borderColor: `${neuroProfile.ui.accent}11` }}>
+                <div key={setting.id} className="flex items-center justify-between p-4 rounded-xl border" style={{ background: `${interfaceProfile.ui.accent}05`, borderColor: `${interfaceProfile.ui.accent}11` }}>
                   <div className="flex items-center space-x-4">
-                    <div className="p-2 rounded-lg" style={{ background: `${neuroProfile.ui.accent}11`, color: neuroProfile.ui.accent }}>
+                    <div className="p-2 rounded-lg" style={{ background: `${interfaceProfile.ui.accent}11`, color: interfaceProfile.ui.accent }}>
                       <setting.icon size={18} />
                     </div>
                     <div>
@@ -164,7 +164,7 @@ const Settings: React.FC<SettingsProps> = ({ profile: neuroProfile }) => {
                   <button 
                     onClick={() => toggleSetting(setting.id)}
                     className="w-12 h-6 rounded-full relative transition-all"
-                    style={{ backgroundColor: setting.value ? neuroProfile.ui.accent : '#333' }}
+                    style={{ backgroundColor: setting.value ? interfaceProfile.ui.accent : '#333' }}
                   >
                     <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${setting.value ? 'left-7' : 'left-1'}`} />
                   </button>
@@ -174,17 +174,17 @@ const Settings: React.FC<SettingsProps> = ({ profile: neuroProfile }) => {
           </section>
 
           {/* Security Section */}
-          <section className="rounded-3xl p-6 shadow-xl border glass" style={{ background: `${neuroProfile.ui.bgBottom}33`, borderColor: `${neuroProfile.ui.accent}22` }}>
-            <h3 className="text-lg font-bold mb-6 flex items-center" style={{ color: neuroProfile.ui.accent }}>
+          <section className="rounded-3xl p-6 shadow-xl border glass" style={{ background: `${interfaceProfile.ui.bgBottom}33`, borderColor: `${interfaceProfile.ui.accent}22` }}>
+            <h3 className="text-lg font-bold mb-6 flex items-center" style={{ color: interfaceProfile.ui.accent }}>
               <Shield size={18} className="mr-3" /> Security
             </h3>
             <div className="space-y-4">
               <button 
                 className="w-full flex items-center justify-between p-4 rounded-xl border transition-all text-left"
-                style={{ background: `${neuroProfile.ui.accent}05`, borderColor: `${neuroProfile.ui.accent}11` }}
+                style={{ background: `${interfaceProfile.ui.accent}05`, borderColor: `${interfaceProfile.ui.accent}11` }}
               >
                 <div className="flex items-center space-x-4">
-                  <div className="p-2 rounded-lg" style={{ background: `${neuroProfile.ui.accent}11`, color: neuroProfile.ui.accent }}>
+                  <div className="p-2 rounded-lg" style={{ background: `${interfaceProfile.ui.accent}11`, color: interfaceProfile.ui.accent }}>
                     <Lock size={18} />
                   </div>
                   <div>
@@ -192,14 +192,14 @@ const Settings: React.FC<SettingsProps> = ({ profile: neuroProfile }) => {
                     <p className="text-[10px] font-medium opacity-50 lava-hot-text">Add an extra layer of security</p>
                   </div>
                 </div>
-                <ChevronRight size={18} className="opacity-50" style={{ color: neuroProfile.ui.text }} />
+                <ChevronRight size={18} className="opacity-50" style={{ color: interfaceProfile.ui.text }} />
               </button>
             </div>
           </section>
         </div>
       </div>
       <div className="mt-12">
-        <LegalFooter profile={neuroProfile} />
+        <LegalFooter profile={interfaceProfile} />
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { NEURO_PROFILES } from '../../lib/neuro/profiles';
+import { INTERFACE_PROFILES } from '../../lib/interface/profiles';
 
 interface ChartFrameProps {
   profileId: string;
@@ -18,7 +18,7 @@ export const ChartFrame: React.FC<ChartFrameProps> = ({
   onTimeframeChange,
 }) => {
   const [activeTimeframe, setActiveTimeframe] = useState('1h');
-  const profile = NEURO_PROFILES[profileId] || NEURO_PROFILES.standard_trader;
+  const profile = INTERFACE_PROFILES[profileId] || INTERFACE_PROFILES.standard_trader;
 
   const handleTimeframeChange = (tf: string) => {
     setActiveTimeframe(tf);
@@ -87,7 +87,7 @@ export const ChartFrame: React.FC<ChartFrameProps> = ({
           color: profile.ui.text,
         }}
       >
-        ⚖ Legal Positioning — “Provides financial data visualization with optional user-controlled presentation adjustments for accessibility and cognitive comfort. The system does not evaluate, alter, or advise on financial decisions.”
+        ⚖ Legal Positioning — “Provides financial data visualization with optional user-controlled presentation adjustments for accessibility and visual clarity. The system does not evaluate, alter, or advise on financial decisions.”
       </div>
     </div>
   );

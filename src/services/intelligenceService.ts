@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { db, auth } from "../firebase";
+import { db, auth, handleFirestoreError, OperationType } from "../firebase";
 import { collection, query, orderBy, limit, getDocs, addDoc, serverTimestamp, doc, getDoc, setDoc } from "firebase/firestore";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -26,13 +26,32 @@ export class IntelligenceService {
       }
       console.log('[IntelligenceService] Starting cycle...');
       
-      // 1. Check if update is needed (throttle to once every 30 mins)
-      const statusDoc = await getDoc(doc(db, 'system', 'intelligence_status'));
+      // 1. Primary local throttle (save quota by skipping firestore check if checked recently in this browser)
+      const localLastRun = localStorage.getItem('intelligence_last_run_local');
+      if (localLastRun && Date.now() - parseInt(localLastRun) < 15 * 60 * 1000) {
+        console.log('[IntelligenceService] Cycle skipped (local throttle)');
+        return;
+      }
+      localStorage.setItem('intelligence_last_run_local', Date.now().toString());
+
+      // 2. Check if update is needed (throttle to once every 2 hours across all instances to conserve institutional quota)
+      let statusDoc;
+      try {
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
+        statusDoc = await Promise.race([
+          getDoc(doc(db, 'system', 'intelligence_status')),
+          timeoutPromise
+        ]) as any;
+      } catch (e) {
+        console.warn('[IntelligenceService] Skipping cycle due to access issues or timeout');
+        return;
+      }
       const lastRun = statusDoc.exists() ? statusDoc.data().lastRun?.toMillis() : 0;
       const now = Date.now();
       
-      if (now - lastRun < 30 * 60 * 1000) {
-        console.log('[IntelligenceService] Cycle skipped (throttled)');
+      // Extended throttle: 2 hours
+      if (now - lastRun < 120 * 60 * 1000) {
+        console.log('[IntelligenceService] Cycle skipped (institutional throttle active)');
         return;
       }
 
@@ -137,7 +156,7 @@ export class IntelligenceService {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              signal: {
+              insight: {
                 title: item.text,
                 sentiment: sentimentScore,
                 source: isIndianFeed ? 'SentiTrade Pipeline' : 'ClearPath Engine',
@@ -156,10 +175,14 @@ export class IntelligenceService {
       });
 
       // 3. Update status in Firestore
-      await setDoc(doc(db, 'system', 'intelligence_status'), {
-        lastRun: serverTimestamp(),
-        itemCount: allEnrichedItems.length
-      });
+      try {
+        await setDoc(doc(db, 'system', 'intelligence_status'), {
+          lastRun: serverTimestamp(),
+          itemCount: allEnrichedItems.length
+        });
+      } catch (e) {
+        handleFirestoreError(e, OperationType.WRITE, 'system/intelligence_status');
+      }
 
       console.log('[IntelligenceService] Cycle complete');
     } catch (error) {

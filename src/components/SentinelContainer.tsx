@@ -1,46 +1,60 @@
 
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { MARKET_LAYERS, MarketLayer } from '../lib/market/MarketRegistry';
-import { NeuroProfile } from '../types';
+import { InterfaceProfile } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../contexts/FirebaseContext';
 import { formatDistanceToNow } from 'date-fns';
-import { MessageSquare, Users, Activity, Zap, BarChart3 } from 'lucide-react';
+import { MessageSquare, Users, Activity, Zap, BarChart3, Shield, LayoutGrid, Square } from 'lucide-react';
 import { DataStreamService } from '../services/dataStreamService';
 
 const PulseChart = lazy(() => import('./PulseChart'));
 
 interface SentinelContainerProps {
-  profile: NeuroProfile;
+  profile: InterfaceProfile;
 }
+
+const MARKET_SYMBOLS: Record<string, string[]> = {
+  'STK': ['AAPL', 'MSFT', 'TSLA', 'NVDA'],
+  'CRY': ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT'],
+  'FRX': ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD'],
+  'IND': 'SPX,NDX,DJI,RUT'.split(','),
+  'FUT': 'GC1!,CL1!,NG1!,SI1!'.split(','),
+  'BND': 'US10Y,US02Y,US30Y,DE10Y'.split(','),
+  'ECO': 'DXY,USOIL,UKOIL,XAUUSD'.split(','),
+  'INDICATORS': 'VIX,VVIX,SKEW,DXY'.split(','),
+  'ETF': 'SPY,QQQ,IWM,VXX'.split(','),
+  'AGR': 'ZC1!,ZW1!,ZS1!,KC1!'.split(',')
+};
 
 export default function SentinelContainer({ profile }: SentinelContainerProps) {
   const [activeMarket, setActiveMarket] = useState<MarketLayer>(MARKET_LAYERS[0]);
   const [isSlowMode, setIsSlowMode] = useState(false);
+  const [viewMode, setViewMode] = useState<'single' | 'multi'>('multi');
   const { posts, user, createPost } = useAuth();
 
-  const [newSignal, setNewSignal] = useState('');
+  const [newInsight, setNewInsight] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [sentimentSignals, setSentimentSignals] = useState<any[]>([]);
+  const [sentimentInsights, setSentimentInsights] = useState<any[]>([]);
 
   useEffect(() => {
-    // Subscribe to real-time sentiment signals
+    // Subscribe to real-time institutional data stream
     const unsubscribe = DataStreamService.subscribeToMessages((msg) => {
-      if (msg.type === 'SENTIMENT_SIGNAL') {
-        setSentimentSignals(prev => [msg.data, ...prev].slice(0, 10));
+      if (msg.type === 'SENTIMENT_INSIGHT') {
+        setSentimentInsights(prev => [msg.data, ...prev].slice(0, 10));
       }
     });
     return () => unsubscribe();
   }, []);
 
   const handleBroadcast = async () => {
-    if (!newSignal.trim() || !user) return;
+    if (!newInsight.trim() || !user) return;
     setIsSubmitting(true);
     try {
-      await createPost(newSignal, undefined, activeMarket.id);
-      setNewSignal('');
+      await createPost(newInsight, undefined, activeMarket.id);
+      setNewInsight('');
     } catch (error) {
-      console.error('Error broadcasting signal:', error);
+      console.error('Error broadcasting update:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -61,7 +75,7 @@ export default function SentinelContainer({ profile }: SentinelContainerProps) {
       {/* 10 UI LIST - THE SELECTOR */}
       <nav className="w-full lg:w-64 border-b lg:border-b-0 lg:border-r border-white/5 p-4 flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-y-auto custom-scrollbar glass">
         <div className="hidden lg:block mb-6 px-2">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Market Layers</h3>
+          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Neural Layers</h3>
         </div>
         {MARKET_LAYERS.map(m => (
           <button 
@@ -103,13 +117,47 @@ export default function SentinelContainer({ profile }: SentinelContainerProps) {
           )}
         </AnimatePresence>
 
-        <div className="flex-1 p-4 relative">
+        <div className="flex-1 p-4 relative overflow-y-auto custom-scrollbar">
+          <div className="absolute top-4 right-4 z-[60] flex items-center space-x-2">
+             <button 
+               onClick={() => setViewMode('single')}
+               className={`p-2 rounded-lg border transition-all ${viewMode === 'single' ? 'bg-indigo-500 border-indigo-500 text-white' : 'bg-black/50 border-white/10 text-gray-500 hover:text-white'}`}
+             >
+               <Square size={14} />
+             </button>
+             <button 
+               onClick={() => setViewMode('multi')}
+               className={`p-2 rounded-lg border transition-all ${viewMode === 'multi' ? 'bg-indigo-500 border-indigo-500 text-white' : 'bg-black/50 border-white/10 text-gray-500 hover:text-white'}`}
+             >
+               <LayoutGrid size={14} />
+             </button>
+          </div>
+
           <Suspense fallback={
-            <div className="w-full h-full flex items-center justify-center">
-              <span className="text-xs font-mono uppercase tracking-widest opacity-30">Loading Metal...</span>
+            <div className="w-full h-full flex items-center justify-center min-h-[400px]">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                <span className="text-[10px] font-mono uppercase tracking-[0.3em] opacity-30">Synchronizing Blaze Stream...</span>
+              </div>
             </div>
           }>
-            <PulseChart marketId={activeMarket.id} profile={profile} />
+            {viewMode === 'single' ? (
+              <div className="w-full h-full min-h-[500px]">
+                <PulseChart marketId={activeMarket.id} profile={profile} />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full min-h-[800px]">
+                {(MARKET_SYMBOLS[activeMarket.id] || []).map((sym) => (
+                  <div key={sym} className="relative h-[400px] border border-white/5 rounded-2xl overflow-hidden group">
+                     {/* Mask/Institutional Overlays if needed, but keeping it clean for Blaze */}
+                     <PulseChart marketId={activeMarket.id} symbol={sym} profile={profile} />
+                     <div className="absolute top-2 left-4 z-40 bg-black/60 px-2 py-1 rounded border border-white/10 text-[9px] font-black text-white uppercase tracking-widest backdrop-blur-md">
+                        {sym} // {activeMarket.name}_NODE
+                     </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </Suspense>
         </div>
 
@@ -132,12 +180,12 @@ export default function SentinelContainer({ profile }: SentinelContainerProps) {
         </div>
       </main>
 
-      {/* THE SHEEP-BOX (SOCIAL FEED) */}
+      {/* THE INTELLIGENCE HUB (SOCIAL FEED) */}
       <aside className="w-full lg:w-80 border-t lg:border-t-0 lg:border-l border-white/5 flex flex-col glass">
         <div className="p-6 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <MessageSquare size={18} style={{ color: activeMarket.color }} />
-            <h3 className="text-sm font-black uppercase tracking-widest italic">Sheep Box</h3>
+            <Shield size={18} style={{ color: activeMarket.color }} />
+            <h3 className="text-sm font-black uppercase tracking-widest italic">Institutional Feed</h3>
           </div>
           <div className="flex items-center space-x-2 bg-white/5 px-3 py-1 rounded-full">
             <Users size={12} className="text-gray-500" />
@@ -147,24 +195,24 @@ export default function SentinelContainer({ profile }: SentinelContainerProps) {
 
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4">
           {/* SentiTrade Sentiment Stream */}
-          {sentimentSignals.length > 0 && (
+          {sentimentInsights.length > 0 && (
             <div className="space-y-2 mb-6">
               <div className="flex items-center space-x-2 px-2">
                 <BarChart3 size={14} className="text-indigo-500" />
                 <h4 className="text-[10px] font-black uppercase tracking-widest text-indigo-400">SentiTrade Stream</h4>
               </div>
-              {sentimentSignals.map((signal, idx) => (
+              {sentimentInsights.map((insight, idx) => (
                 <div key={idx} className="p-3 rounded-xl bg-indigo-500/5 border border-indigo-500/10 space-y-1 group hover:bg-indigo-500/10 transition-all">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center space-x-2">
-                      <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${signal.sentiment > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
-                      <span className="text-[9px] font-bold text-indigo-300 uppercase tracking-tighter">{signal.source}</span>
+                      <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${insight.sentiment > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
+                      <span className="text-[9px] font-bold text-indigo-300 uppercase tracking-tighter">{insight.source}</span>
                     </div>
-                    <span className={`text-[9px] font-black ${signal.sentiment > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {signal.sentiment > 0 ? '+' : ''}{signal.sentiment.toFixed(2)}
+                    <span className={`text-[9px] font-black ${insight.sentiment > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {insight.sentiment > 0 ? '+' : ''}{insight.sentiment.toFixed(2)}
                     </span>
                   </div>
-                  <p className="text-[10px] text-gray-400 line-clamp-2 leading-tight group-hover:text-gray-200 transition-colors">{signal.title}</p>
+                  <p className="text-[10px] text-gray-400 line-clamp-2 leading-tight group-hover:text-gray-200 transition-colors">{insight.title}</p>
                 </div>
               ))}
               <div className="h-[1px] bg-white/5 mx-2 my-4" />
@@ -173,8 +221,8 @@ export default function SentinelContainer({ profile }: SentinelContainerProps) {
 
           {filteredPosts.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-8 opacity-30">
-              <MessageSquare size={32} className="mb-4" />
-              <p className="text-[10px] font-black uppercase tracking-widest">No signals in {activeMarket.name} room</p>
+              <Shield size={32} className="mb-4" />
+              <p className="text-[10px] font-black uppercase tracking-widest">No entries in {activeMarket.name} node</p>
             </div>
           ) : (
             filteredPosts.map((post) => (
@@ -201,17 +249,17 @@ export default function SentinelContainer({ profile }: SentinelContainerProps) {
 
         <div className="p-4 border-t border-white/5 space-y-3">
           <textarea
-            value={newSignal}
-            onChange={(e) => setNewSignal(e.target.value)}
-            placeholder={`Broadcast to ${activeMarket.name}...`}
+            value={newInsight}
+            onChange={(e) => setNewInsight(e.target.value)}
+            placeholder={`Log to ${activeMarket.name}...`}
             className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 resize-none h-20"
           />
           <button 
             onClick={handleBroadcast}
-            disabled={isSubmitting || !newSignal.trim()}
+            disabled={isSubmitting || !newInsight.trim()}
             className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? 'Syncing...' : 'Broadcast Signal'}
+            {isSubmitting ? 'Syncing...' : 'Broadcast Logic'}
           </button>
         </div>
       </aside>

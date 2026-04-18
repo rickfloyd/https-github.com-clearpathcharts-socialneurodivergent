@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { NEURO_PROFILES } from '../../lib/neuro/profiles';
+import { INTERFACE_PROFILES } from '../../lib/interface/profiles';
 
 const ASSET_LIST = [
   { id: "XAUUSD", symbol: "OANDA:XAUUSD", name: "XAU/USD" },
@@ -98,7 +98,7 @@ export const CorporateMultiChartLayout: React.FC<{ profile: any }> = ({ profile 
         <div className="flex items-center justify-between border-b border-indigo-500/20 pb-6">
           <div className="flex items-center space-x-6">
             <h1 className="text-3xl font-black tracking-tighter uppercase italic border-2 border-[#FF4500] shadow-[0_0_15px_#FF4500] px-4 py-2 rounded-lg" style={{ color: profile.ui.text }}>
-              CLEAR PATH <span style={{ color: profile.ui.accent }}>COMMAND TERMINAL</span>
+              COGNITIVE <span style={{ color: profile.ui.accent }}>SUITE TERMINAL</span>
             </h1>
             
             <form onSubmit={handleSearch} className="hidden md:flex items-center relative">
@@ -150,7 +150,7 @@ export const CorporateMultiChartLayout: React.FC<{ profile: any }> = ({ profile 
             color: profile.ui.text,
           }}
         >
-          ⚖ Legal Positioning — “Provides financial data visualization with optional user-controlled presentation adjustments for accessibility and cognitive comfort. The system does not evaluate, alter, or advise on financial decisions.”
+          ⚖ Legal Positioning — “Provides financial data visualization with optional user-controlled presentation adjustments for accessibility and visual clarity. The system does not evaluate, alter, or advise on financial decisions.”
         </div>
       </div>
     </div>

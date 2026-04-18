@@ -5,20 +5,79 @@ import {
   User, Save, Edit3, BookOpen, MapPin, Link as LinkIcon, 
   Mail, Twitter, MessageSquare, Users, Heart, Grid, 
   Image as ImageIcon, Play, Settings, CheckCircle2, 
-  Camera, MoreHorizontal, Share2, Pin
+  Camera, MoreHorizontal, Share2, Pin, Building2
 } from 'lucide-react';
 import LegalFooter from './LegalFooter';
-import { NeuroProfile, TimelinePost } from '../types';
+import { InterfaceProfile, TimelinePost } from '../types';
 import { formatDistanceToNow } from 'date-fns';
 
 interface AboutProps {
-  profile: NeuroProfile;
+  profile: InterfaceProfile;
 }
 
 export default function About({ profile }: AboutProps) {
-  const { userProfile, updateProfile, posts } = useAuth();
+  const { userProfile, updateProfile, updateUserImages, posts } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<'posts' | 'media' | 'likes'>('posts');
+
+  const compressImage = (base64: string, maxWidth = 800, quality = 0.7): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = base64;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth) {
+          height = (maxWidth / width) * height;
+          width = maxWidth;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        } else {
+          resolve(base64);
+        }
+      };
+      img.onerror = () => resolve(base64);
+    });
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'avatar' | 'cover') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      let base64 = reader.result as string;
+      if (base64.length > 300000) {
+        console.log('[About] Compressing upload...');
+        base64 = await compressImage(base64);
+      }
+      await updateUserImages({ [type]: base64 }).catch(console.error);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleImageUpdate = (type: 'avatar' | 'cover') => {
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = (e: any) => handleImageUpload(e, type);
+      input.click();
+    } else {
+      const promptMsg = type === 'avatar' ? 'Direct Image/GIF URL for Profile:' : 'Direct Image/GIF URL for Banner:';
+      const currentUrl = type === 'avatar' ? userProfile?.photoURL : userProfile?.coverURL;
+      const url = window.prompt(promptMsg, currentUrl || '');
+      if (url !== null && url.trim() !== '') {
+        updateUserImages({ [type]: url }).catch(console.error);
+      }
+    }
+  };
   
   // Local state for editing
   const [editData, setEditData] = useState({
@@ -26,9 +85,12 @@ export default function About({ profile }: AboutProps) {
     username: '',
     bio: '',
     location: '',
+    company: '',
     linkInBio: '',
     twitter: '',
-    discord: ''
+    discord: '',
+    instagram: '',
+    website: ''
   });
 
   useEffect(() => {
@@ -38,9 +100,12 @@ export default function About({ profile }: AboutProps) {
         username: userProfile.username || userProfile.displayName?.toLowerCase().replace(/\s+/g, '') || '',
         bio: userProfile.bio || userProfile.intro?.bio || '',
         location: userProfile.intro?.location || '',
+        company: userProfile.intro?.company || '',
         linkInBio: userProfile.linkInBio || '',
         twitter: userProfile.contactInfo?.twitter || '',
-        discord: userProfile.contactInfo?.discord || ''
+        discord: userProfile.contactInfo?.discord || '',
+        instagram: (userProfile as any).contactInfo?.instagram || '',
+        website: (userProfile as any).contactInfo?.website || ''
       });
     }
   }, [userProfile]);
@@ -52,16 +117,17 @@ export default function About({ profile }: AboutProps) {
       bio: editData.bio,
       linkInBio: editData.linkInBio,
       intro: {
-        ...userProfile?.intro,
         bio: editData.bio,
         location: editData.location,
-        company: userProfile?.intro?.company || ''
+        company: editData.company
       },
       contactInfo: {
         ...userProfile?.contactInfo,
         twitter: editData.twitter,
-        discord: editData.discord
-      }
+        discord: editData.discord,
+        instagram: editData.instagram,
+        website: editData.website
+      } as any
     });
     setIsEditing(false);
   };
@@ -83,11 +149,12 @@ export default function About({ profile }: AboutProps) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-60" />
           
-          {isEditing && (
-            <button className="absolute bottom-4 right-4 p-2 rounded-full bg-black/50 border border-white/20 text-white hover:bg-black/70 transition-all">
-              <Camera size={20} />
-            </button>
-          )}
+          <button 
+            onClick={() => handleImageUpdate('cover')}
+            className={`absolute bottom-4 right-4 p-2 rounded-full bg-black/50 border border-white/20 text-white hover:bg-black/70 transition-all z-20 ${isEditing ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+          >
+            <Camera size={20} />
+          </button>
         </div>
 
         {/* Profile Info Overlay */}
@@ -102,11 +169,12 @@ export default function About({ profile }: AboutProps) {
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                 />
-                {isEditing && (
-                  <button className="absolute inset-0 flex items-center justify-center bg-black/40 text-white opacity-0 hover:opacity-100 transition-opacity">
-                    <Camera size={24} />
-                  </button>
-                )}
+                <button 
+                  onClick={() => handleImageUpdate('avatar')}
+                  className={`absolute inset-0 flex items-center justify-center bg-black/40 text-white transition-opacity z-20 ${isEditing ? 'opacity-100' : 'opacity-0 hover:opacity-100'}`}
+                >
+                  <Camera size={24} />
+                </button>
               </div>
               
               {/* Verification Badge */}
@@ -145,6 +213,10 @@ export default function About({ profile }: AboutProps) {
 
           {/* Identity Info */}
           <div className="mt-4 space-y-1">
+            <div className="flex items-center space-x-2 text-[8px] font-black uppercase tracking-[0.4em] text-indigo-500/80 mb-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_5px_rgba(99,102,241,0.8)]" />
+              <span>Neural Identity: Neurodivergent Profile Active</span>
+            </div>
             {isEditing ? (
               <div className="space-y-2 max-w-sm">
                 <input 
@@ -184,12 +256,12 @@ export default function About({ profile }: AboutProps) {
                 value={editData.bio}
                 onChange={e => setEditData({...editData, bio: e.target.value})}
                 className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm leading-relaxed focus:ring-0 resize-none h-24"
-                placeholder="Describe your institutional edge..."
+                placeholder="Describe your institutional focus and market edge..."
                 style={{ color: profile.ui.text }}
               />
             ) : (
               <p className="text-sm leading-relaxed max-w-2xl" style={{ color: profile.ui.text }}>
-                {userProfile?.bio || "No bio protocol initialized. Define your institutional background."}
+                {userProfile?.bio || "Institutional profile pending. Define your background for the network."}
               </p>
             )}
 
@@ -206,12 +278,48 @@ export default function About({ profile }: AboutProps) {
                     />
                   </div>
                   <div className="flex items-center space-x-2 bg-white/5 p-2 rounded-lg border border-white/10">
+                    <Building2 size={14} />
+                    <input 
+                      value={editData.company}
+                      onChange={e => setEditData({...editData, company: e.target.value})}
+                      className="bg-transparent border-none p-0 text-[11px] focus:ring-0 w-full"
+                      placeholder="Company / Affiliation"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 bg-white/5 p-2 rounded-lg border border-white/10">
                     <LinkIcon size={14} />
                     <input 
                       value={editData.linkInBio}
                       onChange={e => setEditData({...editData, linkInBio: e.target.value})}
                       className="bg-transparent border-none p-0 text-[11px] focus:ring-0 w-full"
-                      placeholder="Link in Bio"
+                      placeholder="Primary Link"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 bg-white/5 p-2 rounded-lg border border-white/10">
+                    <Twitter size={14} />
+                    <input 
+                      value={editData.twitter}
+                      onChange={e => setEditData({...editData, twitter: e.target.value})}
+                      className="bg-transparent border-none p-0 text-[11px] focus:ring-0 w-full"
+                      placeholder="Twitter Handle"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 bg-white/5 p-2 rounded-lg border border-white/10">
+                    <MessageSquare size={14} />
+                    <input 
+                      value={editData.discord}
+                      onChange={e => setEditData({...editData, discord: e.target.value})}
+                      className="bg-transparent border-none p-0 text-[11px] focus:ring-0 w-full"
+                      placeholder="Discord Handle"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 bg-white/5 p-2 rounded-lg border border-white/10">
+                    <ImageIcon size={14} />
+                    <input 
+                      value={editData.instagram}
+                      onChange={e => setEditData({...editData, instagram: e.target.value})}
+                      className="bg-transparent border-none p-0 text-[11px] focus:ring-0 w-full"
+                      placeholder="Instagram"
                     />
                   </div>
                 </div>
@@ -223,12 +331,24 @@ export default function About({ profile }: AboutProps) {
                       <span>{userProfile.intro.location}</span>
                     </div>
                   )}
+                  {userProfile?.intro?.company && (
+                    <div className="flex items-center space-x-1">
+                      <Building2 size={14} />
+                      <span>{userProfile.intro.company}</span>
+                    </div>
+                  )}
                   {userProfile?.linkInBio && (
                     <div className="flex items-center space-x-1">
                       <LinkIcon size={14} />
                       <a href={userProfile.linkInBio} target="_blank" rel="noreferrer" className="text-indigo-400 hover:underline">
                         {userProfile.linkInBio.replace(/^https?:\/\//, '')}
                       </a>
+                    </div>
+                  )}
+                  {userProfile?.contactInfo?.twitter && (
+                    <div className="flex items-center space-x-1">
+                      <Twitter size={14} />
+                      <span>@{userProfile.contactInfo.twitter}</span>
                     </div>
                   )}
                   <div className="flex items-center space-x-1">
@@ -240,7 +360,7 @@ export default function About({ profile }: AboutProps) {
             </div>
 
             {/* Metrics */}
-            <div className="flex space-x-6 pt-2 border-t border-white/5">
+            <div className="flex flex-wrap gap-x-6 gap-y-2 pt-4 border-t border-white/5">
               <div className="flex items-center space-x-1">
                 <span className="font-black text-white">{userProfile?.metrics?.following || 0}</span>
                 <span className="text-[10px] uppercase tracking-widest text-gray-500">Following</span>
@@ -250,8 +370,12 @@ export default function About({ profile }: AboutProps) {
                 <span className="text-[10px] uppercase tracking-widest text-gray-500">Followers</span>
               </div>
               <div className="flex items-center space-x-1">
-                <span className="font-black text-white">{userProfile?.metrics?.mutuals || 0}</span>
-                <span className="text-[10px] uppercase tracking-widest text-gray-500">Mutuals</span>
+                <span className="font-black text-indigo-500">89.4%</span>
+                <span className="text-[10px] uppercase tracking-widest text-gray-500">Neural Precision</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <span className="font-black text-white">4.2k</span>
+                <span className="text-[10px] uppercase tracking-widest text-gray-500">Alpha Blocks</span>
               </div>
             </div>
           </div>
@@ -363,7 +487,7 @@ export default function About({ profile }: AboutProps) {
   );
 }
 
-function PostCard({ post, profile }: { post: TimelinePost, profile: NeuroProfile }) {
+function PostCard({ post, profile }: { post: TimelinePost, profile: InterfaceProfile }) {
   return (
     <div className="glass rounded-3xl border border-white/5 overflow-hidden transition-all hover:border-white/10">
       <div className="p-4 md:p-6 space-y-4">

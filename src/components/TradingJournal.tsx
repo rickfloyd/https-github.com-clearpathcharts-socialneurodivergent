@@ -1,8 +1,8 @@
 import React from 'react';
-import { NeuroProfile, Trade } from '../types';
+import { InterfaceProfile, Trade } from '../types';
 
 interface TradingJournalProps {
-  profile: NeuroProfile;
+  profile: InterfaceProfile;
 }
 
 export default function TradingJournal({ profile }: TradingJournalProps) {

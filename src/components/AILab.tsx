@@ -213,8 +213,8 @@ export default function AILab() {
                     <img src="https://i.postimg.cc/vZjBsKfY/Chat-GPT-Image-Feb-26-2026-02-21-28-PM.png" alt="LAVA" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </motion.div>
                   <div className="max-w-[80%]">
-                    <p className="text-xs text-[#ff4500] uppercase tracking-[0.3em] font-black drop-shadow-[0_0_5px_rgba(255,69,0,0.5)]">TERMINAL ONLINE</p>
-                    <p className="text-[10px] text-white/40 mt-2 leading-relaxed uppercase">Neural Synchronization achieved. Ready to scan the charts for you, Rick.</p>
+                    <p className="text-xs text-[#ff4500] uppercase tracking-[0.3em] font-black drop-shadow-[0_0_5px_rgba(255,69,0,0.5)]">ANALYSIS ENGINE ACTIVE</p>
+                    <p className="text-[10px] text-white/40 mt-2 leading-relaxed uppercase">Institutional Data Sync complete. Scouring global markets for actionable intel, Rick.</p>
                   </div>
                   
                   <div className="grid grid-cols-1 gap-2 w-full pt-4">
@@ -234,7 +234,7 @@ export default function AILab() {
                 <motion.div key={msg.id} initial={{ opacity: 0, x: msg.role === 'user' ? 20 : -20 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col space-y-1">
                   <div className={`flex items-center space-x-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                      <span className={`text-[8px] uppercase tracking-widest font-black ${msg.role === 'user' ? 'text-indigo-400' : 'text-[#ff4500]'}`}>
-                       {msg.role === 'user' ? 'Signal Received' : 'LAVA OUTPUT'}
+                       {msg.role === 'user' ? 'Institutional Entry' : 'LAVA OUTPUT'}
                      </span>
                   </div>
                   <div className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>

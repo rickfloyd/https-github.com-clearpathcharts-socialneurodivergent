@@ -1,10 +1,10 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { NEURO_PROFILES } from './lib/neuro/profiles';
-import { NeuroProfile } from './types';
+import { INTERFACE_PROFILES } from './lib/interface/profiles';
+import { InterfaceProfile } from './types';
 import { FirebaseProvider, useAuth } from './contexts/FirebaseContext';
 import { loginWithGoogle } from './firebase';
 import { motion } from 'motion/react';
-import { TrendingUp, ShieldCheck, Zap } from 'lucide-react';
+import { TrendingUp, ShieldCheck, Zap, Brain } from 'lucide-react';
 import ErrorBoundary from './components/ErrorBoundary';
 import { DataStreamService } from './services/dataStreamService';
 import { IntelligenceService } from './services/intelligenceService';
@@ -15,15 +15,30 @@ import { VoiceAssistant } from './components/VoiceAssistant';
 // Lazy load heavy components
 const Dashboard = lazy(() => import('./components/Dashboard'));
 
-function LoadingScreen({ message }: { message: string }) {
+function LoadingScreen({ message, onRetry }: { message: string, onRetry?: () => void }) {
+  const [showRetry, setShowRetry] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowRetry(true), 5000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="h-[100dvh] w-full bg-[#050505] flex items-center justify-center relative overflow-hidden">
       <SurfBackground />
       <div className="flex flex-col items-center space-y-4 relative z-10">
         <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin shadow-[0_0_20px_rgba(79,70,229,0.4)]" />
-        <div className="text-indigo-500 font-mono text-sm tracking-widest uppercase">
+        <div className="text-indigo-500 font-mono text-sm tracking-widest uppercase text-center px-6">
           {message}
         </div>
+        {showRetry && onRetry && (
+          <button 
+            onClick={onRetry}
+            className="mt-6 px-6 py-2 bg-indigo-500/10 border border-indigo-500/30 text-indigo-500 text-[10px] font-black uppercase tracking-widest hover:bg-indigo-500/20 transition-all animate-pulse"
+          >
+            Force Institutional Re-Sync
+          </button>
+        )}
       </div>
     </div>
   );
@@ -31,8 +46,8 @@ function LoadingScreen({ message }: { message: string }) {
 
 function AppContent() {
   console.log('AppContent: Starting render');
-  const { user, loading, userProfile, updateProfile } = useAuth();
-  const [activeProfile, setActiveProfile] = useState<NeuroProfile>(NEURO_PROFILES.standard_trader);
+  const { user, loading, userProfile, updateProfile, retryConnection } = useAuth();
+  const [activeProfile, setActiveProfile] = useState<InterfaceProfile>(INTERFACE_PROFILES.standard_trader);
 
   console.log('AppContent: Auth state:', { user: !!user, loading, userProfile: !!userProfile });
 
@@ -49,8 +64,8 @@ function AppContent() {
   }, [user, loading]);
 
   useEffect(() => {
-    if (userProfile?.neuroType) {
-      const profile = Object.values(NEURO_PROFILES).find(p => p.id === userProfile.neuroType);
+    if (userProfile?.interfaceType) {
+      const profile = Object.values(INTERFACE_PROFILES).find(p => p.id === userProfile.interfaceType);
       if (profile) {
         setActiveProfile(profile);
       }
@@ -58,11 +73,11 @@ function AppContent() {
   }, [userProfile]);
 
   const handleProfileChange = async (profileId: string) => {
-    const profile = NEURO_PROFILES[profileId as keyof typeof NEURO_PROFILES];
+    const profile = INTERFACE_PROFILES[profileId as keyof typeof INTERFACE_PROFILES];
     if (profile) {
       setActiveProfile(profile);
       if (user) {
-        await updateProfile({ neuroType: profileId as any });
+        await updateProfile({ interfaceType: profileId as any });
       }
     }
   };
@@ -79,7 +94,7 @@ function AppContent() {
   }, [user]);
 
   if (loading) {
-    return <LoadingScreen message="Synchronizing NEURO ADAPTIVE INSIGHTS..." />;
+    return <LoadingScreen message="ClearPath Intelligence: Initializing Data Stream..." onRetry={retryConnection} />;
   }
 
   if (!user) {
@@ -95,14 +110,14 @@ function AppContent() {
           <div className="space-y-4">
             <div className="flex justify-center">
               <div className="w-16 h-16 bg-indigo-500/20 rounded-2xl flex items-center justify-center border border-indigo-500/30">
-                <TrendingUp className="text-indigo-500" size={32} />
+                <Brain className="text-indigo-400" size={32} />
               </div>
             </div>
             <h1 className="text-2xl font-black lava-hot-text tracking-tighter uppercase italic leading-none">
-              NEURO<br />ADAPTIVE<br />INSIGHTS
+              NEURODIVERGENT<br />PROTOCOL
             </h1>
             <p className="text-gray-500 font-mono text-sm uppercase tracking-widest">
-              Institutional Intelligence
+              Institutional Neural Intelligence
             </p>
           </div>
 
@@ -110,15 +125,15 @@ function AppContent() {
             <div className="flex items-start space-x-4 p-4 rounded-xl bg-lava-red/5 border border-lava-red/10">
               <Zap className="text-yellow-500 mt-1" size={20} />
               <div>
-                <h3 className="lava-hot-text font-bold text-sm">Cognitive Optimization</h3>
-                <p className="text-gray-500 text-xs">Dynamic UI adaptation based on neuro-divergent profiles.</p>
+                <h3 className="lava-hot-text font-bold text-sm">Adaptive Workspace</h3>
+                <p className="text-gray-500 text-xs">Dynamic UI adaptation based on institutional profiles.</p>
               </div>
             </div>
             <div className="flex items-start space-x-4 p-4 rounded-xl bg-lava-red/5 border border-lava-red/10">
               <ShieldCheck className="lava-hot-text mt-1" size={20} />
               <div>
                 <h3 className="lava-hot-text font-bold text-sm">Secure Cloud Sync</h3>
-                <p className="text-gray-500 text-xs">Your neuro-profile and trading data synced across all devices.</p>
+                <p className="text-gray-500 text-xs">Your workspace settings and market insights synced across all devices.</p>
               </div>
             </div>
           </div>
@@ -131,7 +146,7 @@ function AppContent() {
           </button>
 
           <p className="text-[10px] text-gray-600 uppercase tracking-widest leading-relaxed">
-            By authenticating, you agree to the neuro-link protocols and data privacy standards.
+            By authenticating, you agree to the institutional protocols and data privacy standards.
           </p>
         </motion.div>
       </div>
@@ -141,7 +156,7 @@ function AppContent() {
   return (
     <div className="relative w-full h-full">
       <SurfBackground />
-      <Suspense fallback={<LoadingScreen message="Initializing Neural Interface..." />}>
+      <Suspense fallback={<LoadingScreen message="Initializing Institutional Interface..." />}>
         <Dashboard profile={activeProfile} onProfileChange={handleProfileChange} />
       </Suspense>
     </div>

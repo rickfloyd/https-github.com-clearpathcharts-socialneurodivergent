@@ -1,7 +1,7 @@
 {
   "name": "ClearPath Institutional Intelligence",
   "short_name": "ClearPath",
-  "description": "High-velocity institutional intelligence and neuro-adaptive trading interface.",
+  "description": "High-velocity institutional intelligence and interface-adaptive trading terminal.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#050505",
