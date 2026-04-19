@@ -116,10 +116,23 @@
         "url": { "type": "string", "format": "uri" },
         "prompt": { "type": "string" },
         "model": { "type": "string" },
-        "config": { "type": "object" },
+        "config": { "object": {} },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["uid", "type", "url", "prompt", "model", "createdAt"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "A task in the user's to-do list",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "title": { "type": "string" },
+        "completed": { "type": "boolean" },
+        "dueDate": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "title", "completed", "createdAt"]
     }
   },
   "firestore": {
@@ -146,6 +159,10 @@
     "/ai_assets/{assetId}": {
       "schema": "AIAsset",
       "description": "Generated AI images and videos"
+    },
+    "/users/{uid}/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "Tasks in the user's to-do list"
     },
     "/system/intelligence_status": {
       "schema": {

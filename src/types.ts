@@ -259,3 +259,12 @@ export interface AIAsset {
   config: any;
   createdAt: any;
 }
+
+export interface Task {
+  id?: string;
+  uid: string;
+  title: string;
+  completed: boolean;
+  dueDate: any; // Timestamp
+  createdAt: any;
+}

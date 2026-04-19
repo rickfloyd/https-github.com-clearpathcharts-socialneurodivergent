@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, onAuthStateChanged, auth, db, doc, getDoc, setDoc, collection, query, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, limit, serverTimestamp, handleFirestoreError, OperationType } from '../firebase';
-import { InterfaceProfile, UserProfile, TimelinePost, AboutContent, TradeEntry, JournalSettings } from '../types';
+import { InterfaceProfile, UserProfile, TimelinePost, AboutContent, TradeEntry, JournalSettings, Task } from '../types';
 import { INTERFACE_PROFILES } from '../lib/interface/profiles';
 
 interface FirebaseContextType {
@@ -9,6 +9,7 @@ interface FirebaseContextType {
   userProfile: UserProfile | null;
   posts: TimelinePost[];
   trades: TradeEntry[];
+  tasks: Task[];
   journalSettings: JournalSettings | null;
   aboutContent: AboutContent | null;
   quotaExceeded: boolean;
@@ -22,6 +23,9 @@ interface FirebaseContextType {
   addTrade: (trade: Omit<TradeEntry, 'id' | 'uid' | 'createdAt'>) => Promise<void>;
   updateTrade: (id: string, updates: Partial<TradeEntry>) => Promise<void>;
   deleteTrade: (id: string) => Promise<void>;
+  addTask: (title: string, dueDate: any) => Promise<void>;
+  toggleTask: (id: string, completed: boolean) => Promise<void>;
+  deleteTask: (id: string) => Promise<void>;
   updateJournalSettings: (settings: Partial<JournalSettings>) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -34,6 +38,7 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [posts, setPosts] = useState<TimelinePost[]>([]);
   const [trades, setTrades] = useState<TradeEntry[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [journalSettings, setJournalSettings] = useState<JournalSettings | null>(null);
   const [aboutContent, setAboutContent] = useState<AboutContent | null>(null);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
@@ -168,6 +173,30 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
       setTrades(tradesData);
     }, (error) => {
       console.error('[FirebaseContext] Trades stream error:', error);
+      if (error?.message?.includes('Quota exceeded')) {
+        setQuotaExceeded(true);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [user, retryTick, quotaExceeded]);
+
+  // Tasks Stream
+  useEffect(() => {
+    if (!user || quotaExceeded) {
+      setTasks([]);
+      return;
+    }
+    const path = `users/${user.uid}/tasks`;
+    const q = query(collection(db, 'users', user.uid, 'tasks'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const tasksData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Task[];
+      setTasks(tasksData);
+    }, (error) => {
+      console.error('[FirebaseContext] Tasks stream error:', error);
       if (error?.message?.includes('Quota exceeded')) {
         setQuotaExceeded(true);
       }
@@ -317,6 +346,44 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const addTask = async (title: string, dueDate: any) => {
+    if (!user) return;
+    const path = `users/${user.uid}/tasks`;
+    try {
+      await addDoc(collection(db, 'users', user.uid, 'tasks'), {
+        uid: user.uid,
+        title,
+        completed: false,
+        dueDate: dueDate ? new Date(dueDate) : null,
+        createdAt: serverTimestamp()
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, path);
+    }
+  };
+
+  const toggleTask = async (id: string, completed: boolean) => {
+    if (!user) return;
+    const path = `users/${user.uid}/tasks/${id}`;
+    try {
+      const taskRef = doc(db, 'users', user.uid, 'tasks', id);
+      await updateDoc(taskRef, { completed, updatedAt: serverTimestamp() });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, path);
+    }
+  };
+
+  const deleteTask = async (id: string) => {
+    if (!user) return;
+    const path = `users/${user.uid}/tasks/${id}`;
+    try {
+      const taskRef = doc(db, 'users', user.uid, 'tasks', id);
+      await deleteDoc(taskRef);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, path);
+    }
+  };
+
   const updateJournalSettings = async (settings: Partial<JournalSettings>) => {
     if (!user) return;
     const path = `users/${user.uid}/settings/journal`;
@@ -352,6 +419,7 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
       userProfile, 
       posts, 
       trades,
+      tasks,
       journalSettings,
       aboutContent,
       quotaExceeded,
@@ -364,7 +432,10 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
       updateAbout,
       addTrade,
       updateTrade,
-      deleteTrade,
+      deleteTrade, 
+      addTask,
+      toggleTask,
+      deleteTask,
       updateJournalSettings,
       logout: async () => {
         const { logout: firebaseLogout } = await import('../firebase');

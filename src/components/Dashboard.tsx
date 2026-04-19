@@ -36,7 +36,8 @@ import {
   Zap,
   Edit3,
   Link as LinkIcon,
-  Book
+  Book,
+  Layout
 } from 'lucide-react';
 import { getFriendlyLocation } from '../services/locationService';
 import { motion, AnimatePresence } from 'motion/react';
@@ -65,6 +66,7 @@ const SentinelContainer = lazy(() => import('./SentinelContainer'));
 const CptBible = lazy(() => import('./CptBible'));
 const AILab = lazy(() => import('./AILab'));
 const Photos = lazy(() => import('./Photos'));
+const TodoList = lazy(() => import('./TodoList'));
 const TerminalSettings = lazy(() => import('./Settings'));
 const ExecutivePerformance = lazy(() => import('./ExecutivePerformance').then(m => ({ default: m.ExecutivePerformance })));
 const IntelligenceGateway = lazy(() => import('./dashboard/IntelligenceGateway').then(m => ({ default: m.IntelligenceGateway })));
@@ -82,8 +84,18 @@ function TabLoading() {
 
 export default function Dashboard({ profile: initialProfile, onProfileChange }: DashboardProps) {
   const profile = initialProfile || INTERFACE_PROFILES.standard_trader;
-  const { user: authUser, userProfile, updateUserImages, updateIntro, createPost, posts, toggleLike, quotaExceeded, retryConnection } = useAuth();
-  const { logout } = useAuth(); // Assuming logout is in context, if not I will check
+  const { 
+    user: authUser, 
+    userProfile, 
+    updateUserImages, 
+    updateIntro, 
+    createPost, 
+    posts, 
+    toggleLike, 
+    quotaExceeded, 
+    retryConnection,
+    logout
+  } = useAuth();
   const [leftSide, setLeftSide] = useState(false);
   const [rightSide, setRightSide] = useState(false);
   const [activeTab, setActiveTab] = useState('Home');
@@ -234,6 +246,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
     { id: 'Biography', icon: Bot, label: 'NEURAL IDENTITY' },
     { id: 'Sentinel', icon: Shield, label: 'NEURAL ASSAILLANT' },
     { id: 'Journal', icon: BookOpen, label: 'TRADING JOURNAL' },
+    { id: 'Tasks', icon: Layout, label: 'TACTICAL TASKS' },
     { id: 'AILab', icon: Zap, label: 'LAVA INTERNATIONAL LAB' },
     { id: 'CptBible', icon: Book, label: 'THE CPT BIBLE' },
     { id: 'Settings', icon: SettingsIcon, label: 'SYSTEM SETTINGS' },
@@ -745,6 +758,17 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                 exit={{ opacity: 0, y: -20 }}
               >
                 <AILab />
+              </motion.div>
+            )}
+
+            {activeTab === 'Tasks' && (
+              <motion.div 
+                key="tasks"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <TodoList profile={profile} />
               </motion.div>
             )}
 
