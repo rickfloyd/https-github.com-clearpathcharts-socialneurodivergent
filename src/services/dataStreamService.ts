@@ -22,14 +22,14 @@ export class DataStreamService {
 
     this.institutionalWs.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log('Institutional Data Received:', data);
+      // console.log('Institutional Data Received:', data);
       
       // Notify all generic message listeners
       this.messageListeners.forEach(listener => listener(data));
     };
 
     this.institutionalWs.onclose = () => {
-      console.log('Institutional WebSocket Closed. Reconnecting in 5s...');
+      // console.log('Institutional WebSocket Closed. Reconnecting in 5s...');
       this.institutionalWs = null;
       setTimeout(() => this.connectInstitutionalStream(), 5000);
     };
@@ -76,7 +76,7 @@ export class DataStreamService {
     };
 
     this.binanceWs.onclose = () => {
-      console.log('Market WebSocket Closed. Reconnecting in 5s...');
+      // console.log('Market WebSocket Closed. Reconnecting in 5s...');
       setTimeout(() => this.connectMarketStream(symbols), 5000);
     };
   }

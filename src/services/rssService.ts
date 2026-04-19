@@ -1,7 +1,15 @@
 import { NewsItem } from '../types';
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Lazy AI initialization to prevent top-level module errors
+let aiInstance: any = null;
+const getAI = () => {
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY || '';
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
+};
 
 /**
  * RSSService handles institutional-grade RSS feed ingestion and intelligence.
@@ -34,7 +42,7 @@ export class RSSService {
     if (items.length === 0) return [];
 
     try {
-      const response = await ai.models.generateContent({
+      const response = await getAI().models.generateContent({
         model: "gemini-3-flash-preview",
         contents: [{ role: 'user', parts: [{ text: `
           Analyze the following financial news items. 

@@ -11,10 +11,10 @@ export function setupWebSockets(server: Server) {
   const wss = new WebSocketServer({ server });
   wssInstance = wss;
 
-  console.log('Institutional WebSocket Server initialized.');
+  // console.log('Institutional WebSocket Server initialized.');
 
   wss.on('connection', (ws: WebSocket) => {
-    console.log('Client connected to Institutional Stream.');
+    // console.log('Client connected to Institutional Stream.');
 
     // Send initial welcome message
     ws.send(JSON.stringify({
@@ -67,7 +67,7 @@ export function setupWebSockets(server: Server) {
     });
 
     ws.on('close', () => {
-      console.log('Client disconnected from Institutional Stream.');
+      // console.log('Client disconnected from Institutional Stream.');
       clearInterval(newsInterval);
       clearInterval(heartbeatInterval);
     });

@@ -12,7 +12,15 @@ const getApiKey = () => {
   }
 };
 
-const ai = new GoogleGenAI({ apiKey: getApiKey() });
+// Lazy AI initialization to prevent top-level module errors
+let aiInstance: any = null;
+const getAI = () => {
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY || '';
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
+};
 
 export const VoiceAssistant = () => {
   const [isListening, setIsListening] = useState(false);
@@ -60,13 +68,17 @@ export const VoiceAssistant = () => {
     };
 
     recognition.onend = () => {
-      // Auto-restart if it was supposed to be listening
+      // Auto-restart with delay if it was supposed to be listening
       if (isListening) {
-        try {
-          recognition.start();
-        } catch (e) {
-          console.error("Failed to restart recognition", e);
-        }
+        const timer = setTimeout(() => {
+          try {
+            recognition.start();
+          } catch (e) {
+            console.error("Failed to restart recognition", e);
+            setIsListening(false);
+          }
+        }, 1000); // 1s cooldown between starts to prevent freezing
+        return () => clearTimeout(timer);
       }
     };
 
@@ -101,7 +113,7 @@ export const VoiceAssistant = () => {
 
     setIsProcessing(true);
     try {
-      const response = await ai.models.generateContent({
+      const response = await getAI().models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `The user said: "${text}". 
         Determine if they are asking to navigate to a section or change their cognitive profile.

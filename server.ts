@@ -217,7 +217,37 @@ async function startServer() {
     return data;
   }
 
-  // Proxy for current price (PURE SYNTHETIC ENGINE)
+  // Proxy for current prices (BATCH SUPPORTED)
+  app.get('/api/market/prices', async (req, res) => {
+    const { symbols = '' } = req.query;
+    const symbolList = (symbols as string).split(',').filter(s => s).map(s => s.toUpperCase());
+    
+    if (symbolList.length === 0) {
+      return res.status(400).json({ error: 'Symbols required' });
+    }
+
+    const results: Record<string, any> = {};
+    symbolList.forEach(symbol => {
+      const basePrices: Record<string, number> = {
+        'AAPL': 175.45, 'TSLA': 170.20, 'MSFT': 415.10, 'NVDA': 890.50, 'AMZN': 178.15,
+        'EUR/USD': 1.0850, 'GBP/USD': 1.2640, 'USD/JPY': 151.20, 'AUD/USD': 0.6540,
+        'XAU': 2180.50, 'GOLD': 2180.50, 'XAG': 24.80, 'SILVER': 24.80, 'OIL': 81.20,
+        'SPX': 5240.10, 'IXIC': 16420.50, 'DJI': 39470.20, 'UK100': 7930.50,
+        'US10Y': 4.25, 'US02Y': 4.60, 'BOND': 105.20, 'BTC': 65000.00, 'ETH': 3500.00,
+        'SOL': 145.00, 'XRP': 0.62, 'ADA': 0.45, 'DOGE': 0.16, 'DOT': 9.20,
+        'MATIC': 1.05, 'LTC': 85.00, 'LINK': 18.50, 'BTCUSDT': 65000.00, 'ETHUSDT': 3500.00,
+        'SOLUSDT': 145.00, 'XRPUSDT': 0.62
+      };
+
+      const base = basePrices[symbol] || basePrices[symbol.split('/')[0]] || 100.00;
+      const jitter = 1 + (Math.random() * 0.001 - 0.0005);
+      results[symbol] = (base * jitter).toFixed(symbol.includes('USD/') || symbol.includes('/') ? 4 : 2);
+    });
+
+    res.json(results);
+  });
+
+  // Keep single price for compatibility
   app.get('/api/market/price', async (req, res) => {
     const { symbol = 'BTC/USD' } = req.query;
     return generateSyntheticPrice((symbol as string).toUpperCase(), res);

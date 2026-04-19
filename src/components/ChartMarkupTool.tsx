@@ -171,6 +171,7 @@ const ChartMarkupTool: React.FC<ChartMarkupToolProps> = ({ mediaUrl, mediaType, 
               autoPlay
               loop
               muted
+              onError={() => console.error('Markup tool video load failed')}
             />
           )}
 

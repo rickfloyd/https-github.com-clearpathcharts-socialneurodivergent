@@ -60,6 +60,19 @@ export interface FirestoreErrorInfo {
 export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
   const message = error instanceof Error ? error.message : String(error);
   const lowercaseMessage = message.toLowerCase();
+  
+  // Safe stringification helper to avoid circular structures
+  const safeStringify = (obj: any) => {
+    const cache = new Set();
+    return JSON.stringify(obj, (key, value) => {
+      if (typeof value === 'object' && value !== null) {
+        if (cache.has(value)) return '[Circular]';
+        cache.add(value);
+      }
+      return value;
+    });
+  };
+
   const isQuotaError = 
     lowercaseMessage.includes('quota limit exceeded') || 
     lowercaseMessage.includes('quota metric') || 
@@ -93,18 +106,18 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   
   // If it's a quota error, we alert the user but don't necessarily crash the whole app load
   if (isQuotaError) {
-    console.warn("Firebase Quota Limit Reached. Some features may be unavailable until tomorrow.");
-    // We still return the error info for the UI to consume if it wants
     return errInfo;
   }
 
+  const errorString = safeStringify(errInfo);
+
   // Critical Directive: throw for permission issues
   if (message.includes('Missing or insufficient permissions')) {
-    throw new Error(JSON.stringify(errInfo));
+    throw new Error(errorString);
   }
   
   // For other errors, we throw to ensure they are caught by boundaries
-  throw new Error(JSON.stringify(errInfo));
+  throw new Error(errorString);
 }
 
 export { 

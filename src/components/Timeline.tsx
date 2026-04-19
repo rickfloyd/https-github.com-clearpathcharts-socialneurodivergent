@@ -152,9 +152,9 @@ export default function Timeline({ profile }: TimelineProps) {
               CLEAR PATH <span style={{ color: profile.ui.accent }}>CHART VISUALS</span>
             </h2>
           </div>
-          <div className="timeframe-bar !mb-0 !p-1 overflow-x-auto whitespace-nowrap custom-scrollbar">
+          <div className="timeframe-bar mb-0 p-1 flex items-center space-x-1 overflow-x-auto whitespace-nowrap custom-scrollbar">
             {['1S', '5S', '15S', '30S', '1M', '5M', '15M', '30M', '1H', '4H', '1D', '1W', '1M', '3M', '6M', 'YTD', '1Y', '5Y', 'ALL'].map((tf, idx) => (
-              <div key={`${tf}-${idx}`} className={`time-unit !py-1 !px-2 text-[10px] md:text-xs ${tf === '1H' ? 'active' : ''}`}>
+              <div key={`${tf}-${idx}`} className={`time-unit py-1 px-2 text-[10px] md:text-xs ${tf === '1H' ? 'active' : ''}`}>
                 {tf}
               </div>
             ))}
@@ -203,6 +203,12 @@ export default function Timeline({ profile }: TimelineProps) {
                   src={selectedMedia.url} 
                   className="w-full max-h-[400px] object-contain" 
                   controls 
+                  playsInline
+                  preload="metadata"
+                  onError={(e) => {
+                    console.error('Post creation preview video error', e);
+                    // Fallback to trying to play without controls or different attributes if needed
+                  }}
                 />
               )}
               <div className="absolute top-2 right-2 flex space-x-2">
@@ -359,7 +365,9 @@ export default function Timeline({ profile }: TimelineProps) {
                       src={post.mediaUrl} 
                       className="w-full max-h-[500px] object-contain" 
                       controls 
-                      onError={(e) => console.error('Video playback error:', e)}
+                      playsInline
+                      preload="metadata"
+                      onError={(e) => console.error('Video playback error: post media', e)}
                     />
                   ) : (
                     <img

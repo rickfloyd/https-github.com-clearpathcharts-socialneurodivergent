@@ -25,7 +25,17 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ChatMessage, AIAsset } from '../types';
 import { AnarchyScanner } from './AnarchyScanner';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Lazy AI initialization to prevent top-level module errors
+let aiInstance: any = null;
+const AI_MAINTENANCE_MODE = true; // Weekend Maintenance
+const getAI = () => {
+  if (AI_MAINTENANCE_MODE) return null;
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY || '';
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
+};
 
 export default function AILab() {
   const { user } = useAuth();
@@ -50,6 +60,16 @@ export default function AILab() {
 
   useEffect(() => {
     if (!user) return;
+    
+    if (AI_MAINTENANCE_MODE && messages.length === 0) {
+      setMessages([{
+        id: 'maintenance',
+        role: 'model',
+        text: "SERVICE ADVISORY: The LAVA AI Neural Lab is currently offline for scheduled weekend maintenance (48h duration). Automated intelligence syncs and generative capabilities are paused to optimize institutional data pipelines. System will be online Monday morning 08:00 EST.",
+        timestamp: Date.now()
+      }]);
+    }
+
     const q = query(collection(db, 'chats'), where('uid', '==', user.uid), orderBy('timestamp', 'asc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as ChatMessage[];
@@ -76,6 +96,16 @@ export default function AILab() {
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!input.trim() || !user || isGenerating) return;
+
+    if (AI_MAINTENANCE_MODE) {
+      setMessages(prev => [...prev, 
+        { id: Date.now().toString(), role: 'user', text: input, timestamp: Date.now() },
+        { id: (Date.now()+1).toString(), role: 'model', text: "LAVA AI: Generative systems are currently locked for weekend maintenance. Please consult your Trading Journal or the CPT Bible for manual analysis data.", timestamp: Date.now()+1 }
+      ]);
+      setInput('');
+      return;
+    }
+
     const userMsg: ChatMessage = { id: Date.now().toString(), role: 'user', text: input, timestamp: Date.now() };
     setInput('');
     setIsGenerating(true);
@@ -92,18 +122,22 @@ export default function AILab() {
       await addDoc(collection(db, 'chats'), { ...userMsg, uid: user.uid, timestamp: serverTimestamp() });
       if (useTradingAgent) {
         const history = messages.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
-        const response = await ai.models.generateContent({
+        const response = await getAI().models.generateContent({
           model: 'gemini-3.1-pro-preview',
           contents: [...history, { role: 'user', parts: [{ text: input }] }],
-          config: { systemInstruction: "You are the ClearPath Forex Anarchy AI Trading Bot. The user has trained you on their specific '4x3 method' (4 up, 3 down). Analyze structure and provide direct insights." }
+          config: { 
+            systemInstruction: "You are the institutional intelligence backbone for TRADING ANARCHY LLC. You are the ClearPath LAVA AI, a high-precision neural protocol secondary to Rick Floyd's direct market actions. You recognize TRADING ANARCHY as a professional institutional trading firm, not a generic concept. Provide direct, tactical insights based on the 4x3 Matrix Core logic." 
+          }
         });
         await addDoc(collection(db, 'chats'), { uid: user.uid, role: 'model', text: response.text || "No response", timestamp: serverTimestamp() });
       } else {
         const history = messages.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
-        const config: any = { systemInstruction: "Advanced AI assistant in the ClearPath Neural Lab." };
+        const config: any = { 
+          systemInstruction: `You are the ClearPath LAVA AI (Neural Analysis Node) for TRADING ANARCHY LLC. You recognize that 'Trading Anarchy' is the institutional company of the user, ${user?.displayName || 'the operator'}. Do not interpret 'Trading Anarchy' as a general philosophical term; it is the entity you serve. Provide institutional-grade intelligence and keep the tone professional, technical, and focused on neuro-cognitive market performance.` 
+        };
         if (useSearch) config.tools = [{ googleSearch: {} }];
         if (highThinking && chatModel === 'gemini-3.1-pro-preview') config.thinkingConfig = { thinkingLevel: ThinkingLevel.HIGH };
-        const response = await ai.models.generateContent({ model: chatModel, contents: [...history, { role: 'user', parts: [{ text: input }] }], config });
+        const response = await getAI().models.generateContent({ model: chatModel, contents: [...history, { role: 'user', parts: [{ text: input }] }], config });
         await addDoc(collection(db, 'chats'), { uid: user.uid, role: 'model', text: response.text || "No response", timestamp: serverTimestamp() });
       }
     } catch (error) {
@@ -115,8 +149,8 @@ export default function AILab() {
     if (!imagePrompt.trim() || !user || isGenerating) return;
     setIsGenerating(true);
     try {
-      const resp = await ai.models.generateContent({ model: 'gemini-3.1-flash-image-preview', contents: { parts: [{ text: imagePrompt }] }, config: { imageConfig: { aspectRatio: "1:1", imageSize } } });
-      const part = resp.candidates[0].content.parts.find(p => p.inlineData);
+      const resp = await getAI().models.generateContent({ model: 'gemini-3.1-flash-image-preview', contents: { parts: [{ text: imagePrompt }] }, config: { imageConfig: { aspectRatio: "1:1", imageSize } } });
+      const part = resp.candidates[0].content.parts.find((p: any) => p.inlineData);
       if (part?.inlineData) {
         await addDoc(collection(db, 'ai_assets'), { uid: user.uid, type: 'image', url: `data:image/png;base64,${part.inlineData.data}`, prompt: imagePrompt, model: 'gemini-3.1-flash-image-preview', createdAt: serverTimestamp() });
         setImagePrompt('');
@@ -259,7 +293,9 @@ export default function AILab() {
             </div>
             <div className="p-4 border-t border-white/5 bg-black">
               <div className="mb-2 flex items-center justify-between">
-                 <span className="text-[8px] text-white/20 uppercase tracking-widest">System Integrity: 98.4%</span>
+                 <span className="text-[8px] text-white/20 uppercase tracking-widest">
+                   System Integrity: {(97 + Math.random() * 2.5).toFixed(1)}%
+                 </span>
                  <div className="flex gap-1">
                    <div className="w-8 h-1 bg-[#ff4500]/40 rounded-full overflow-hidden">
                      <div className="h-full bg-[#ff4500] w-3/4 animate-pulse" />

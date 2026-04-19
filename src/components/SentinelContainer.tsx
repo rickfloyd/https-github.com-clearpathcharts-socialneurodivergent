@@ -75,7 +75,7 @@ export default function SentinelContainer({ profile }: SentinelContainerProps) {
       {/* 10 UI LIST - THE SELECTOR */}
       <nav className="w-full lg:w-64 border-b lg:border-b-0 lg:border-r border-white/5 p-4 flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-y-auto custom-scrollbar glass">
         <div className="hidden lg:block mb-6 px-2">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Neural Layers</h3>
+          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Neural Strategy Layers</h3>
         </div>
         {MARKET_LAYERS.map(m => (
           <button 
@@ -180,12 +180,12 @@ export default function SentinelContainer({ profile }: SentinelContainerProps) {
         </div>
       </main>
 
-      {/* THE INTELLIGENCE HUB (SOCIAL FEED) */}
+      {/* THE NEURAL ASSAILLANT HUB (STRATEGY FEED) */}
       <aside className="w-full lg:w-80 border-t lg:border-t-0 lg:border-l border-white/5 flex flex-col glass">
         <div className="p-6 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Shield size={18} style={{ color: activeMarket.color }} />
-            <h3 className="text-sm font-black uppercase tracking-widest italic">Institutional Feed</h3>
+            <h3 className="text-sm font-black uppercase tracking-widest italic">Assailant Strategy Feed</h3>
           </div>
           <div className="flex items-center space-x-2 bg-white/5 px-3 py-1 rounded-full">
             <Users size={12} className="text-gray-500" />

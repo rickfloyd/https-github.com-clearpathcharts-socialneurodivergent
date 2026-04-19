@@ -2,7 +2,17 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { db, auth, handleFirestoreError, OperationType } from "../firebase";
 import { collection, query, orderBy, limit, getDocs, addDoc, serverTimestamp, doc, getDoc, setDoc } from "firebase/firestore";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Lazy AI initialization to prevent top-level module errors
+let aiInstance: any = null;
+const AI_MAINTENANCE_MODE = true; // Weekend Maintenance
+const getAI = () => {
+  if (AI_MAINTENANCE_MODE) return null;
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY || '';
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
+};
 
 const SOURCES = [
   'https://www.cnbc.com/id/100003114/device/rss/rss.html',
@@ -21,15 +31,17 @@ export class IntelligenceService {
   static async runCycle() {
     try {
       if (!auth.currentUser) {
-        console.log('[IntelligenceService] Cycle skipped (not authenticated)');
+        // console.log('[IntelligenceService] Cycle skipped (not authenticated)');
         return;
       }
-      console.log('[IntelligenceService] Starting cycle...');
+      // console.log('[IntelligenceService] Starting cycle...');
+      
+      const ai = getAI();
       
       // 1. Primary local throttle (save quota by skipping firestore check if checked recently in this browser)
       const localLastRun = localStorage.getItem('intelligence_last_run_local');
-      if (localLastRun && Date.now() - parseInt(localLastRun) < 15 * 60 * 1000) {
-        console.log('[IntelligenceService] Cycle skipped (local throttle)');
+      if (localLastRun && Date.now() - parseInt(localLastRun) < 4 * 60 * 60 * 1000) { // Aggressive 4-hour local throttle
+        // console.log('[IntelligenceService] Cycle skipped (local throttle)');
         return;
       }
       localStorage.setItem('intelligence_last_run_local', Date.now().toString());
@@ -51,7 +63,7 @@ export class IntelligenceService {
       
       // Extended throttle: 2 hours
       if (now - lastRun < 120 * 60 * 1000) {
-        console.log('[IntelligenceService] Cycle skipped (institutional throttle active)');
+        // console.log('[IntelligenceService] Cycle skipped ( institutional throttle active)');
         return;
       }
 
@@ -83,14 +95,15 @@ export class IntelligenceService {
       let retries = 3;
       while (retries > 0) {
         try {
-          aiResponse = await ai.models.generateContent({
+          aiResponse = await getAI().models.generateContent({
             model: "gemini-3-flash-preview",
             contents: [{ 
               role: 'user', 
               parts: [{ 
-                text: `Analyze the following ${allRawItems.length} news items. 
+                text: `You are the institutional intelligence analyst for TRADING ANARCHY LLC. Rick Floyd is the lead executive.
+                Analyze the following ${allRawItems.length} news items. 
                 For each item, provide:
-                1. A 1-sentence institutional summary.
+                1. A 1-sentence institutional summary (framed for TRADING ANARCHY's tactical awareness).
                 2. A category (Macro, Policy, Tech, Market, Calendar, or Sentiment).
                 3. A sentiment score from -1.0 (Very Bearish) to 1.0 (Very Bullish).
                 

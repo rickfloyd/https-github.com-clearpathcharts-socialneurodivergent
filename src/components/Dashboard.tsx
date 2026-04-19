@@ -35,7 +35,8 @@ import {
   LogOut,
   Zap,
   Edit3,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Book
 } from 'lucide-react';
 import { getFriendlyLocation } from '../services/locationService';
 import { motion, AnimatePresence } from 'motion/react';
@@ -48,10 +49,11 @@ interface DashboardProps {
 
 import { INTERFACE_PROFILES } from '../lib/interface/profiles';
 import { useAuth } from '../contexts/FirebaseContext';
+import { DailyLegalModal } from './DailyLegalModal';
+import SEO from './SEO';
 
 // Lazy load sub-components
 const NewsTerminal = lazy(() => import('./NewsTerminal'));
-const FxSikaJournal = lazy(() => import('./FxSikaJournal'));
 const TradingJournal = lazy(() => import('./TradingJournal'));
 const MarketAssetsList = lazy(() => import('./MarketAssetsList'));
 const LegalFooter = lazy(() => import('./LegalFooter'));
@@ -60,15 +62,15 @@ const LiveChart = lazy(() => import('./LiveChart'));
 const About = lazy(() => import('./About'));
 const InterfaceOptimizationHub = lazy(() => import('./InterfaceOptimizationHub'));
 const SentinelContainer = lazy(() => import('./SentinelContainer'));
+const CptBible = lazy(() => import('./CptBible'));
+const AILab = lazy(() => import('./AILab'));
 const Photos = lazy(() => import('./Photos'));
-const ExecutivePerformance = lazy(() => import('./ExecutivePerformance').then(m => ({ default: m.ExecutivePerformance })));
 const TerminalSettings = lazy(() => import('./Settings'));
+const ExecutivePerformance = lazy(() => import('./ExecutivePerformance').then(m => ({ default: m.ExecutivePerformance })));
 const IntelligenceGateway = lazy(() => import('./dashboard/IntelligenceGateway').then(m => ({ default: m.IntelligenceGateway })));
-const CorporateMultiChartLayout = lazy(() => import('./dashboard/CorporateMultiChartLayout').then(m => ({ default: m.CorporateMultiChartLayout })));
 const LightweightMarketUI = lazy(() => import('./markets/LightweightMarketUI').then(m => ({ default: m.LightweightMarketUI })));
 const StandardMarketUI = lazy(() => import('./markets/StandardMarketUI').then(m => ({ default: m.StandardMarketUI })));
 const VoiceAssistant = lazy(() => import('./VoiceAssistant').then(m => ({ default: m.VoiceAssistant })));
-const AILab = lazy(() => import('./AILab'));
 
 function TabLoading() {
   return (
@@ -110,7 +112,6 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
           'home': 'Home',
           'sentinel': 'Sentinel',
           'insights': 'Insights',
-          'corporate': 'Corporate',
           'market': 'Market',
           'standard': 'Standard',
           'interface hub': 'InterfaceHub',
@@ -229,12 +230,12 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
   const menuItems = [
     { id: 'Home', icon: TrendingUp, label: 'MARKET HUB' },
     { id: 'InterfaceHub', icon: Brain, label: 'NEURODIVERGENCE HUB' },
-    { id: 'Intelligence', icon: MessageSquare, label: 'INTELLIGENCE FEED' },
+    { id: 'Intelligence', icon: MessageSquare, label: 'INTELLECTUAL FEED' },
     { id: 'Biography', icon: Bot, label: 'NEURAL IDENTITY' },
-    { id: 'Corporate', icon: Building2, label: 'COGNITIVE SUITE' },
-    { id: 'Sentinel', icon: Shield, label: 'NEURAL SENTINEL' },
+    { id: 'Sentinel', icon: Shield, label: 'NEURAL ASSAILLANT' },
     { id: 'Journal', icon: BookOpen, label: 'TRADING JOURNAL' },
-    { id: 'AILab', icon: Zap, label: 'AI RESEARCH' },
+    { id: 'AILab', icon: Zap, label: 'LAVA INTERNATIONAL LAB' },
+    { id: 'CptBible', icon: Book, label: 'THE CPT BIBLE' },
     { id: 'Settings', icon: SettingsIcon, label: 'SYSTEM SETTINGS' },
   ];
 
@@ -254,11 +255,35 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
     { id: 6, name: 'Naomi Yepes', status: 'online', img: 'https://picsum.photos/seed/c6/100/100' },
   ];
 
+  const getSeoData = () => {
+    switch (activeTab) {
+      case 'Home':
+        return { title: 'Market Hub', description: 'Institutional market data terminal and live trading charts.' };
+      case 'Sentinel':
+        return { title: 'Neural Sentinel', description: 'Advanced trading safety systems and security protocols.' };
+      case 'Intelligence':
+        return { title: 'Intelligence Feed', description: 'Curated institutional financial intelligence and news.' };
+      case 'Journal':
+        return { title: 'Trading Journal', description: 'Comprehensive trade logging and performance analysis.' };
+      case 'AILab':
+        return { title: 'Intelligence Lab', description: 'LLM-powered financial extraction and AI market research.' };
+      case 'CptBible':
+        return { title: 'The CPT Bible', description: 'ClearPath Trader core pillars and regulatory boundaries.' };
+      case 'Settings':
+        return { title: 'System Settings', description: 'Configure your institutional interface and profile.' };
+      default:
+        return { title: activeTab };
+    }
+  };
+
+  const seoData = getSeoData();
+
   return (
     <div 
       className="flex w-full h-[100dvh] overflow-hidden text-[#ccc8db] font-sans selection:bg-indigo-500 selection:lava-hot-text transition-colors duration-1000"
       style={{ background: profile.ui.bgTop }}
     >
+      <SEO title={seoData.title} description={seoData.description} />
       {/* Left Sidebar */}
       <div className={`
         fixed inset-y-0 left-0 z-50 w-[260px] border-r flex flex-col transition-all duration-300 glass
@@ -278,10 +303,10 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
             </div>
             <div className={`transition-all duration-300 ${!leftSide && 'lg:rotate-180 lg:[writing-mode:vertical-lr] lg:ml-[-5px]'}`}>
               <div className="font-black tracking-tighter text-[11px] leading-tight text-white uppercase italic">
-                CLEARPATH
+                CLEARPATH TRADER
               </div>
               <div className="text-[7px] font-bold tracking-[0.3em] text-[#5c5e6e] uppercase mt-0.5">
-                INTELLIGENCE
+                INSTITUTIONAL
               </div>
             </div>
           </div>
@@ -577,16 +602,6 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
               </motion.div>
             )}
 
-            {activeTab === 'Corporate' && (
-              <motion.div 
-                key="corporate"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-              >
-                <CorporateMultiChartLayout profile={profile} />
-              </motion.div>
-            )}
 
             {activeTab === 'Market' && (
               <motion.div 
@@ -662,7 +677,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
               >
-                <FxSikaJournal profile={profile} onBackToDashboard={() => setActiveTab('Home')} />
+                <TradingJournal profile={profile} onBackToDashboard={() => setActiveTab('Home')} />
               </motion.div>
             )}
 
@@ -697,6 +712,39 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                 exit={{ opacity: 0, y: -20 }}
               >
                 <TerminalSettings profile={profile} />
+              </motion.div>
+            )}
+
+            {activeTab === 'CptBible' && (
+              <motion.div 
+                key="cpt-bible"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <CptBible profile={profile} />
+              </motion.div>
+            )}
+
+            {activeTab === 'Intelligence' && (
+              <motion.div 
+                key="intelligence"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <IntelligenceGateway onNavigate={(tab) => setActiveTab(tab)} />
+              </motion.div>
+            )}
+
+            {activeTab === 'AILab' && (
+              <motion.div 
+                key="ai-lab"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <AILab />
               </motion.div>
             )}
 
@@ -801,6 +849,9 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
           />
         )}
       </AnimatePresence>
+
+      {/* Daily Legal Acknowledgment */}
+      <DailyLegalModal />
 
       {/* Global Floating AI Chat Widget */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end pointer-events-auto">

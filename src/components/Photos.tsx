@@ -69,6 +69,7 @@ const Photos: React.FC<PhotosProps> = ({ profile }) => {
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   muted
                   playsInline
+                  onError={() => console.error('Video gallery load failed')}
                 />
               ) : (
                 <img 

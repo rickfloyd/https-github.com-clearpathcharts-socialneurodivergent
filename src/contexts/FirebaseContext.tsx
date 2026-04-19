@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged, auth, db, doc, getDoc, setDoc, collection, query, orderBy, onSnapshot, addDoc, updateDoc, arrayUnion, arrayRemove, limit, serverTimestamp, handleFirestoreError, OperationType } from '../firebase';
-import { InterfaceProfile, UserProfile, TimelinePost, AboutContent } from '../types';
+import { User, onAuthStateChanged, auth, db, doc, getDoc, setDoc, collection, query, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, limit, serverTimestamp, handleFirestoreError, OperationType } from '../firebase';
+import { InterfaceProfile, UserProfile, TimelinePost, AboutContent, TradeEntry, JournalSettings } from '../types';
 import { INTERFACE_PROFILES } from '../lib/interface/profiles';
 
 interface FirebaseContextType {
@@ -8,6 +8,8 @@ interface FirebaseContextType {
   loading: boolean;
   userProfile: UserProfile | null;
   posts: TimelinePost[];
+  trades: TradeEntry[];
+  journalSettings: JournalSettings | null;
   aboutContent: AboutContent | null;
   quotaExceeded: boolean;
   retryConnection: () => Promise<void>;
@@ -17,6 +19,10 @@ interface FirebaseContextType {
   createPost: (content: string, media?: { url: string; type: 'image' | 'video' }, market_layer?: string) => Promise<void>;
   toggleLike: (postId: string, currentLikes: number) => Promise<void>;
   updateAbout: (content: Partial<AboutContent>) => Promise<void>;
+  addTrade: (trade: Omit<TradeEntry, 'id' | 'uid' | 'createdAt'>) => Promise<void>;
+  updateTrade: (id: string, updates: Partial<TradeEntry>) => Promise<void>;
+  deleteTrade: (id: string) => Promise<void>;
+  updateJournalSettings: (settings: Partial<JournalSettings>) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -27,6 +33,8 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [posts, setPosts] = useState<TimelinePost[]>([]);
+  const [trades, setTrades] = useState<TradeEntry[]>([]);
+  const [journalSettings, setJournalSettings] = useState<JournalSettings | null>(null);
   const [aboutContent, setAboutContent] = useState<AboutContent | null>(null);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
   const [retryTick, setRetryTick] = useState(0);
@@ -44,6 +52,7 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
   }, [quotaExceeded]);
 
   const checkUserProfile = async (currentUser: User) => {
+    if (quotaExceeded) return;
     const path = `users/${currentUser.uid}`;
     
     // Safety timeout to prevent infinite sync hang
@@ -77,9 +86,11 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
         setUserProfile(initialData);
       }
       setQuotaExceeded(false); // Reset if successful
-    } catch (error) {
-      const err = handleFirestoreError(error, OperationType.GET, path);
-      if (err) setQuotaExceeded(true);
+    } catch (error: any) {
+      if (error?.message?.includes('Quota exceeded')) {
+        setQuotaExceeded(true);
+      }
+      handleFirestoreError(error, OperationType.GET, path);
     } finally {
       clearTimeout(timeout);
       setLoading(false);
@@ -102,7 +113,7 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
   }, [retryTick]);
 
   useEffect(() => {
-    if (!user) {
+    if (!user || quotaExceeded) {
       setPosts([]);
       return;
     }
@@ -115,26 +126,81 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
       })) as TimelinePost[];
       setPosts(postsData);
     }, (error) => {
-      const err = handleFirestoreError(error, OperationType.LIST, path);
-      if (err) setQuotaExceeded(true);
+      console.error('[FirebaseContext] Posts stream error:', error);
+      if (error?.message?.includes('Quota exceeded')) {
+        setQuotaExceeded(true);
+      }
     });
 
     return () => unsubscribe();
-  }, [user, retryTick]);
+  }, [user, retryTick, quotaExceeded]);
 
   useEffect(() => {
+    if (quotaExceeded) return;
     const path = 'about/main';
     const unsubscribe = onSnapshot(doc(db, 'about', 'main'), (doc) => {
       if (doc.exists()) {
         setAboutContent(doc.data() as AboutContent);
       }
     }, (error) => {
-      const err = handleFirestoreError(error, OperationType.GET, path);
-      if (err) setQuotaExceeded(true);
+      console.error('[FirebaseContext] About stream error:', error);
+      if (error?.message?.includes('Quota exceeded')) {
+        setQuotaExceeded(true);
+      }
     });
 
     return () => unsubscribe();
-  }, [retryTick]);
+  }, [retryTick, quotaExceeded]);
+
+  // Trades Stream
+  useEffect(() => {
+    if (!user || quotaExceeded) {
+      setTrades([]);
+      return;
+    }
+    const path = `users/${user.uid}/trades`;
+    const q = query(collection(db, 'users', user.uid, 'trades'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const tradesData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as TradeEntry[];
+      setTrades(tradesData);
+    }, (error) => {
+      console.error('[FirebaseContext] Trades stream error:', error);
+      if (error?.message?.includes('Quota exceeded')) {
+        setQuotaExceeded(true);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [user, retryTick, quotaExceeded]);
+
+  // Journal Settings Stream
+  useEffect(() => {
+    if (!user || quotaExceeded) {
+      setJournalSettings(null);
+      return;
+    }
+    const unsubscribe = onSnapshot(doc(db, 'users', user.uid, 'settings', 'journal'), (doc) => {
+      if (doc.exists()) {
+        setJournalSettings(doc.data() as JournalSettings);
+      } else {
+        // Initial defaults
+        setJournalSettings({
+          startingCapital: 10000,
+          riskPercent: 1.0,
+          currencySymbol: '$',
+          currencyCode: 'USD',
+          language: 'en'
+        });
+      }
+    }, (error) => {
+      console.error('[FirebaseContext] Journal settings stream error:', error);
+    });
+
+    return () => unsubscribe();
+  }, [user, retryTick, quotaExceeded]);
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
     if (!user) return;
@@ -215,6 +281,53 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const addTrade = async (trade: Omit<TradeEntry, 'id' | 'uid' | 'createdAt'>) => {
+    if (!user) return;
+    const path = `users/${user.uid}/trades`;
+    try {
+      await addDoc(collection(db, 'users', user.uid, 'trades'), {
+        ...trade,
+        uid: user.uid,
+        createdAt: serverTimestamp()
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, path);
+    }
+  };
+
+  const updateTrade = async (id: string, updates: Partial<TradeEntry>) => {
+    if (!user) return;
+    const path = `users/${user.uid}/trades/${id}`;
+    try {
+      const tradeRef = doc(db, 'users', user.uid, 'trades', id);
+      await updateDoc(tradeRef, { ...updates, updatedAt: serverTimestamp() });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, path);
+    }
+  };
+
+  const deleteTrade = async (id: string) => {
+    if (!user) return;
+    const path = `users/${user.uid}/trades/${id}`;
+    try {
+      const tradeRef = doc(db, 'users', user.uid, 'trades', id);
+      await deleteDoc(tradeRef);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, path);
+    }
+  };
+
+  const updateJournalSettings = async (settings: Partial<JournalSettings>) => {
+    if (!user) return;
+    const path = `users/${user.uid}/settings/journal`;
+    try {
+      const settingsRef = doc(db, 'users', user.uid, 'settings', 'journal');
+      await setDoc(settingsRef, { ...settings, updatedAt: serverTimestamp() }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, path);
+    }
+  };
+
   const retryConnection = async () => {
     console.log('[FirebaseContext] Hard Force Sync initiated...');
     // Clear local throttles to allow fresh institutional checks
@@ -238,6 +351,8 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
       loading, 
       userProfile, 
       posts, 
+      trades,
+      journalSettings,
       aboutContent,
       quotaExceeded,
       retryConnection,
@@ -247,6 +362,10 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
       createPost,
       toggleLike,
       updateAbout,
+      addTrade,
+      updateTrade,
+      deleteTrade,
+      updateJournalSettings,
       logout: async () => {
         const { logout: firebaseLogout } = await import('../firebase');
         await firebaseLogout();

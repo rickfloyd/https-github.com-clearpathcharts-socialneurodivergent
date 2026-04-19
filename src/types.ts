@@ -1,4 +1,47 @@
-import { InterfaceProfileId } from './core/InterfaceProfiles';
+export type InterfaceProfileId =
+  | "dynamic_flow"
+  | "structured_matrix"
+  | "high_legibility"
+  | "numeric_relief"
+  | "precision_navigation"
+  | "rhythmic_flow"
+  | "order_system"
+  | "calm_concentration"
+  | "low_stim_focus"
+  | "consistency_matrix"
+  | "low_glare_mode"
+  | "simplified_dashboard"
+  | "visual_guidance"
+  | "clarity_first"
+  | "workflow_logic"
+  | "grounded_ui"
+  | "low_friction_flow"
+  | "concrete_visuals"
+  | "icon_first_mode"
+  | "silent_interaction"
+  | "standard"
+  | "executive_tier"
+  | "high_intensity"
+  | "focused_analysis"
+  | "emergency_relief"
+  | "readable_terminal"
+  | "numeric_precision"
+  | "visual_safety"
+  | "assistive_feed"
+  | "workflow_support"
+  | "interface_friendly"
+  | "dynamic_balance"
+  | "hyper_concentration"
+  | "predictable_matrix"
+  | "stable_rhythm"
+  | "plain_institutional"
+  | "high_contrast"
+  | "custom_workflow_mix"
+  | "corporate_open"
+  | "institutional_standard"
+  | "modular_terminal"
+  | "asset_navigator"
+  | "standard_trader";
 
 export type GlowLevel = 'none' | 'low' | 'medium' | 'high';
 
@@ -37,6 +80,32 @@ export interface InterfaceProfile {
     motion: MotionLevel;
   };
   aiPersonality?: string;
+}
+
+export interface TradeEntry {
+  id?: string;
+  uid: string;
+  createdAt: any;
+  pair: string;
+  direction: 'long' | 'short';
+  timeframe: string;
+  entry: number;
+  sl: number;
+  tp: number;
+  rr: number | null;
+  resultR: number | null;
+  outcome: 'good' | 'bad';
+  emotion: string;
+  screenshot: string;
+  notes: string;
+}
+
+export interface JournalSettings {
+  startingCapital: number;
+  riskPercent: number;
+  currencySymbol: string;
+  currencyCode: string;
+  language: string;
 }
 
 export interface Trade {
@@ -86,6 +155,7 @@ export interface UserProfile {
     location: string;
     company: string;
   };
+  lastLegalAck?: any;
   createdAt: any;
 }
 

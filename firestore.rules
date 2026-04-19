@@ -3,124 +3,43 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ===============================================================
-    // Assumed Data Model
+    // DEFAULT DENY
     // ===============================================================
-    //
-    // Collection: users
-    // Document ID: {uid}
-    // Fields:
-    //   - uid: string (required) - Firebase Auth UID
-    //   - displayName: string (optional) - User's public name
-    //   - username: string (optional) - Unique handle
-    //   - email: string (optional) - User's email
-    //   - photoURL: string (optional) - User's photo URL
-    //   - coverURL: string (optional) - User's cover photo URL
-    //   - isVerified: boolean (optional) - Verification status
-    //   - interfaceType: string (required) - Institutional profile ID
-    //   - customTheme: map (optional) - primaryColor, secondaryColor, fontSize, highContrast
-    //   - bio: string (optional) - User's bio
-    //   - linkInBio: string (optional) - External link
-    //   - contactInfo: map (optional) - email, twitter, discord
-    //   - metrics: map (optional) - followers, following, mutuals
-    //   - intro: map (optional) - bio, location, company
-    //   - createdAt: timestamp (optional) - Creation date
-    //   - updatedAt: timestamp (optional) - Last update date
-    //
-    // Collection: posts
-    // Document ID: {postId}
-    // Fields:
-    //   - uid: string (required) - Author UID
-    //   - authorName: string (optional) - Author's name
-    //   - authorPhoto: string (optional) - Author's photo
-    //   - content: string (required) - Post content
-    //   - mediaUrl: string (optional) - Media URL
-    //   - mediaType: string (optional) - image, video, none
-    //   - chartMarkup: string (optional) - JSON string of chart annotations
-    //   - likesCount: int (optional) - Number of likes
-    //   - createdAt: timestamp (required) - Creation date
-    //
-    // Collection: about
-    // Document ID: main
-    // Fields:
-    //   - title: string (optional) - Section title
-    //   - body: string (optional) - Section body
-    //   - lastUpdated: timestamp (optional) - Last update date
-    //
-    // ===============================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
 
     // ===============================================================
-    // Helper Functions
+    // HELPER FUNCTIONS
     // ===============================================================
 
-    function isAuthenticated() {
+    function isSignedIn() {
       return request.auth != null;
     }
 
     function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+      return isSignedIn() && request.auth.uid == userId;
     }
 
     function isAdmin() {
-      return isAuthenticated() && 
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
-         (request.auth.token.email == "forexanarchy@gmail.com" && request.auth.token.email_verified == true));
+      return isSignedIn() && 
+        (request.auth.token.email == "forexanarchy@gmail.com" && request.auth.token.email_verified == true);
     }
 
-    function isValidUserCreate(data) {
-      let allowedFields = [
-        'uid', 'displayName', 'username', 'email', 'photoURL', 'coverURL', 
-        'isVerified', 'interfaceType', 'customTheme', 'bio', 'keywords', 
-        'linkInBio', 'contactInfo', 'metrics', 'intro', 'createdAt', 'updatedAt',
-        'role', 'pinnedPostId', 'instagram', 'website'
-      ];
-      
-      return data.keys().hasAll(['uid', 'interfaceType']) &&
-             data.keys().hasOnly(allowedFields) &&
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // ===============================================================
+    // VALIDATION BLUEPRINTS
+    // ===============================================================
+
+    function isValidUser(data) {
+      return data.uid == request.auth.uid &&
              data.uid is string &&
-             data.interfaceType is string && data.interfaceType.size() < 100 &&
-             (!('displayName' in data) || (data.displayName is string && data.displayName.size() < 100)) &&
-             (!('username' in data) || (data.username is string && data.username.size() < 50)) &&
+             data.interfaceType is string &&
              (!('email' in data) || (data.email is string && data.email.size() < 200)) &&
-             (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() < 10000000)) &&
-             (!('coverURL' in data) || (data.coverURL is string && data.coverURL.size() < 10000000)) &&
-             (!('bio' in data) || (data.bio is string && data.bio.size() < 5000)) &&
-             (!('linkInBio' in data) || (data.linkInBio is string && data.linkInBio.size() < 200)) &&
-             (!('isVerified' in data) || data.isVerified is bool) &&
-             (!('customTheme' in data) || data.customTheme is map) &&
-             (!('contactInfo' in data) || data.contactInfo is map) &&
-             (!('metrics' in data) || data.metrics is map) &&
-             (!('intro' in data) || data.intro is map) &&
-             (!('keywords' in data) || data.keywords is list) &&
-             (!('createdAt' in data) || data.createdAt is timestamp) &&
-             (!('updatedAt' in data) || data.updatedAt is timestamp);
-    }
-
-    function isValidUserUpdate(data) {
-      let allowedFields = [
-        'uid', 'displayName', 'username', 'email', 'photoURL', 'coverURL', 
-        'isVerified', 'interfaceType', 'customTheme', 'bio', 'keywords', 
-        'linkInBio', 'contactInfo', 'metrics', 'intro', 'createdAt', 'updatedAt',
-        'role', 'pinnedPostId', 'instagram', 'website'
-      ];
-      
-      return data.keys().hasOnly(allowedFields) &&
-             (!('uid' in data) || data.uid is string) &&
-             (!('interfaceType' in data) || (data.interfaceType is string && data.interfaceType.size() < 100)) &&
-             (!('displayName' in data) || (data.displayName is string && data.displayName.size() < 100)) &&
-             (!('username' in data) || (data.username is string && data.username.size() < 50)) &&
-             (!('email' in data) || (data.email is string && data.email.size() < 200)) &&
-             (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() < 10000000)) &&
-             (!('coverURL' in data) || (data.coverURL is string && data.coverURL.size() < 10000000)) &&
-             (!('bio' in data) || (data.bio is string && data.bio.size() < 5000)) &&
-             (!('linkInBio' in data) || (data.linkInBio is string && data.linkInBio.size() < 200)) &&
-             (!('isVerified' in data) || data.isVerified is bool) &&
-             (!('customTheme' in data) || data.customTheme is map) &&
-             (!('contactInfo' in data) || data.contactInfo is map) &&
-             (!('metrics' in data) || data.metrics is map) &&
-             (!('intro' in data) || data.intro is map) &&
-             (!('keywords' in data) || data.keywords is list) &&
-             (!('createdAt' in data) || data.createdAt is timestamp) &&
-             (!('updatedAt' in data) || data.updatedAt is timestamp);
+             (!('displayName' in data) || (data.displayName is string && data.displayName.size() < 200));
     }
 
     function isValidPost(data) {
@@ -128,104 +47,110 @@ service cloud.firestore {
         'uid', 'authorName', 'authorPhoto', 'content', 'mediaUrl', 
         'mediaType', 'likesCount', 'createdAt', 'chartMarkup', 'market_layer'
       ];
-      
       return data.keys().hasAll(['uid', 'content', 'createdAt']) &&
              data.keys().hasOnly(allowedFields) &&
-             data.uid is string &&
-             data.content is string && data.content.size() < 10000 &&
-             data.createdAt is timestamp &&
-             (!('authorName' in data) || (data.authorName is string && data.authorName.size() < 100)) &&
-             (!('authorPhoto' in data) || (data.authorPhoto is string && data.authorPhoto.size() < 2000)) &&
-             (!('mediaUrl' in data) || (data.mediaUrl is string && data.mediaUrl.size() < 1000000)) &&
-             (!('mediaType' in data) || data.mediaType in ['image', 'video', 'none']) &&
-             (!('likesCount' in data) || data.likesCount is int) &&
-             (!('market_layer' in data) || (data.market_layer is string && data.market_layer.size() < 20)) &&
-             (!('chartMarkup' in data) || (data.chartMarkup is string && data.chartMarkup.size() < 1000000));
-    }
-
-    function isValidRoom(data) {
-      let allowedFields = ['sheep_count', 'pulse_state'];
-      return data.keys().hasOnly(allowedFields) &&
-             (!('sheep_count' in data) || data.sheep_count is int) &&
-             (!('pulse_state' in data) || (data.pulse_state is string && data.pulse_state.size() < 50));
-    }
-
-    function isValidChatMessage(data) {
-      return data.keys().hasAll(['uid', 'role', 'text', 'timestamp']) &&
              data.uid == request.auth.uid &&
+             data.content is string && data.content.size() < 10000 &&
+             data.createdAt == request.time;
+    }
+
+    function isValidTrade(data) {
+      return data.uid == request.auth.uid &&
+             data.pair is string && data.pair.size() < 20 &&
+             data.direction in ['long', 'short'] &&
+             data.timeframe is string &&
+             data.entry is number &&
+             data.sl is number &&
+             data.tp is number &&
+             data.outcome in ['good', 'bad'] &&
+             data.createdAt == request.time;
+    }
+
+    function isValidChat(data) {
+      return data.uid == request.auth.uid &&
              data.role in ['user', 'model'] &&
              data.text is string && data.text.size() < 100000 &&
-             data.timestamp is timestamp;
+             data.timestamp == request.time;
     }
 
     function isValidAIAsset(data) {
-      return data.keys().hasAll(['uid', 'type', 'url', 'prompt', 'model', 'createdAt']) &&
-             data.uid == request.auth.uid &&
+      return data.uid == request.auth.uid &&
              data.type in ['image', 'video'] &&
              data.url is string && data.url.size() < 1000000 &&
-             data.prompt is string && data.prompt.size() < 5000 &&
-             data.model is string &&
-             data.createdAt is timestamp;
+             data.createdAt == request.time;
     }
 
     // ===============================================================
-    // Rules
+    // ACCESS RULES
     // ===============================================================
 
-    match /chats/{chatId} {
-      allow read, write: if isAuthenticated() && (resource == null || resource.data.uid == request.auth.uid);
-      
-      match /messages/{messageId} {
-        allow read: if isAuthenticated() && get(/databases/$(database)/documents/chats/$(chatId)).data.uid == request.auth.uid;
-        allow create: if isAuthenticated() && isValidChatMessage(request.resource.data);
+    // Users & Profiles
+    match /users/{uid} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(uid) && isValidUser(request.resource.data);
+      allow update: if (isOwner(uid) || isAdmin()) && (
+        isAdmin() || (
+          request.resource.data.uid == resource.data.uid &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'displayName', 'username', 'email', 'photoURL', 'coverURL', 'photoUrl', 'coverUrl',
+            'interfaceType', 'neuroType', 'customTheme', 'bio', 'keywords', 
+            'linkInBio', 'contactInfo', 'metrics', 'intro', 'updatedAt',
+            'pinnedPostId', 'instagram', 'website', 'lastLegalAck', 'lastLogin', 'lastActive', 'status'
+          ])
+        )
+      );
+
+      // Journal Trades
+      match /trades/{tradeId} {
+        allow read, write: if isOwner(uid);
+      }
+
+      // Journal Settings
+      match /settings/journal {
+        allow read, write: if isOwner(uid);
       }
     }
 
-    match /ai_assets/{assetId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && isValidAIAsset(request.resource.data);
-      allow delete: if isAuthenticated() && (resource.data.uid == request.auth.uid || isAdmin());
-    }
-
-    match /users/{uid} {
-      allow read: if isAuthenticated();
-      allow create: if isOwner(uid) && isValidUserCreate(request.resource.data);
-      allow update: if isOwner(uid) && isValidUserUpdate(request.resource.data) && 
-                      request.resource.data.uid == resource.data.uid &&
-                      (!('createdAt' in resource.data) || request.resource.data.createdAt == resource.data.createdAt);
-      allow delete: if isAdmin();
-    }
-
+    // Global Timeline Posts
     match /posts/{postId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && 
-                      request.resource.data.uid == request.auth.uid && 
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidPost(request.resource.data);
+      allow update: if (isOwner(resource.data.uid) || isAdmin()) && 
                       isValidPost(request.resource.data) &&
-                      request.resource.data.likesCount == 0 &&
-                      request.resource.data.createdAt == request.time;
-      allow update: if isAuthenticated() && 
-                      (resource.data.uid == request.auth.uid || isAdmin()) && 
-                      isValidPost(request.resource.data) &&
-                      request.resource.data.uid == resource.data.uid &&
-                      request.resource.data.createdAt == resource.data.createdAt;
-      allow delete: if isAuthenticated() && (resource.data.uid == request.auth.uid || isAdmin());
+                      request.resource.data.uid == resource.data.uid;
+      allow delete: if isOwner(resource.data.uid) || isAdmin();
     }
 
-    match /rooms/{roomId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
+    // AI Lab Chats
+    match /chats/{chatId} {
+      allow read: if isSignedIn() && resource.data.uid == request.auth.uid;
+      allow create: if isSignedIn() && isValidChat(request.resource.data);
+      allow delete: if isSignedIn() && resource.data.uid == request.auth.uid;
     }
 
+    // AI Lab Assets
+    match /ai_assets/{assetId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidAIAsset(request.resource.data);
+      allow delete: if (isSignedIn() && resource.data.uid == request.auth.uid) || isAdmin();
+    }
+
+    // Static Content
     match /about/{docId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
+    // System Intelligence
     match /system/intelligence_status {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && 
-                      (!('lastRun' in request.resource.data) || request.resource.data.lastRun is timestamp) &&
-                      (!('itemCount' in request.resource.data) || request.resource.data.itemCount is int);
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    
+    // Legacy support (optional, clean up if POSITIVELY unused)
+    match /rooms/{roomId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
     }
   }
 }

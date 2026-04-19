@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/FirebaseContext';
 import { 
   BarChart3, Zap, Shield, Heart, Activity, Users, Star, 
   Eye, Ear, ListChecks, AlertCircle, CloudRain, 
-  Sun, UserPlus, VolumeX, Target, Layout
+  Sun, UserPlus, VolumeX, Target, Layout, Brain
 } from 'lucide-react';
 import { INTERFACE_PROFILES } from '../lib/interface/profiles';
 import { InterfaceProfile } from '../types';
@@ -17,9 +17,9 @@ interface InterfaceOptimizationHubProps {
 }
 
 const CATEGORIES = [
-  { id: 'analytical', label: 'Analytical Flow' },
-  { id: 'tactical', label: 'Tactical Workspace' },
-  { id: 'standard', label: 'Standard Gateway' }
+  { id: 'analytical', label: 'NEURO-ANALYTICAL' },
+  { id: 'tactical', label: 'NEURO-TACTICAL' },
+  { id: 'standard', label: 'BASE PROTOCOL' }
 ];
 
 const PROFILE_ICONS: Record<string, any> = {
@@ -74,11 +74,7 @@ export default function InterfaceOptimizationHub({ profile, onProfileChange, onN
 
       {/* Category Tabs */}
       <div className="flex justify-center space-x-4">
-        {[
-          { id: 'analytical', label: 'NEURO-ANALYTICAL' },
-          { id: 'tactical', label: 'NEURO-TACTICAL' },
-          { id: 'standard', label: 'BASE PROTOCOL' }
-        ].map(cat => (
+        {CATEGORIES.map(cat => (
           <button
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}

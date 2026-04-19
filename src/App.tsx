@@ -6,8 +6,8 @@ import { loginWithGoogle } from './firebase';
 import { motion } from 'motion/react';
 import { TrendingUp, ShieldCheck, Zap, Brain } from 'lucide-react';
 import ErrorBoundary from './components/ErrorBoundary';
+import SEO from './components/SEO';
 import { DataStreamService } from './services/dataStreamService';
-import { IntelligenceService } from './services/intelligenceService';
 
 import { SurfBackground } from './components/SurfBackground';
 import { VoiceAssistant } from './components/VoiceAssistant';
@@ -17,14 +17,23 @@ const Dashboard = lazy(() => import('./components/Dashboard'));
 
 function LoadingScreen({ message, onRetry }: { message: string, onRetry?: () => void }) {
   const [showRetry, setShowRetry] = useState(false);
+  const [cooldown, setCooldown] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowRetry(true), 5000);
     return () => clearTimeout(timer);
   }, []);
 
+  const handleRetry = () => {
+    if (cooldown || !onRetry) return;
+    setCooldown(true);
+    onRetry();
+    setTimeout(() => setCooldown(false), 10000); // 10s cooldown
+  };
+
   return (
     <div className="h-[100dvh] w-full bg-[#050505] flex items-center justify-center relative overflow-hidden">
+      <SEO title="Initializing..." />
       <SurfBackground />
       <div className="flex flex-col items-center space-y-4 relative z-10">
         <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin shadow-[0_0_20px_rgba(79,70,229,0.4)]" />
@@ -33,10 +42,11 @@ function LoadingScreen({ message, onRetry }: { message: string, onRetry?: () => 
         </div>
         {showRetry && onRetry && (
           <button 
-            onClick={onRetry}
-            className="mt-6 px-6 py-2 bg-indigo-500/10 border border-indigo-500/30 text-indigo-500 text-[10px] font-black uppercase tracking-widest hover:bg-indigo-500/20 transition-all animate-pulse"
+            onClick={handleRetry}
+            disabled={cooldown}
+            className={`mt-6 px-6 py-2 bg-indigo-500/10 border border-indigo-500/30 text-indigo-500 text-[10px] font-black uppercase tracking-widest transition-all ${cooldown ? 'opacity-50 cursor-not-allowed' : 'animate-pulse hover:bg-indigo-500/20'}`}
           >
-            Force Institutional Re-Sync
+            {cooldown ? 'Synchronizing Pipeline...' : 'Force Institutional Re-Sync'}
           </button>
         )}
       </div>
@@ -45,11 +55,8 @@ function LoadingScreen({ message, onRetry }: { message: string, onRetry?: () => 
 }
 
 function AppContent() {
-  console.log('AppContent: Starting render');
-  const { user, loading, userProfile, updateProfile, retryConnection } = useAuth();
+  const { user, loading, userProfile, updateProfile, retryConnection, quotaExceeded } = useAuth();
   const [activeProfile, setActiveProfile] = useState<InterfaceProfile>(INTERFACE_PROFILES.standard_trader);
-
-  console.log('AppContent: Auth state:', { user: !!user, loading, userProfile: !!userProfile });
 
   useEffect(() => {
     // Initialize global institutional data stream
@@ -57,11 +64,10 @@ function AppContent() {
   }, []);
 
   useEffect(() => {
-    // Run intelligence cycle only when authenticated
-    if (user && !loading) {
-      IntelligenceService.runCycle();
-    }
-  }, [user, loading]);
+    // Intelligence cycle removed from automatic background execution
+    // to prevent unwanted API costs and rate limiting.
+    // Use manual sync button in Dashboard/AILab if needed.
+  }, [user, loading, quotaExceeded]);
 
   useEffect(() => {
     if (userProfile?.interfaceType) {
@@ -100,6 +106,7 @@ function AppContent() {
   if (!user) {
     return (
       <div className="h-[100dvh] w-full bg-[#050505] flex flex-col items-center justify-center p-6 relative overflow-hidden">
+        <SEO title="Secure Login" description="Authenticate to access the ClearPath Trader institutional intelligence terminal." />
         <SurfBackground />
         
         <motion.div 
@@ -114,7 +121,7 @@ function AppContent() {
               </div>
             </div>
             <h1 className="text-2xl font-black lava-hot-text tracking-tighter uppercase italic leading-none">
-              NEURODIVERGENT<br />PROTOCOL
+              CLEARPATH<br />TRADER
             </h1>
             <p className="text-gray-500 font-mono text-sm uppercase tracking-widest">
               Institutional Neural Intelligence
@@ -146,7 +153,7 @@ function AppContent() {
           </button>
 
           <p className="text-[10px] text-gray-600 uppercase tracking-widest leading-relaxed">
-            By authenticating, you agree to the institutional protocols and data privacy standards.
+            By authenticating, you agree to the CLEARPATH TRADER institutional protocols and data privacy standards. THE CPT BIBLE defines our structural limits.
           </p>
         </motion.div>
       </div>

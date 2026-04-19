@@ -58,41 +58,43 @@ export default function MarketAssetsList({ profile, onAddChart }: MarketAssetsLi
     if (groups.length === 0) return;
 
     const fetchPrices = async () => {
-      const newPrices: Record<string, string> = { ...prices };
-      let changed = false;
-
       const allAssets = groups.flatMap(g => g.assets);
-      
-      await Promise.all(allAssets.map(async (asset) => {
-        try {
-          let binanceSymbol = asset.symbol;
-          if (!binanceSymbol.endsWith('USDT') && !binanceSymbol.includes(':')) {
-            binanceSymbol = `${binanceSymbol}USDT`;
-          }
+      const symbols = allAssets.map(asset => {
+        let binanceSymbol = asset.symbol;
+        if (!binanceSymbol.endsWith('USDT') && !binanceSymbol.includes(':') && !binanceSymbol.includes('/')) {
+          binanceSymbol = `${binanceSymbol}USDT`;
+        }
+        return binanceSymbol;
+      }).join(',');
 
-          const res = await fetch(`/api/market/price?symbol=${binanceSymbol}`);
-          if (res.ok) {
-            const data = await res.json();
-            if (data && data.price) {
-              newPrices[asset.symbol] = parseFloat(data.price).toLocaleString(undefined, {
+      try {
+        const res = await fetch(`/api/market/prices?symbols=${symbols}`);
+        if (res.ok) {
+          const data = await res.json();
+          const newPrices: Record<string, string> = {};
+          
+          allAssets.forEach(asset => {
+            let binanceSymbol = asset.symbol;
+            if (!binanceSymbol.endsWith('USDT') && !binanceSymbol.includes(':') && !binanceSymbol.includes('/')) {
+              binanceSymbol = `${binanceSymbol}USDT`;
+            }
+            if (data[binanceSymbol.toUpperCase()]) {
+              newPrices[asset.symbol] = parseFloat(data[binanceSymbol.toUpperCase()]).toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 4
               });
-              changed = true;
             }
-          }
-        } catch (e) {
-          // Silent fail
+          });
+          
+          setPrices(newPrices);
         }
-      }));
-
-      if (changed) {
-        setPrices(newPrices);
+      } catch (e) {
+        console.error('[MarketAssetsList] Price fetch error:', e);
       }
     };
 
     fetchPrices();
-    const interval = setInterval(fetchPrices, 10000); // Update every 10s
+    const interval = setInterval(fetchPrices, 10000); // Batch update every 10s
     return () => clearInterval(interval);
   }, [groups]);
 

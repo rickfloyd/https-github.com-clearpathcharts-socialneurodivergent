@@ -60,15 +60,10 @@ export default defineConfig(({mode}) => {
       cssMinify: true,
       rollupOptions: {
         output: {
-          manualChunks: {
-            'vendor-react': ['react', 'react-dom'],
-            'vendor-motion': ['motion/react'],
-            'vendor-icons': ['lucide-react'],
-            'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore']
-          }
+          // Simplified output for stability
         }
       },
-      chunkSizeWarningLimit: 1000
+      chunkSizeWarningLimit: 2000
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
