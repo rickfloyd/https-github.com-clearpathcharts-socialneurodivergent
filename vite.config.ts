@@ -55,15 +55,8 @@ export default defineConfig(({mode}) => {
       },
     },
     build: {
-      target: 'esnext',
-      minify: 'esbuild',
-      cssMinify: true,
-      rollupOptions: {
-        output: {
-          // Simplified output for stability
-        }
-      },
-      chunkSizeWarningLimit: 2000
+      outDir: 'dist',
+      emptyOutDir: true
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.

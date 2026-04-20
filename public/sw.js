@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quantum-clarity-v3';
+const CACHE_NAME = 'clearpath-clarity-v4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

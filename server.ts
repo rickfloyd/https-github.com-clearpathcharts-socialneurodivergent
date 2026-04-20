@@ -169,16 +169,53 @@ async function startServer() {
   // Proxy for market historical data (PURE SYNTHETIC ENGINE)
   app.get('/api/market/history', async (req, res) => {
     let { symbol = 'BTC/USD', interval = '1min' } = req.query;
-    const cacheKey = `history_${symbol}_${interval}`;
+    
+    // Normalize symbol for APIs
+    const querySymbol = (symbol as string).toUpperCase();
+    const isCrypto = querySymbol.includes('BTC') || querySymbol.includes('ETH') || querySymbol.includes('SOL');
+    
+    const cacheKey = `history_${querySymbol}_${interval}`;
     
     const cached = marketCache.get(cacheKey);
     if (cached && (Date.now() - cached.timestamp < CACHE_TTL)) {
       return res.json(cached.data);
     }
 
-    const data = generateSyntheticHistoryData(symbol as string, interval as string);
-    marketCache.set(cacheKey, { data, timestamp: Date.now() });
-    res.json(data);
+    try {
+      // 1. Try Twelve Data if API key is present
+      if (process.env.TWELVEDATA_API_KEY) {
+        const response = await axios.get(`https://api.twelvedata.com/time_series?symbol=${querySymbol}&interval=${interval}&outputsize=100&apikey=${process.env.TWELVEDATA_API_KEY}`);
+        if (response.data.values) {
+          const formatted = response.data.values.reverse().map((v: any) => [
+            new Date(v.datetime).getTime(),
+            parseFloat(v.open),
+            parseFloat(v.high),
+            parseFloat(v.low),
+            parseFloat(v.close)
+          ]);
+          marketCache.set(cacheKey, { data: formatted, timestamp: Date.now() });
+          return res.json(formatted);
+        }
+      }
+
+      // 2. Fallback to High-Fidelity Synthetic Engine (Binance link severed)
+      console.warn(`[ClearPath Protocol] Public data feeds bypassed. Synchronizing local synthetic engine for ${querySymbol}.`);
+      const data = generateSyntheticHistoryData(querySymbol as string, interval as string);
+      marketCache.set(cacheKey, { data, timestamp: Date.now() });
+      return res.json(data);
+      
+    } catch (error: any) {
+      if (error.response && error.response.status === 451) {
+        console.warn(`[ClearPath Protocol] Public market feeds blocked via geofence (451). Initializing Synthetic Engine for ${querySymbol}.`);
+      } else {
+        console.warn(`[ClearPath Protocol] Real data feed unavailable (${error.message}). Synchronizing via local engine for ${querySymbol}.`);
+      }
+      
+      // Failsafe fallback
+      const data = generateSyntheticHistoryData(querySymbol as string, interval as string);
+      marketCache.set(cacheKey, { data, timestamp: Date.now() });
+      return res.json(data);
+    }
   });
 
   function generateSyntheticHistoryData(symbol: string, interval: string) {
@@ -187,14 +224,18 @@ async function startServer() {
       'EUR/USD': 1.0850, 'GBP/USD': 1.2640, 'USD/JPY': 151.20, 'AUD/USD': 0.6540,
       'XAU': 2180.50, 'GOLD': 2180.50, 'XAG': 24.80, 'SILVER': 24.80, 'OIL': 81.20,
       'SPX': 5240.10, 'IXIC': 16420.50, 'DJI': 39470.20, 'UK100': 7930.50,
-      'US10Y': 4.25, 'US02Y': 4.60, 'BOND': 105.20
+      'US10Y': 4.25, 'US02Y': 4.60, 'BOND': 105.20, 'BTC/USD': 65000, 'ETH/USD': 3500
     };
 
-    const base = basePrices[symbol.toUpperCase()] || basePrices[symbol.toUpperCase().split('/')[0]] || 100.00;
+    const querySymbol = symbol.toUpperCase();
+    const base = basePrices[querySymbol] || basePrices[querySymbol.split('/')[0]] || 100.00;
+    
+    // Create a symbol-specific seed for variability
+    const seed = querySymbol.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const data = [];
     const now = Date.now();
-    const count = 100; // Number of candles
-
+    const count = 100;
+    
     let currentPrice = base;
     const stepMap: Record<string, number> = {
       '1min': 60000, '5min': 300000, '15min': 900000, '1h': 3600000, '1day': 86400000
@@ -203,8 +244,11 @@ async function startServer() {
 
     for (let i = count; i >= 0; i--) {
       const time = now - (i * step);
-      const volatility = 0.002;
-      const change = currentPrice * (Math.random() * volatility - (volatility / 2));
+      // Use the seed to make volatility and trends unique per asset
+      const volatility = 0.002 + (seed % 10) * 0.0001; 
+      const trend = (seed % 5 - 2) * 0.00005; // Muted directional bias
+      
+      const change = currentPrice * (Math.random() * volatility - (volatility / 2) + trend);
       const open = currentPrice;
       const close = currentPrice + change;
       const high = Math.max(open, close) + (Math.random() * currentPrice * 0.001);
@@ -263,14 +307,22 @@ async function startServer() {
       'SPX': 5240.10, 'IXIC': 16420.50, 'DJI': 39470.20, 'UK100': 7930.50,
       'US10Y': 4.25, 'US02Y': 4.60, 'BOND': 105.20, 'BTC': 65000.00, 'ETH': 3500.00,
       'SOL': 145.00, 'XRP': 0.62, 'ADA': 0.45, 'DOGE': 0.16, 'DOT': 9.20,
-      'MATIC': 1.05, 'LTC': 85.00, 'LINK': 18.50
+      'MATIC': 1.05, 'LTC': 85.00, 'LINK': 18.50, 'BTC/USD': 65000, 'ETH/USD': 3500
     };
 
-    const base = basePrices[symbol] || basePrices[symbol.split('/')[0]] || 100.00;
+    const querySymbol = symbol.toUpperCase();
+    const base = basePrices[querySymbol] || basePrices[querySymbol.split('/')[0]] || 100.00;
     
-    // Generate a "Random Walk" jitter (0.01% to 0.05% movement)
-    const jitter = 1 + (Math.random() * 0.001 - 0.0005);
-    const syntheticPrice = (base * jitter).toFixed(symbol.includes('USD/') || symbol.includes('/') ? 4 : 2);
+    // Create a symbol-specific seed for variability
+    const seed = querySymbol.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const msSinceEpoch = Date.now();
+    
+    // Generate a "Random Walk" jitter that is deterministic for the exact millisecond but varies by asset
+    const symbolEffect = (seed % 100) / 10000;
+    const timeEffect = Math.sin(msSinceEpoch / 10000) * 0.001;
+    const jitter = 1 + (Math.random() * 0.001 - 0.0005) + symbolEffect + timeEffect;
+    
+    const syntheticPrice = (base * jitter).toFixed(querySymbol.includes('USD/') || querySymbol.includes('/') ? 4 : 2);
 
     res.json({ 
       price: syntheticPrice, 
@@ -309,11 +361,13 @@ async function startServer() {
       circuitBreaker.newsData.active = true;
 
       if (response.data && response.data.results && response.data.results.length > 0) {
-        const news = response.data.results.slice(0, 8).map((item: any) => ({
+        const news = response.data.results.slice(0, 12).map((item: any) => ({
           title: item.title,
           link: item.link || '#',
           description: item.description || 'Institutional intelligence report.',
-          author: item.creator ? item.creator[0] : 'System Intel',
+          author: item.creator ? item.creator[0] : (item.source_id || 'System Intel'),
+          image: item.image_url || `https://picsum.photos/seed/${Math.random()}/800/600`,
+          timestamp: item.pubDate ? new Date(item.pubDate).toLocaleTimeString() : 'Just now',
           readTime: '5 min',
           category: 'market'
         }));

@@ -1,6 +1,6 @@
 {
   "name": "CLEARPATH TRADER",
-  "description": "High-fidelity institutional mission-control interface with optimized data streams, zero-lag neural protocols, and cost-efficient intelligence sync.",
+  "description": "High-fidelity institutional mission-control interface with optimized data streams, zero-lag neural protocols, and cost-efficient intelligence sync. V4.2.1 deployment.",
   "requestFramePermissions": [
     "geolocation",
     "camera",

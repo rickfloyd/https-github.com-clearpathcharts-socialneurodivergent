@@ -36,7 +36,7 @@ export const IntelligenceGateway: React.FC<IntelligenceGatewayProps> = ({ onNavi
       {/* Hero Section */}
       <section className="relative h-[70vh] min-h-[500px] rounded-b-[60px] overflow-hidden flex items-center px-6 md:px-12 border-b border-white/5 shadow-2xl glass">
         <div className="absolute inset-0 z-0">
-          <LightweightCandles profileId="dynamic_balance" symbol="XAU/USD" timeframe="1h" />
+          <LightweightCandles profileId="standard_trader" symbol="XAU/USD" timeframe="1h" />
           <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
         </div>
         

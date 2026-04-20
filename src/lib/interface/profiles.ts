@@ -3,8 +3,8 @@ import { GlowLevel, MotionLevel, InterfaceProfile } from '../../types';
 export const INTERFACE_PROFILES: Record<string, InterfaceProfile> = {
   focused_analysis: {
     id: 'focused_analysis',
-    name: 'Focused Analysis',
-    description: 'Reduced stimulus for deep concentration and market strategy.',
+    name: 'AUTISM PROTOCOL',
+    description: 'Reduced stimulus for deep concentration and sensory-friendly market strategy.',
     ui: {
       bgTop: '#000000',
       bgBottom: '#000000',
@@ -32,8 +32,8 @@ export const INTERFACE_PROFILES: Record<string, InterfaceProfile> = {
   },
   emergency_relief: {
     id: 'emergency_relief',
-    name: 'Critical Data Stream',
-    description: 'Minimalist interface for high-volatility institutional moments.',
+    name: 'SENSORY RELIEF',
+    description: 'Minimalist interface for high-volatility institutional moments and sensory overload.',
     ui: {
       bgTop: '#000000',
       bgBottom: '#000000',
@@ -61,8 +61,8 @@ export const INTERFACE_PROFILES: Record<string, InterfaceProfile> = {
   },
   readable_terminal: {
     id: 'readable_terminal',
-    name: 'Clear Text Protocol',
-    description: 'High legibility and visual grounding for fast market reading.',
+    name: 'DYSLEXIA PROTOCOL',
+    description: 'High legibility fonts and visual grounding for fast market reading and comprehension.',
     ui: {
       bgTop: '#000000',
       bgBottom: '#000000',
@@ -90,8 +90,8 @@ export const INTERFACE_PROFILES: Record<string, InterfaceProfile> = {
   },
   numeric_precision: {
     id: 'numeric_precision',
-    name: 'Visual Pattern Logic',
-    description: 'Visual-first data presentation for intuitive market flows.',
+    name: 'ADHD PROTOCOL',
+    description: 'Visual-first data presentation and high-engagement market flows.',
     ui: {
       bgTop: '#000000',
       bgBottom: '#000000',
@@ -264,8 +264,8 @@ export const INTERFACE_PROFILES: Record<string, InterfaceProfile> = {
   },
   predictable_matrix: {
     id: 'predictable_matrix',
-    name: 'Symmetrical Workflow',
-    description: 'Stable, symmetrical, and consistent trading interface.',
+    name: 'OCD PROTOCOL',
+    description: 'Stable, symmetrical, and consistent trading interface for predictable execution.',
     ui: {
       bgTop: '#000000',
       bgBottom: '#000000',
@@ -335,11 +335,11 @@ export const INTERFACE_PROFILES: Record<string, InterfaceProfile> = {
       borderB: '#4D00FF',
     },
     candles: {
-      upColor: '#22c55e',
+      upColor: '#4169E1',
       downColor: '#ef4444',
-      wickUpColor: '#22c55e',
+      wickUpColor: '#4169E1',
       wickDownColor: '#ef4444',
-      borderUpColor: '#22c55e',
+      borderUpColor: '#4169E1',
       borderDownColor: '#ef4444',
     },
     behavior: {

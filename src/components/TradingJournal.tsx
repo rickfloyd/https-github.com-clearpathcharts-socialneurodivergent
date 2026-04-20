@@ -392,8 +392,8 @@ export default function TradingJournal({ profile, onBackToDashboard }: TradingJo
     datasets: [{
       label: 'Equity',
       data: metrics.equitySeries,
-      borderColor: '#39FF14',
-      backgroundColor: 'rgba(57, 255, 20, 0.1)',
+      borderColor: profile.ui.accent,
+      backgroundColor: `${profile.ui.accent}11`,
       fill: true,
       tension: 0.4,
       pointRadius: 2
@@ -420,7 +420,7 @@ export default function TradingJournal({ profile, onBackToDashboard }: TradingJo
         filteredTrades.filter(t => t.outcome === 'good').length,
         filteredTrades.filter(t => t.outcome === 'bad').length
       ],
-      backgroundColor: ['#39FF14', '#FF3131'],
+      backgroundColor: [profile.ui.accent, '#FF3131'],
       borderWidth: 0
     }]
   };

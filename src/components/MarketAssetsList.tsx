@@ -60,11 +60,11 @@ export default function MarketAssetsList({ profile, onAddChart }: MarketAssetsLi
     const fetchPrices = async () => {
       const allAssets = groups.flatMap(g => g.assets);
       const symbols = allAssets.map(asset => {
-        let binanceSymbol = asset.symbol;
-        if (!binanceSymbol.endsWith('USDT') && !binanceSymbol.includes(':') && !binanceSymbol.includes('/')) {
-          binanceSymbol = `${binanceSymbol}USDT`;
+        let normalizedSymbol = asset.symbol;
+        if (!normalizedSymbol.endsWith('USDT') && !normalizedSymbol.includes(':') && !normalizedSymbol.includes('/')) {
+          normalizedSymbol = `${normalizedSymbol}USDT`;
         }
-        return binanceSymbol;
+        return normalizedSymbol;
       }).join(',');
 
       try {
@@ -74,12 +74,12 @@ export default function MarketAssetsList({ profile, onAddChart }: MarketAssetsLi
           const newPrices: Record<string, string> = {};
           
           allAssets.forEach(asset => {
-            let binanceSymbol = asset.symbol;
-            if (!binanceSymbol.endsWith('USDT') && !binanceSymbol.includes(':') && !binanceSymbol.includes('/')) {
-              binanceSymbol = `${binanceSymbol}USDT`;
+            let normalizedSymbol = asset.symbol;
+            if (!normalizedSymbol.endsWith('USDT') && !normalizedSymbol.includes(':') && !normalizedSymbol.includes('/')) {
+              normalizedSymbol = `${normalizedSymbol}USDT`;
             }
-            if (data[binanceSymbol.toUpperCase()]) {
-              newPrices[asset.symbol] = parseFloat(data[binanceSymbol.toUpperCase()]).toLocaleString(undefined, {
+            if (data[normalizedSymbol.toUpperCase()]) {
+              newPrices[asset.symbol] = parseFloat(data[normalizedSymbol.toUpperCase()]).toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 4
               });

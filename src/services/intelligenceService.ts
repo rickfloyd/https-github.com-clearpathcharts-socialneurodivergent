@@ -4,7 +4,7 @@ import { collection, query, orderBy, limit, getDocs, addDoc, serverTimestamp, do
 
 // Lazy AI initialization to prevent top-level module errors
 let aiInstance: any = null;
-const AI_MAINTENANCE_MODE = true; // Weekend Maintenance
+const AI_MAINTENANCE_MODE = false; // Maintenance complete
 const getAI = () => {
   if (AI_MAINTENANCE_MODE) return null;
   if (!aiInstance) {

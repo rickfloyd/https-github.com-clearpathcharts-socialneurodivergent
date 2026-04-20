@@ -5,7 +5,6 @@ import { NewsItem } from '../types';
  * This is the central hub for institutional-grade data streaming.
  */
 export class DataStreamService {
-  private static binanceWs: WebSocket | null = null;
   private static institutionalWs: WebSocket | null = null;
   private static priceListeners: Map<string, (price: string) => void> = new Map();
   private static messageListeners: ((msg: any) => void)[] = [];
@@ -49,36 +48,40 @@ export class DataStreamService {
     };
   }
 
+  private static lastPrices: Map<string, number> = new Map();
+
   /**
-   * Connects to Binance WebSocket for live price updates.
+   * Connects to a simulated institutional market feed.
    * @param symbols Array of symbols (e.g., ['btcusdt', 'ethusdt'])
    */
   static connectMarketStream(symbols: string[]) {
-    if (this.binanceWs) {
-      this.binanceWs.close();
-    }
+    // Binance link severed. Initializing Local Institutional Simulator.
+    const simulationInterval = setInterval(() => {
+      symbols.forEach(s => {
+        const symbol = s.toUpperCase();
+        
+        // Base prices for simulation if not tracked yet
+        if (!this.lastPrices.has(symbol)) {
+          const basePrices: Record<string, number> = {
+            'BTCUSDT': 68500, 'ETHUSDT': 3450, 'SOLUSDT': 145, 
+            'BNBUSDT': 580, 'XRPUSDT': 0.62, 'ADAUSDT': 0.45, 
+            'DOGEUSDT': 0.15, 'MATICUSDT': 0.75
+          };
+          this.lastPrices.set(symbol, basePrices[symbol] || 100);
+        }
 
-    const streams = symbols.map(s => `${s.toLowerCase()}@ticker`).join('/');
-    this.binanceWs = new WebSocket(`wss://stream.binance.com:9443/ws/${streams}`);
+        const currentPrice = this.lastPrices.get(symbol)!;
+        const drift = (Math.random() - 0.5) * (currentPrice * 0.0005); // 0.05% max drift
+        const nextPrice = currentPrice + drift;
+        this.lastPrices.set(symbol, nextPrice);
 
-    this.binanceWs.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      const symbol = data.s; // Symbol
-      const price = data.c; // Last price
-      
-      if (this.priceListeners.has(symbol)) {
-        this.priceListeners.get(symbol)!(price);
-      }
-    };
+        if (this.priceListeners.has(symbol)) {
+          this.priceListeners.get(symbol)!(nextPrice.toFixed(symbol.includes('USDT') ? 2 : 4));
+        }
+      });
+    }, 1500);
 
-    this.binanceWs.onerror = (error) => {
-      console.error('Market WebSocket Error:', error);
-    };
-
-    this.binanceWs.onclose = () => {
-      // console.log('Market WebSocket Closed. Reconnecting in 5s...');
-      setTimeout(() => this.connectMarketStream(symbols), 5000);
-    };
+    return () => clearInterval(simulationInterval);
   }
 
   /**

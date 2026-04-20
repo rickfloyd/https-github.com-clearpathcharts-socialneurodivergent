@@ -2,20 +2,23 @@ import React, { useEffect, useState } from 'react';
 import { TrendingUp, Zap, Calendar, Book } from 'lucide-react';
 import { InterfaceProfile, TraderProfile, EventObject, NewsItem as NewsItemType } from '../types';
 import { DataStreamService } from '../services/dataStreamService';
-import { RSSService } from '../services/rssService';
+import { RSSService, TerminalNewsItem } from '../services/rssService';
 
 interface NewsTerminalProps {
   profile: InterfaceProfile;
 }
 
 const RSS_FEEDS = [
-  { name: 'CNBC Finance', url: 'https://www.cnbc.com/id/100003114/device/rss/rss.html' },
-  { name: 'MarketWatch', url: 'https://www.marketwatch.com/rss/topstories' },
-  { name: 'Yahoo Finance', url: 'https://finance.yahoo.com/rss/' },
-  { name: 'FreshRSS Institutional', url: 'https://freshrss.org/feed.xml' },
-  { name: 'Investing.com Markets', url: 'https://www.investing.com/rss/market_overview.rss' },
-  { name: 'ET Markets (SentiTrade)', url: 'https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms' },
-  { name: 'Livemint Markets', url: 'https://www.livemint.com/rss/markets' }
+  { name: 'CNBC Finance', url: 'https://www.cnbc.com/id/100003114/device/rss/rss.html', category: 'Financial' },
+  { name: 'MarketWatch', url: 'https://www.marketwatch.com/rss/topstories', category: 'Financial' },
+  { name: 'BBC World News', url: 'http://feeds.bbci.co.uk/news/world/rss.xml', category: 'World' },
+  { name: 'CNN World News', url: 'http://rss.cnn.com/rss/edition_world.rss', category: 'World' },
+  { name: 'Yahoo Finance', url: 'https://finance.yahoo.com/rss/', category: 'Financial' },
+  { name: 'Investing.com Markets', url: 'https://www.investing.com/rss/market_overview.rss', category: 'Market' },
+  { name: 'ET Markets', url: 'https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms', category: 'Financial' },
+  { name: 'Livemint Markets', url: 'https://www.livemint.com/rss/markets', category: 'Financial' },
+  { name: 'NYT World', url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', category: 'World' },
+  { name: 'LA Times (Local/West)', url: 'https://www.latimes.com/world-nation/rss2.0.xml', category: 'Local' }
 ];
 
 const DEFAULT_TRADER_PROFILE: TraderProfile = {
@@ -81,16 +84,7 @@ function calculateImpactScore(event: any, profile: TraderProfile): { score: numb
   };
 }
 
-interface TerminalNewsItem {
-  title: string;
-  link: string;
-  category: string;
-  image?: string;
-  timestamp: string;
-  description?: string;
-  author?: string;
-  readTime?: string;
-}
+// TerminalNewsItem imported from rssService
 
 interface RiskAlert {
   title: string;
@@ -119,7 +113,48 @@ interface GridStatus {
 }
 
 export default function NewsTerminal({ profile }: NewsTerminalProps) {
-  const [news, setNews] = useState<TerminalNewsItem[]>([]);
+  const [news, setNews] = useState<TerminalNewsItem[]>([
+    {
+      title: "DXY COMMANDER REACHES CRITICAL THRESHOLD: LIQUIDITY EVENT IMMINENT",
+      link: "#",
+      category: "Institutional",
+      image: "https://picsum.photos/seed/dxy/800/600",
+      timestamp: "LIVE",
+      description: "Neural models track massive institutional repositioning in Dollar Index at 104.50 pivot.",
+      author: "ClearPath Core",
+      readTime: "1 min"
+    },
+    {
+      title: "FED LIQUIDITY INJECTION DETECTED // JXY SECTOR REBALANCING",
+      link: "#",
+      category: "Market",
+      image: "https://picsum.photos/seed/liquidity/800/600",
+      timestamp: "LIVE",
+      description: "Anomalous capital flows observed in Yen crosses. Institutional bias shifting to risk-off.",
+      author: "Market Alpha",
+      readTime: "3 min"
+    },
+    {
+      title: "XAUUSD INSTITUTIONAL ACCUMULATION // NEURAL BIAS: BULLISH",
+      link: "#",
+      category: "Institutional",
+      image: "https://picsum.photos/seed/gold/800/600",
+      timestamp: "LIVE",
+      description: "Sub-millisecond data confirms heavy buy-side order blocks at 2150 level.",
+      author: "ClearPath Intel",
+      readTime: "2 min"
+    },
+    {
+      title: "QUANTUM DIVERGENCE DETECTED IN CRYPTO DOMINANCE",
+      link: "#",
+      category: "Market",
+      image: "https://picsum.photos/seed/crypto/800/600",
+      timestamp: "LIVE",
+      description: "BTC dominance reaches multi-year highs as altcoin liquidity drains into digital gold.",
+      author: "System Alpha",
+      readTime: "5 min"
+    }
+  ]);
   const [riskAlerts, setRiskAlerts] = useState<RiskAlert[]>([]);
   const [civicData, setCivicData] = useState<CivicData>({ status: 'Monitoring...', source: 'Democracy Works' });
   const [masterUpdates, setMasterUpdates] = useState<EventObject[]>([]);
@@ -129,7 +164,7 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
 
-  const categories = ['All', 'Tech', 'AI', 'Federal', 'Market', 'Risk', 'Institutional', 'Local', 'Top Impact', 'RSS', 'Journal / Calendars', 'Sentiment'];
+  const categories = ['All', 'World', 'Financial', 'Market', 'Tech', 'AI', 'Federal', 'Institutional', 'Local', 'Risk', 'Top Impact', 'RSS', 'Journal / Calendars', 'Sentiment'];
 
   useEffect(() => {
     async function fetchNews() {
@@ -141,8 +176,8 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
             title: item.title,
             link: item.link || '#',
             category: item.category || 'Market',
-            image: `https://picsum.photos/seed/${index + 200}/800/600`,
-            timestamp: 'Just now',
+            image: item.image || `https://picsum.photos/seed/${index + 200}/800/600`,
+            timestamp: item.timestamp || 'Just now',
             description: item.description || 'Institutional intelligence report.',
             author: item.author || 'System Intel',
             readTime: item.readTime || '5 min'
@@ -150,7 +185,7 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
           setNews(mappedNews);
         }
       } catch (error) {
-        console.error('Error fetching news:', error);
+        console.warn('Warning fetching news:', error);
       } finally {
         setLoading(false);
       }
@@ -158,22 +193,18 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
 
     async function fetchRss() {
       try {
-        const allRssItems = [];
         for (const feed of RSS_FEEDS) {
           const enrichedItems = await RSSService.fetchAndAnalyze(feed.url);
-          const mappedItems = enrichedItems.map(item => ({
+          const mappedItems: TerminalNewsItem[] = enrichedItems.map(item => ({
             ...item,
-            category: (feed.name.includes('FreshRSS')) 
-              ? 'Journal / Calendars' 
-              : (feed.name.includes('SentiTrade') || feed.name.includes('Livemint') ? 'Sentiment' : item.category)
+            category: feed.category || item.category || 'RSS'
           }));
-          allRssItems.push(...mappedItems);
-          // Small delay to prevent hitting RPM limits
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          setNews(prev => [...prev, ...mappedItems]);
+          // Delay to stay within rate limits
+          await new Promise(resolve => setTimeout(resolve, 800));
         }
-        setNews(prev => [...prev, ...allRssItems]);
       } catch (error) {
-        console.error('Error fetching RSS feeds:', error);
+        console.warn('Warning fetching RSS feeds:', error);
       }
     }
 
@@ -205,7 +236,7 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
           setMasterUpdates(scoredUpdates);
         }
       } catch (error) {
-        console.error('Error fetching master updates:', error);
+        console.warn('Warning fetching master updates:', error);
       }
     }
 
@@ -256,6 +287,8 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
   const getCategoryIcon = (cat: string) => {
     switch (cat.toLowerCase()) {
       case 'market': return 'fa-solid fa-chart-line';
+      case 'financial': return 'fa-solid fa-sack-dollar';
+      case 'world': return 'fa-solid fa-earth-americas';
       case 'ai': return 'fa-solid fa-brain';
       case 'tech': return 'fa-solid fa-microchip';
       case 'federal': return 'fa-solid fa-building-columns';
@@ -281,14 +314,12 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
       </div>
 
       {/* Header & Hero Section */}
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase italic">
-          <span className="gradient-text">Institutional Grade</span><br />
-          <span className="text-white">Clarity</span>
+      <div className="text-left space-y-4">
+        <h1 className="text-2xl md:text-3xl font-black tracking-tighter uppercase italic">
+          <span style={{ color: '#FF4500' }}>MARKET NEWS //</span>
+          <span className="text-white ml-2">CLEARPATH STREAM</span>
         </h1>
-        <p className="text-gray-400 text-sm max-w-xl mx-auto font-medium">
-          Real-time analysis at the intersection of quantitative trading and high-level architectural design.
-        </p>
+        <div className="h-[2px] w-full bg-gradient-to-r from-[#FF4500] to-transparent opacity-50" />
       </div>
 
       {/* Navigation Filters */}
@@ -304,7 +335,7 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
                   : 'bg-white/5 text-white/50 border-white/10 hover:bg-white/10'
               }`}
             >
-              <span className="lava-hot-text">{cat}</span>
+              <span>{cat}</span>
             </button>
           ))}
         </div>
@@ -340,8 +371,10 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
                   i === 0 ? 'md:col-span-4 lg:col-span-4 lg:row-span-2' : 'md:col-span-2 lg:col-span-2'
                 }`}
               >
-                {/* Background Gradient Overlay */}
-                <div className="absolute inset-0 z-0 bg-gradient-to-br from-indigo-600/10 to-purple-600/10 group-hover:from-indigo-600/20 group-hover:to-purple-600/20 transition-all duration-500" />
+                {/* INSTITUTIONAL NEURAL PATTERN */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+                     style={{ backgroundImage: `radial-gradient(${profile.ui.accent} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-black/20 to-black/40 pointer-events-none" />
                 
                 {/* Content */}
                 <div className="relative z-10 h-full flex flex-col justify-between">
@@ -354,9 +387,9 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
                       <span className="text-[9px] font-mono text-gray-500 uppercase">{item.timestamp}</span>
                     </div>
                     
-                    <h2 className={`font-bold leading-tight group-hover:text-indigo-300 transition-colors ${
+                    <h2 className={`font-bold leading-tight transition-colors ${
                       i === 0 ? 'text-2xl md:text-3xl mb-3' : 'text-lg mb-2 line-clamp-2'
-                    }`}>
+                    }`} style={{ color: '#E0115F' }}>
                       {item.title}
                     </h2>
                     
@@ -385,7 +418,9 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
               if (activeCategory === 'Local' && item.source !== 'CA_LOCAL') return null;
               return (
                 <div key={`master-${i}`} className="bento-card md:col-span-2 glass rounded-2xl p-6 relative overflow-hidden group">
-                  <div className="absolute inset-0 z-0 bg-gradient-to-br from-gray-600/5 to-gray-600/10 group-hover:from-gray-600/10 group-hover:to-gray-600/20 transition-all" />
+                  {/* INSTITUTIONAL NEURAL PATTERN */}
+                  <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+                       style={{ backgroundImage: `radial-gradient(${profile.ui.accent} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
                   <div className="relative z-10 h-full flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-center mb-4">
@@ -399,7 +434,7 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
                           <span className="text-gray-600 text-[8px] font-mono">ID: {item.event_id || 'N/A'}</span>
                         </div>
                       </div>
-                      <h3 className="text-sm font-bold leading-tight text-white group-hover:text-indigo-300 transition-colors">{item.title}</h3>
+                      <h3 className="text-sm font-bold leading-tight transition-colors" style={{ color: '#E0115F' }}>{item.title}</h3>
                       <p className="text-[10px] text-gray-500 mt-3 font-medium leading-relaxed">{item.detail}</p>
                       
                       {item.impactExplanation && (
@@ -423,12 +458,14 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
             {/* State Infrastructure Stability Dashboard */}
             {(activeCategory === 'All' || activeCategory === 'Local') && (
               <div className={`bento-card md:col-span-4 glass rounded-2xl p-6 border-l-4 ${gridStatus.status === 'Normal' ? 'border-green-500' : 'border-red-500'} relative overflow-hidden`}>
-                <div className="absolute inset-0 z-0 bg-gradient-to-br from-green-600/5 to-blue-600/5" />
+                {/* INSTITUTIONAL NEURAL PATTERN */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+                     style={{ backgroundImage: `radial-gradient(${profile.ui.accent} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
                 <div className="relative z-10">
                   <div className="flex justify-between items-center mb-6">
                     <div className="flex items-center space-x-3">
                       <div className={`w-2 h-2 rounded-full ${gridStatus.status === 'Normal' ? 'bg-green-500' : 'bg-red-500'}`} />
-                      <h3 className="text-lg font-bold uppercase tracking-tighter">State Infrastructure Stability</h3>
+                      <h3 className="text-lg font-bold uppercase tracking-tighter" style={{ color: '#E0115F' }}>State Infrastructure Stability</h3>
                     </div>
                     <span className={`px-2 py-1 ${gridStatus.status === 'Normal' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'} text-[10px] font-black rounded uppercase tracking-widest`}>
                       LIVE MONITOR // {gridStatus.status}
@@ -441,7 +478,7 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
                     </div>
                     <div className="space-y-1">
                       <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Available Reserves</p>
-                      <p className={`text-3xl font-black font-mono tracking-tighter ${gridStatus.reserves < 2000 ? 'text-red-500' : 'text-white'}`}>
+                      <p className={`text-3xl font-black font-mono tracking-tighter ${gridStatus.reserves < 2000 ? 'text-red-500' : 'text-gray-300'}`}>
                         {gridStatus.reserves.toLocaleString()} <span className="text-xs text-gray-600">MW</span>
                       </p>
                     </div>
@@ -454,9 +491,10 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
                     <p className="text-[9px] text-gray-500 font-medium uppercase tracking-widest">Source: CAISO GridStatus.io // Real-Time 5m Feed</p>
                     <button 
                       onClick={() => setGridStatus(prev => ({ ...prev, reserves: 1850, status: 'Critical' }))}
-                      className="text-[9px] font-bold text-indigo-400 hover:text-indigo-300 transition-colors uppercase tracking-widest"
+                      className="text-[9px] font-bold transition-colors uppercase tracking-widest"
+                      style={{ color: '#FF4500' }}
                     >
-                      <span className="lava-hot-text">Simulate Critical Event</span>
+                      <span>Simulate Critical Event</span>
                     </button>
                   </div>
                 </div>
@@ -466,16 +504,18 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
             {/* California Intelligence Card */}
             {(activeCategory === 'All' || activeCategory === 'Local') && (
               <div className="bento-card md:col-span-2 lg:col-span-2 glass rounded-2xl p-6 flex flex-col">
-                <div className="absolute inset-0 z-0 bg-gradient-to-br from-yellow-600/10 to-orange-600/10" />
+                {/* INSTITUTIONAL NEURAL PATTERN */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+                     style={{ backgroundImage: `radial-gradient(${profile.ui.accent} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
                 <div className="relative z-10">
-                  <h3 className="text-xs font-bold text-yellow-400 mb-4 flex items-center uppercase tracking-widest">
+                  <h3 className="text-xs font-bold mb-4 flex items-center uppercase tracking-widest" style={{ color: '#E0115F' }}>
                     <i className="fas fa-map-marker-alt mr-2"></i>
                     California Intelligence
                   </h3>
                   <div className="space-y-4">
                     {masterUpdates.filter(u => u.source === 'CA_LOCAL').map((update, i) => (
                       <div key={i} className="border-l-2 border-yellow-500/30 pl-4 py-1">
-                        <p className="text-xs font-bold text-white leading-tight">{update.title}</p>
+                        <p className="text-xs font-bold text-gray-300 leading-tight">{update.title}</p>
                         <p className="text-[10px] text-gray-500 mt-1 leading-relaxed">{update.detail}</p>
                       </div>
                     ))}
@@ -489,9 +529,11 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
 
             {/* Market Velocity Card (Static/Dynamic Data) */}
             <div className="bento-card md:col-span-2 lg:col-span-2 glass rounded-2xl p-6 flex flex-col justify-between">
-              <div className="absolute inset-0 z-0 bg-gradient-to-br from-purple-600/10 to-blue-600/10" />
+              {/* INSTITUTIONAL NEURAL PATTERN */}
+              <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+                   style={{ backgroundImage: `radial-gradient(${profile.ui.accent} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
               <div className="relative z-10">
-                <h3 className="text-lg font-bold mb-4 flex items-center">
+                <h3 className="text-lg font-bold mb-4 flex items-center" style={{ color: '#E0115F' }}>
                   <i className="fas fa-bolt mr-2 text-purple-400"></i>
                   Market Velocity
                 </h3>
@@ -514,16 +556,18 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
 
             {/* Global Risk Alert Card */}
             <div className="bento-card md:col-span-2 lg:col-span-2 glass rounded-2xl p-6 flex flex-col" data-category="risk">
-              <div className="absolute inset-0 z-0 bg-gradient-to-br from-orange-600/10 to-red-600/10" />
+              {/* INSTITUTIONAL NEURAL PATTERN */}
+              <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+                   style={{ backgroundImage: `radial-gradient(${profile.ui.accent} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
               <div className="relative z-10">
-                <h3 className="text-sm font-bold text-orange-400 mb-4 flex items-center uppercase tracking-widest">
+                <h3 className="text-sm font-bold mb-4 flex items-center uppercase tracking-widest" style={{ color: '#E0115F' }}>
                   <i className="fas fa-exclamation-triangle mr-2"></i>
                   Global Risk Alert
                 </h3>
                 <div className="space-y-3">
                   {riskAlerts.map((alert, i) => (
                     <div key={i} className="flex flex-col border-l-2 border-orange-500/30 pl-3 py-1">
-                      <span className="text-[11px] font-bold text-white leading-tight">{alert.title}</span>
+                      <span className="text-[11px] font-bold text-gray-300 leading-tight">{alert.title}</span>
                       <span className="text-[9px] text-gray-500 uppercase mt-1">{alert.timestamp} // {alert.severity}</span>
                     </div>
                   ))}
@@ -533,14 +577,16 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
 
             {/* Civic Intelligence Card */}
             <div className="bento-card md:col-span-2 lg:col-span-2 glass rounded-2xl p-6 flex flex-col justify-center items-center text-center">
-              <div className="absolute inset-0 z-0 bg-gradient-to-br from-blue-600/10 to-indigo-600/10" />
+              {/* INSTITUTIONAL NEURAL PATTERN */}
+              <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+                   style={{ backgroundImage: `radial-gradient(${profile.ui.accent} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
               <div className="relative z-10">
-                <h3 className="text-sm font-bold text-blue-400 mb-4 flex items-center uppercase tracking-widest justify-center">
+                <h3 className="text-sm font-bold mb-4 flex items-center uppercase tracking-widest justify-center" style={{ color: '#E0115F' }}>
                   <i className="fas fa-vote-yea mr-2"></i>
                   Civic Intelligence
                 </h3>
                 <div className="py-4">
-                  <p className="text-2xl font-black text-white uppercase tracking-tighter italic">{civicData.status}</p>
+                  <p className="text-2xl font-black text-gray-300 uppercase tracking-tighter italic">{civicData.status}</p>
                   <p className="text-[9px] text-gray-500 uppercase mt-2 tracking-widest">Source: {civicData.source}</p>
                 </div>
                 <div className="mt-4 pt-4 border-t border-white/5">
@@ -555,8 +601,8 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
       {/* Footer Branding */}
       <div className="flex items-center justify-between pt-6 border-t border-white/5">
         <div className="flex items-center space-x-2">
-          <div className="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-600 rounded flex items-center justify-center">
-            <i className="fas fa-chart-line text-[10px] text-white"></i>
+          <div className="w-6 h-6 bg-[#292929] rounded flex items-center justify-center">
+            <i className="fas fa-chart-line text-[10px] text-gray-400"></i>
           </div>
           <span className="text-[10px] font-black uppercase tracking-widest opacity-50">INSTITUTIONAL ADAPTIVE INSIGHTS // 2026</span>
         </div>
@@ -585,9 +631,9 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
               </div>
               <button 
                 onClick={() => setGridStatus(prev => ({ ...prev, reserves: 3419, status: 'Normal' }))}
-                className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-red-600/20"
+                className="w-full py-4 bg-red-600 stroke-transparent hover:bg-red-700 text-white font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-red-600/20"
               >
-                <span className="lava-hot-text">Acknowledge & Monitor</span>
+                <span>Acknowledge & Monitor</span>
               </button>
             </div>
           </div>

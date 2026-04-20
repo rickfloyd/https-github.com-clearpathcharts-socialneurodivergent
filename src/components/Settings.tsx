@@ -78,20 +78,19 @@ const Settings: React.FC<SettingsProps> = ({ profile: interfaceProfile }) => {
             >
               <div className="flex items-center space-x-3">
                 <item.icon size={18} />
-                <span className="font-bold text-sm lava-hot-text">{item.label}</span>
+                <span className="font-bold text-sm" style={{ color: interfaceProfile.ui.accent }}>{item.label}</span>
               </div>
               <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
             </button>
           ))}
           
           <div className="pt-8">
-            <button 
-              onClick={handleLogout}
-              className="w-full flex items-center space-x-3 p-3 text-red-500 hover:bg-red-500/10 rounded-xl transition-all font-bold text-sm"
-            >
-              <LogOut size={18} />
-              <span className="lava-hot-text">Sign Out</span>
-            </button>
+            <div className="p-4 rounded-xl border border-indigo-500/10 bg-indigo-500/5">
+              <p className="text-[10px] font-black uppercase tracking-widest text-indigo-500/60 leading-relaxed text-center">
+                Institutional Bridge Active<br/>
+                No manual termination required
+              </p>
+            </div>
           </div>
         </div>
 
@@ -107,7 +106,7 @@ const Settings: React.FC<SettingsProps> = ({ profile: interfaceProfile }) => {
                 <div className="relative group">
                   <img src={userProfile?.photoURL || user?.photoURL || ''} className="w-20 h-20 rounded-full object-cover border-2 transition-all" style={{ borderColor: interfaceProfile.ui.accent }} />
                   <button className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full text-white text-[10px] font-bold uppercase">
-                    <span className="lava-hot-text">Change</span>
+                    <span style={{ color: interfaceProfile.ui.accent }}>Change</span>
                   </button>
                 </div>
                 <div className="flex-1">
@@ -157,8 +156,8 @@ const Settings: React.FC<SettingsProps> = ({ profile: interfaceProfile }) => {
                       <setting.icon size={18} />
                     </div>
                     <div>
-                      <p className="text-sm font-bold lava-hot-text">{setting.label}</p>
-                      <p className="text-[10px] font-medium opacity-50 lava-hot-text">Adjust your visual experience</p>
+                      <p className="text-sm font-bold" style={{ color: interfaceProfile.ui.accent }}>{setting.label}</p>
+                      <p className="text-[10px] font-medium opacity-50" style={{ color: interfaceProfile.ui.accent }}>Adjust your visual experience</p>
                     </div>
                   </div>
                   <button 
@@ -188,8 +187,8 @@ const Settings: React.FC<SettingsProps> = ({ profile: interfaceProfile }) => {
                     <Lock size={18} />
                   </div>
                   <div>
-                    <p className="text-sm font-bold lava-hot-text">Two-Factor Authentication</p>
-                    <p className="text-[10px] font-medium opacity-50 lava-hot-text">Add an extra layer of security</p>
+                    <p className="text-sm font-bold" style={{ color: interfaceProfile.ui.accent }}>Two-Factor Authentication</p>
+                    <p className="text-[10px] font-medium opacity-50" style={{ color: interfaceProfile.ui.accent }}>Add an extra layer of security</p>
                   </div>
                 </div>
                 <ChevronRight size={18} className="opacity-50" style={{ color: interfaceProfile.ui.text }} />

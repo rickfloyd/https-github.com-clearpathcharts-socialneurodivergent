@@ -37,7 +37,9 @@ import {
   Edit3,
   Link as LinkIcon,
   Book,
-  Layout
+  Layout,
+  Terminal,
+  Cpu
 } from 'lucide-react';
 import { getFriendlyLocation } from '../services/locationService';
 import { motion, AnimatePresence } from 'motion/react';
@@ -52,8 +54,13 @@ import { INTERFACE_PROFILES } from '../lib/interface/profiles';
 import { useAuth } from '../contexts/FirebaseContext';
 import { DailyLegalModal } from './DailyLegalModal';
 import SEO from './SEO';
+import { VoiceAssistant } from './VoiceAssistant';
+import { ChartFrame } from './charts/ChartFrame';
+import { LightweightCandles } from './charts/LightweightCandles';
 
 // Lazy load sub-components
+const NewsHub = lazy(() => import('./NewsHub'));
+const AutomationLab = lazy(() => import('./AutomationLab'));
 const NewsTerminal = lazy(() => import('./NewsTerminal'));
 const TradingJournal = lazy(() => import('./TradingJournal'));
 const MarketAssetsList = lazy(() => import('./MarketAssetsList'));
@@ -68,11 +75,11 @@ const AILab = lazy(() => import('./AILab'));
 const Photos = lazy(() => import('./Photos'));
 const TodoList = lazy(() => import('./TodoList'));
 const TerminalSettings = lazy(() => import('./Settings'));
+const MarketTicker = lazy(() => import('./MarketTicker'));
 const ExecutivePerformance = lazy(() => import('./ExecutivePerformance').then(m => ({ default: m.ExecutivePerformance })));
 const IntelligenceGateway = lazy(() => import('./dashboard/IntelligenceGateway').then(m => ({ default: m.IntelligenceGateway })));
 const LightweightMarketUI = lazy(() => import('./markets/LightweightMarketUI').then(m => ({ default: m.LightweightMarketUI })));
 const StandardMarketUI = lazy(() => import('./markets/StandardMarketUI').then(m => ({ default: m.StandardMarketUI })));
-const VoiceAssistant = lazy(() => import('./VoiceAssistant').then(m => ({ default: m.VoiceAssistant })));
 
 function TabLoading() {
   return (
@@ -96,9 +103,9 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
     retryConnection,
     logout
   } = useAuth();
-  const [leftSide, setLeftSide] = useState(false);
+  const [leftSide, setLeftSide] = useState(true);
   const [rightSide, setRightSide] = useState(false);
-  const [activeTab, setActiveTab] = useState('Home');
+  const [activeTab, setActiveTab] = useState('Market');
   const [isAiWidgetOpen, setIsAiWidgetOpen] = useState(false);
   const [isEditingIntro, setIsEditingIntro] = useState(false);
   const [statusText, setStatusText] = useState('');
@@ -121,7 +128,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
       if (action === 'navigate') {
         // Map common spoken words to tab IDs
         const targetMap: Record<string, string> = {
-          'home': 'Home',
+          'home': 'Market',
           'sentinel': 'Sentinel',
           'insights': 'Insights',
           'market': 'Market',
@@ -240,15 +247,17 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
   };
 
   const menuItems = [
-    { id: 'Home', icon: TrendingUp, label: 'MARKET HUB' },
-    { id: 'InterfaceHub', icon: Brain, label: 'NEURODIVERGENCE HUB' },
-    { id: 'Intelligence', icon: MessageSquare, label: 'INTELLECTUAL FEED' },
+    { id: 'Market', icon: TrendingUp, label: 'MARKET HUB' },
+    { id: 'Intelligence', icon: Newspaper, label: 'INTELLIGENCE' },
+    { id: 'Timeline', icon: Terminal, label: 'CLEARPATH STREAM' },
+    { id: 'Automations', icon: Cpu, label: 'CREW AUTOMATIONS' },
+    { id: 'Neurodivergent', icon: Brain, label: 'NEURODIVERGENT HUB' },
     { id: 'Biography', icon: Bot, label: 'NEURAL IDENTITY' },
     { id: 'Sentinel', icon: Shield, label: 'NEURAL ASSAILLANT' },
     { id: 'Journal', icon: BookOpen, label: 'TRADING JOURNAL' },
     { id: 'Tasks', icon: Layout, label: 'TACTICAL TASKS' },
     { id: 'AILab', icon: Zap, label: 'LAVA INTERNATIONAL LAB' },
-    { id: 'CptBible', icon: Book, label: 'THE CPT BIBLE' },
+    { id: 'Bible', icon: Book, label: 'THE CPT BIBLE' },
     { id: 'Settings', icon: SettingsIcon, label: 'SYSTEM SETTINGS' },
   ];
 
@@ -270,12 +279,12 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
 
   const getSeoData = () => {
     switch (activeTab) {
-      case 'Home':
+      case 'Market':
         return { title: 'Market Hub', description: 'Institutional market data terminal and live trading charts.' };
-      case 'Sentinel':
-        return { title: 'Neural Sentinel', description: 'Advanced trading safety systems and security protocols.' };
-      case 'Intelligence':
-        return { title: 'Intelligence Feed', description: 'Curated institutional financial intelligence and news.' };
+      case 'Timeline':
+        return { title: 'ClearPath Stream', description: 'Institutional post feed and community market pulse.' };
+      case 'Automations':
+        return { title: 'Crew Automations', description: 'Autonomous market intelligence and content orchestration.' };
       case 'Journal':
         return { title: 'Trading Journal', description: 'Comprehensive trade logging and performance analysis.' };
       case 'AILab':
@@ -293,29 +302,28 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
 
   return (
     <div 
-      className="flex w-full h-[100dvh] overflow-hidden text-[#ccc8db] font-sans selection:bg-indigo-500 selection:lava-hot-text transition-colors duration-1000"
+      className="flex w-full h-[100dvh] overflow-hidden text-[#ccc8db] font-sans selection:bg-indigo-500 transition-colors duration-1000"
       style={{ background: profile.ui.bgTop }}
     >
       <SEO title={seoData.title} description={seoData.description} />
       {/* Left Sidebar */}
       <div className={`
-        fixed inset-y-0 left-0 z-50 w-[260px] border-r flex flex-col transition-all duration-300 glass
+        fixed inset-y-0 left-0 z-50 w-[280px] border-r flex flex-col transition-all duration-300 glass
         lg:relative lg:translate-x-0
-        ${leftSide ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-        ${!leftSide && 'lg:w-[56px]'}
+        ${leftSide ? 'translate-x-0' : '-translate-x-full'}
       `}
       style={{ borderColor: `${profile.ui.accent}22` }}
       >
         <div 
           className="flex items-center px-6 h-[80px] border-b border-[#ffffff08] sticky top-0 z-10 cursor-pointer hover:opacity-80 transition-opacity" 
-          onClick={() => setActiveTab('Home')}
+          onClick={() => setActiveTab('Market')}
         >
           <div className="flex items-center space-x-3">
-            <div className={`w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 transition-all duration-300 ${!leftSide && 'lg:scale-0 lg:opacity-0'}`}>
+            <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
               <Brain className="text-indigo-400" size={18} />
             </div>
-            <div className={`transition-all duration-300 ${!leftSide && 'lg:rotate-180 lg:[writing-mode:vertical-lr] lg:ml-[-5px]'}`}>
-              <div className="font-black tracking-tighter text-[11px] leading-tight text-white uppercase italic">
+            <div>
+              <div className="font-black tracking-tighter text-[11px] leading-tight uppercase italic name-text">
                 CLEARPATH TRADER
               </div>
               <div className="text-[7px] font-bold tracking-[0.3em] text-[#5c5e6e] uppercase mt-0.5">
@@ -327,8 +335,8 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
 
         {/* Sidebar Toggle button removed per user request to avoid covering other buttons */}
 
-        <div className={`flex-1 overflow-y-auto custom-scrollbar px-4 py-8 transition-opacity duration-300 ${!leftSide && 'lg:opacity-0 lg:pointer-events-none'}`}>
-          <div className="text-[#5c5e6e] text-[8px] font-black mb-6 uppercase tracking-[0.3em] px-4">
+        <div className="flex-1 overflow-y-auto custom-scrollbar px-4 py-8">
+          <div className="text-[8px] font-black mb-6 uppercase tracking-[0.3em] px-4" style={{ color: '#E0115F' }}>
             Institutional Navigation
           </div>
           <nav className="flex flex-col space-y-2">
@@ -356,14 +364,6 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
 
           <div className="mt-auto pt-10">
             <div className="space-y-3">
-              <button 
-                onClick={() => logout()}
-                className="w-full flex items-center px-4 py-4 rounded-xl border border-red-500/10 bg-red-500/5 text-red-500/80 hover:bg-red-500 hover:text-black transition-all group"
-              >
-                <LogOut size={16} className="mr-3 transition-transform group-hover:-translate-x-1" />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Logout Session</span>
-              </button>
-
               <button 
                 onClick={() => setShowMarketPulse(!showMarketPulse)}
                 className="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-[#ffffff10] bg-[#ffffff05] hover:bg-[#ffffff08] group transition-all"
@@ -410,7 +410,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
             <Share2 size={16} className="mr-2" />
             ClearPath Protocol Access
           </div>
-          <div className="absolute inset-0 bg-[#ffffff05] lava-hot-text flex items-center px-5 translate-y-[-100%] group-hover:translate-y-0 transition-transform duration-300">
+          <div className="absolute inset-0 bg-[#ffffff05] flex items-center px-5 translate-y-[-100%] group-hover:translate-y-0 transition-transform duration-300" style={{ color: profile.ui.accent }}>
             <img src={userProfile?.photoURL || authUser?.photoURL || ''} className="w-[26px] h-[26px] rounded-full mr-2 object-cover border border-[#ffffff20]" />
             <span className="text-[10px] font-black uppercase tracking-widest">{userProfile?.displayName || authUser?.displayName || 'EXECUTIVE'}</span>
           </div>
@@ -419,6 +419,13 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden relative" style={{ background: profile.ui.bgTop }}>
+        {/* TOP INSTITUTIONAL TICKER */}
+        <div className="z-40">
+          <Suspense fallback={<div className="h-10 bg-black/40 animate-pulse border-b border-white/5" />}>
+            <MarketTicker profile={profile} />
+          </Suspense>
+        </div>
+
         {/* Search Bar */}
         {activeTab !== 'Insights' && (
           <>
@@ -433,12 +440,12 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                   <Menu size={20} />
                 </button>
                 <button 
-                  onClick={() => setActiveTab('Home')}
+                  onClick={() => setActiveTab('Market')}
                   className="flex items-center space-x-2 px-4 py-1.5 rounded-full border transition-all hover:scale-105"
                   style={{ 
-                    background: activeTab === 'Home' ? profile.ui.accent : 'transparent',
+                    background: activeTab === 'Market' ? profile.ui.accent : 'transparent',
                     borderColor: profile.ui.accent,
-                    color: activeTab === 'Home' ? profile.ui.bgTop : profile.ui.accent
+                    color: activeTab === 'Market' ? profile.ui.bgTop : profile.ui.accent
                   }}
                 >
                   <Home size={16} />
@@ -491,7 +498,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                 <label className="flex items-center space-x-2 bg-black/40 hover:bg-black/60 backdrop-blur-md px-3 py-2 rounded-lg cursor-pointer transition-all border"
                        style={{ color: profile.ui.accent, borderColor: `${profile.ui.accent}33` }}>
                   <ImageIcon size={14} />
-                  <span className="text-[10px] font-black uppercase tracking-widest lava-hot-text">Upload</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: profile.ui.accent }}>Upload</span>
                   <input 
                     type="file" 
                     className="hidden" 
@@ -510,44 +517,68 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                 </div>
               </div>
 
-              <div className="absolute bottom-4 left-6 flex items-center z-10">
-                <div className="relative group/avatar surfboard-profile-outline border-4 border-[#FF4500] shadow-[0_0_30px_#FF4500] lava-gradient-bg" style={{ width: '120px', height: '200px' }}>
-                  <img 
-                    src={user.avatar} 
-                    className="surfboard-img" 
-                    alt="Avatar" 
-                  />
-                  <div className="absolute bottom-2 right-2 w-5 h-5 border-4 rounded-full" style={{ background: profile.ui.accent, borderColor: profile.ui.bgBottom }} />
-                  
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 surfboard-profile-outline opacity-0 group-hover/avatar:opacity-100 transition-opacity flex-col space-y-2 z-20" style={{ width: '100%', height: '100%', padding: 0 }}>
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); handleImageUrlPrompt('avatar'); }}
-                      className="p-2 bg-indigo-500 rounded-full text-white hover:scale-110 transition-all shadow-lg"
-                      title="Link GIF/Photo"
-                    >
-                      <LinkIcon size={16} />
-                    </button>
-                    <label 
-                      className="p-2 bg-white rounded-full text-black cursor-pointer hover:scale-110 transition-all shadow-lg"
-                      title="Upload Photo"
-                    >
-                      <ImageIcon size={16} />
-                      <input 
-                        type="file" 
-                        className="hidden" 
-                        accept="image/*"
-                        onChange={(e) => handleImageUpload(e, 'avatar')}
-                      />
-                    </label>
+              <div className="absolute bottom-6 left-12 flex items-end z-10 group/avatar">
+                <div className="relative">
+                  <div className="surfboard-profile-outline neon-indigo-card overflow-hidden z-10 shadow-[0_0_30px_rgba(99,102,241,0.3)]" style={{ width: '130px', height: '220px', borderColor: profile.ui.accent }}>
+                    <img 
+                      src={user.avatar} 
+                      className="surfboard-img" 
+                      alt="Avatar" 
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex-col space-y-2 z-20">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleImageUrlPrompt('avatar'); }}
+                        className="p-2 bg-indigo-500 rounded-full text-white hover:scale-110 transition-all shadow-lg"
+                        title="Link GIF/Photo"
+                      >
+                        <LinkIcon size={16} />
+                      </button>
+                      <label 
+                        className="p-2 bg-white rounded-full text-black cursor-pointer hover:scale-110 transition-all shadow-lg"
+                        title="Upload Photo"
+                      >
+                        <ImageIcon size={16} />
+                        <input 
+                          type="file" 
+                          className="hidden" 
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload(e, 'avatar')}
+                        />
+                      </label>
+                    </div>
                   </div>
+                  <div className="absolute bottom-6 right-2 w-8 h-8 border-4 border-black rounded-lg z-20 shadow-lg" style={{ background: '#FF4500' }} />
                 </div>
-                <div className="ml-6 mb-8">
-                  <h2 className="text-4xl font-black tracking-tighter uppercase italic flex items-center gap-2" style={{ color: profile.ui.accent }}>
-                    {user.name} <CheckCircle2 size={24} className="fill-indigo-500/20 text-indigo-500" />
+                <div className="ml-10 mb-6">
+                  <h2 className="text-5xl font-black tracking-tighter uppercase italic flex items-center gap-4 name-text">
+                    {user.name} <CheckCircle2 size={40} className="fill-indigo-500/20 text-indigo-500 drop-shadow-[0_0_10px_#6366f1]" />
                   </h2>
-                  <p className="text-xs font-mono uppercase tracking-[0.3em] opacity-50" style={{ color: profile.ui.text }}>
-                    Institutional Executive // ClearPath Bridge Active
+                  <p className="text-sm font-mono uppercase tracking-[0.5em] font-black" style={{ color: profile.ui.accent }}>
+                    @{user.name.toLowerCase().replace(/\s+/g, '_')} // Institutional Executive // V4.1 Bridge
                   </p>
+                </div>
+              </div>
+
+              {/* Horizontal Tabs - Matching "Real UI" layout */}
+              <div className="absolute bottom-0 left-[160px] h-[60px] flex items-center px-10">
+                <div className="flex items-center space-x-8">
+                  {['Timeline', 'Market', 'About', 'Neurodivergent', 'Photos', 'Settings'].map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`text-xs font-black uppercase tracking-[0.2em] transition-all relative py-2 ${
+                        activeTab === tab ? 'text-white' : 'text-gray-500 hover:text-white'
+                      }`}
+                    >
+                      {tab}
+                      {activeTab === tab && (
+                        <motion.div 
+                          layoutId="header-tab-accent-final"
+                          className="absolute bottom-0 left-0 right-0 h-1 bg-indigo-500 rounded-full shadow-[0_0_15px_#6366f1]" 
+                        />
+                      )}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -556,36 +587,113 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
           {/* Content Views */}
           <Suspense fallback={<TabLoading />}>
             <AnimatePresence mode="wait">
-            {activeTab === 'Home' && (
+            { activeTab === 'Timeline' && (
               <motion.div 
-                key="home"
+                key="timeline"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 className="space-y-12"
               >
-                <div className="max-w-6xl mx-auto px-4 pt-8 space-y-8">
-                  {/* Welcome section removed per user request */}
-                </div>
-
-                <div className="max-w-6xl mx-auto px-4">
-                  <div className="flex items-center space-x-3 mb-6">
-                    <TrendingUp size={20} className="text-indigo-500" />
-                    <h3 className="text-xl font-black tracking-tighter uppercase italic" style={{ color: profile.ui.text }}>
-                      Live <span style={{ color: profile.ui.accent }}>Market Feed</span>
-                    </h3>
-                  </div>
-                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    <div className="lg:col-span-3 h-[500px] rounded-3xl overflow-hidden border border-white/5 shadow-2xl glass">
-                      <LiveChart symbol="BTCUSDT" theme={{ upColor: profile.candles.upColor, downColor: profile.candles.downColor, accent: profile.ui.accent }} />
-                    </div>
-                    <div className="lg:col-span-1 space-y-6">
-                      <ExecutivePerformance />
-                    </div>
+                <div className="max-w-6xl mx-auto px-4 pt-8 space-y-12">
+                  <div className="neon-indigo-card rounded-3xl overflow-hidden glass p-1">
+                    <Timeline profile={profile} />
                   </div>
                 </div>
+              </motion.div>
+            )}
 
-                <Timeline profile={profile} />
+            { activeTab === 'Market' && (
+              <motion.div 
+                key="market-institutional"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="max-w-7xl mx-auto px-6 pt-12 space-y-16 pb-32"
+              >
+                {/* Visuals Header */}
+                <div className="space-y-4">
+                  <h1 className="text-4xl font-black italic tracking-tighter flex items-center gap-4">
+                    <Zap size={32} className="fill-indigo-500/20" style={{ color: profile.ui.accent }} />
+                    <span className="name-text">CLEARPATH</span>
+                    <span className="text-white">TRADER</span>
+                  </h1>
+                  <div className="flex items-center gap-2">
+                    {['1S', '5S', '15S', '30S', '1m', '5m', '15m', '30m', '1H', '4H', '1D', '1W', '1M', '3M', '6M'].map(tf => (
+                      <button 
+                        key={tf} 
+                        className={`px-4 py-2 rounded-md text-[11px] font-black tracking-widest border transition-all ${
+                          tf === '1H' 
+                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-[0_0_15px_#6366f1]' 
+                            : 'bg-black/40 border-white/10 text-white/40 hover:text-white'
+                        }`}
+                      >
+                        {tf}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="h-2 w-full bg-black/40 rounded-full overflow-hidden border border-white/5 relative">
+                    <div className="absolute top-0 left-0 h-full w-[40%] bg-indigo-500 shadow-[0_0_15px_#6366f1]" style={{ background: `linear-gradient(to right, ${profile.ui.accent}, ${profile.ui.accent}88)` }} />
+                  </div>
+                </div>
+
+                {/* 4-CHART INSTITUTIONAL GRID */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* CHART 1: XAUUSD */}
+                  <ChartFrame profileId={profile.id} symbol="GOLD">
+                    <div className="h-[450px] w-full">
+                      <LightweightCandles profileId={profile.id} symbol="XAUUSD" timeframe="1h" />
+                    </div>
+                  </ChartFrame>
+
+                  {/* CHART 2: OIL */}
+                  <ChartFrame profileId={profile.id} symbol="OIL">
+                    <div className="h-[450px] w-full">
+                      <LightweightCandles profileId={profile.id} symbol="WTI" timeframe="1h" />
+                    </div>
+                  </ChartFrame>
+
+                  {/* CHART 3: EURUSD */}
+                  <ChartFrame profileId={profile.id} symbol="EUR/USD">
+                    <div className="h-[450px] w-full">
+                      <LightweightCandles profileId={profile.id} symbol="EURUSD" timeframe="1h" />
+                    </div>
+                  </ChartFrame>
+
+                  {/* CHART 4: BTCUSD */}
+                  <ChartFrame profileId={profile.id} symbol="BTC/USD">
+                    <div className="h-[450px] w-full">
+                      <LightweightCandles profileId={profile.id} symbol="BTCUSD" timeframe="1h" />
+                    </div>
+                  </ChartFrame>
+                </div>
+              </motion.div>
+            )}
+
+            { activeTab === 'Intelligence' && (
+              <motion.div 
+                key="intelligence-stream"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="max-w-7xl mx-auto px-6 pt-12 space-y-16 pb-32"
+              >
+                {/* News Terminal Section */}
+                <div className="neon-indigo-card rounded-3xl overflow-hidden glass border-4 shadow-[0_0_30px_rgba(99,102,241,0.2)]" style={{ borderColor: profile.ui.accent }}>
+                  <div className="p-6 border-b bg-black/40 flex items-center justify-between" style={{ borderColor: `${profile.ui.accent}33` }}>
+                    <div className="flex items-center space-x-3">
+                      <Newspaper size={24} style={{ color: profile.ui.accent }} />
+                      <span className="text-xl font-black uppercase tracking-[0.4em]" style={{ color: profile.ui.text }}>CLEARPATH INTELLIGENCE STREAM</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: profile.ui.accent }} />
+                      <span className="text-[10px] font-mono font-bold" style={{ color: profile.ui.accent }}>CONNECTED // ZERO LATENCY</span>
+                    </div>
+                  </div>
+                  <div className="min-h-[700px] bg-black/20 p-6">
+                    <NewsTerminal profile={profile} />
+                  </div>
+                </div>
               </motion.div>
             )}
 
@@ -597,7 +705,9 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                 exit={{ opacity: 0, y: -20 }}
                 className="h-full"
               >
-                <SentinelContainer profile={profile} />
+                <div className="neon-indigo-card rounded-3xl overflow-hidden h-full">
+                  <SentinelContainer profile={profile} />
+                </div>
               </motion.div>
             )}
 
@@ -615,71 +725,20 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
               </motion.div>
             )}
 
-
-            {activeTab === 'Market' && (
+            {activeTab === 'Neurodivergent' && (
               <motion.div 
-                key="market"
+                key="neurodivergent"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="h-full flex flex-col"
               >
-                <div className="flex-1">
-                  <LightweightMarketUI profile={profile} onBack={() => setActiveTab('Home')} />
+                <div className="neon-indigo-card rounded-3xl overflow-hidden p-1 glass">
+                  <InterfaceOptimizationHub 
+                    profile={profile} 
+                    onProfileChange={onProfileChange} 
+                    onNavigate={(tab) => setActiveTab(tab)}
+                  />
                 </div>
-                <div className="p-8 border-t glass" style={{ borderColor: `${profile.ui.accent}11` }}>
-                  <div className="max-w-7xl mx-auto">
-                    <div className="flex items-center space-x-3 mb-6">
-                      <Activity size={20} className="text-indigo-500" />
-                      <h3 className="text-xl font-black tracking-tighter uppercase italic" style={{ color: profile.ui.text }}>
-                        System <span style={{ color: profile.ui.accent }}>Inventory</span>
-                      </h3>
-                    </div>
-                    <MarketAssetsList profile={profile} onAddChart={(symbol) => {
-                      // Update chart symbol
-                    }} />
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {activeTab === 'Standard' && (
-              <motion.div 
-                key="standard"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-              >
-                <StandardMarketUI profile={profile} onBack={() => setActiveTab('Home')} />
-              </motion.div>
-            )}
-
-            {activeTab === 'Biography' && (
-              <motion.div 
-                key="biography"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-              >
-                <About profile={profile} />
-              </motion.div>
-            )}
-
-            {activeTab === 'InterfaceHub' && (
-              <motion.div 
-                key="interface-hub"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-              >
-                <InterfaceOptimizationHub 
-                  profile={profile} 
-                  onProfileChange={onProfileChange} 
-                  onNavigate={(tab) => {
-                    const mapped = tab === 'interface-hub' || tab === 'neurodivergent' ? 'InterfaceHub' : tab;
-                    setActiveTab(mapped);
-                  }}
-                />
               </motion.div>
             )}
 
@@ -690,7 +749,35 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
               >
-                <TradingJournal profile={profile} onBackToDashboard={() => setActiveTab('Home')} />
+                <div className="neon-indigo-card rounded-3xl overflow-hidden glass border-2 border-[#FF4500]/40">
+                  <TradingJournal profile={profile} onBackToDashboard={() => setActiveTab('Market')} />
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'About' && (
+              <motion.div 
+                key="about-final"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <div className="neon-indigo-card rounded-3xl overflow-hidden glass border-2 border-[#FF4500]/40">
+                  <About profile={profile} />
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'Biography' && (
+              <motion.div 
+                key="biography-final"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <div className="neon-indigo-card rounded-3xl overflow-hidden glass border-2 border-[#FF4500]/40">
+                  <About profile={profile} />
+                </div>
               </motion.div>
             )}
 
@@ -701,74 +788,89 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
               >
-                <Photos profile={profile} />
+                <div className="neon-indigo-card rounded-3xl overflow-hidden border-2 border-[#FF4500]/40">
+                  <Photos profile={profile} />
+                </div>
               </motion.div>
             )}
 
-            {activeTab === 'news' && (
+            {(activeTab === 'news' || activeTab === 'Intelligence') && (
               <motion.div 
-                key="news"
+                key="news-hub"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="h-[600px]"
+                className="flex-1"
               >
-                <NewsTerminal profile={profile} />
+                <div className="neon-indigo-card rounded-3xl overflow-hidden border-2 border-[#FF4500]/40 shadow-[0_0_20px_rgba(255,69,0,0.1)]">
+                  <NewsHub profile={profile} />
+                </div>
+              </motion.div>
+            )}
+
+            {(activeTab === 'automations' || activeTab === 'Automations') && (
+              <motion.div 
+                key="automations-lab"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="flex-1"
+              >
+                <div className="neon-indigo-card rounded-3xl overflow-hidden border-2 border-[#FF4500]/40 shadow-[0_0_20px_rgba(255,69,0,0.1)]">
+                  <AutomationLab profile={profile} />
+                </div>
               </motion.div>
             )}
 
             {activeTab === 'Settings' && (
               <motion.div 
-                key="settings"
+                key="settings-panel"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
               >
-                <TerminalSettings profile={profile} />
+                <div className="neon-indigo-card rounded-3xl overflow-hidden glass p-4 border-2 border-[#FF4500]/40">
+                  <TerminalSettings profile={profile} />
+                </div>
               </motion.div>
             )}
 
-            {activeTab === 'CptBible' && (
+            {(activeTab === 'CptBible' || activeTab === 'Bible') && (
               <motion.div 
-                key="cpt-bible"
+                key="cpt-bible-final"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
               >
-                <CptBible profile={profile} />
-              </motion.div>
-            )}
-
-            {activeTab === 'Intelligence' && (
-              <motion.div 
-                key="intelligence"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-              >
-                <IntelligenceGateway onNavigate={(tab) => setActiveTab(tab)} />
+                <div className="neon-indigo-card rounded-3xl overflow-hidden border-2 border-[#FF4500]/40">
+                  <CptBible profile={profile} />
+                </div>
               </motion.div>
             )}
 
             {activeTab === 'AILab' && (
               <motion.div 
-                key="ai-lab"
+                key="ai-laboratory"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
               >
-                <AILab />
+                <div className="neon-indigo-card rounded-3xl overflow-hidden border-2 border-[#FF4500]/40">
+                  <AILab />
+                </div>
               </motion.div>
             )}
 
-            {activeTab === 'Tasks' && (
+            {(activeTab === 'Tasks' || activeTab === 'Tactical') && (
               <motion.div 
-                key="tasks"
+                key="tasks-final"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
               >
-                <TodoList profile={profile} />
+                <div className="neon-indigo-card rounded-3xl overflow-hidden border-2 border-[#FF4500]/40">
+                  <TodoList profile={profile} />
+                </div>
               </motion.div>
             )}
 
@@ -801,7 +903,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
           </button>
           <div className="flex items-center text-[#64677a] font-semibold text-sm cursor-pointer hover:text-white transition-colors">
             <span className="name-text font-bold" style={{ color: profile.ui.accent }}>{user.name}</span>
-            <div className="surfboard-profile-outline mx-2.5 border-2 border-[#FF4500] shadow-[0_0_15px_#FF4500]" style={{ width: '28px', height: '46px' }}>
+            <div className="surfboard-profile-outline mx-3 border-2 border-[#FF4500] shadow-[0_0_15px_#FF4500]" style={{ width: '28px', height: '46px' }}>
               <img src={user.avatar} className="surfboard-img" />
             </div>
             <ChevronDown size={10} style={{ color: profile.ui.accent }} />
@@ -809,17 +911,17 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
         </div>
 
         <div className="flex-1 overflow-y-auto custom-scrollbar">
-          <div className="px-6 py-8 border-b" style={{ borderColor: `${profile.ui.accent}11` }}>
-            <div className="text-[#5c5e6e] text-[15px] font-semibold mb-5 uppercase tracking-wider">Stories</div>
-            <div className="space-y-5">
+          <div className="px-6 py-8 border-b" style={{ borderColor: `${profile.ui.accent}22` }}>
+            <div className="text-[#5c5e6e] text-[15px] font-black uppercase tracking-[0.2em] mb-6">Stories</div>
+            <div className="space-y-6">
               {stories.map((story) => (
-                <div key={story.id} className="flex items-center cursor-pointer group">
+                <div key={story.id} className="flex items-center cursor-pointer group hover:bg-white/5 p-2 rounded-xl transition-all">
                   <div className="surfboard-profile-outline mr-4 group-hover:scale-110 transition-transform border-2 border-[#FF4500] shadow-[0_0_15px_#FF4500]" style={{ width: '36px', height: '60px' }}>
                     <img src={story.img} className="surfboard-img" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[15px] font-bold name-text truncate" style={{ color: profile.ui.accent }}>{story.name}</div>
-                    <div className="text-[#595c6c] text-xs mt-1">{story.time}</div>
+                    <div className="text-[14px] font-black uppercase tracking-tighter name-text truncate" style={{ color: profile.ui.accent }}>{story.name}</div>
+                    <div className="text-[#595c6c] text-[10px] uppercase font-mono mt-1">{story.time}</div>
                   </div>
                 </div>
               ))}
@@ -827,15 +929,15 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
           </div>
 
           <div className="px-6 py-8">
-            <div className="text-[#5c5e6e] text-[15px] font-semibold mb-5 uppercase tracking-wider">Contacts</div>
-            <div className="space-y-5">
+            <div className="text-[#5c5e6e] text-[15px] font-black uppercase tracking-[0.2em] mb-6">Contacts</div>
+            <div className="space-y-6">
               {contacts.map((contact) => (
-                <div key={contact.id} className="flex items-center cursor-pointer group">
+                <div key={contact.id} className="flex items-center cursor-pointer group hover:bg-white/5 p-2 rounded-xl transition-all">
                   <div className="surfboard-profile-outline mr-4 group-hover:scale-110 transition-transform border-2 border-[#FF4500] shadow-[0_0_15px_#FF4500]" style={{ width: '36px', height: '60px' }}>
                     <img src={contact.img} className="surfboard-img" />
                   </div>
                   <div className="flex-1 flex items-center justify-between">
-                    <span className="text-[15px] font-medium" style={{ color: profile.ui.accent }}>{contact.name}</span>
+                    <span className="text-[14px] font-black uppercase tracking-tighter" style={{ color: profile.ui.accent }}>{contact.name}</span>
                     <div className={`w-2 h-2 rounded-full ${contact.status === 'online' ? '' : 'opacity-30'}`} 
                          style={{ background: contact.status === 'online' ? profile.ui.accent : '#606a8d' }} />
                   </div>

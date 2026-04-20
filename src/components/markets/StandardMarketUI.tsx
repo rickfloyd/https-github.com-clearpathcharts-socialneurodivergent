@@ -161,7 +161,7 @@ export const StandardMarketUI: React.FC<StandardMarketUIProps> = ({ onBack, prof
           </div>
 
           <div className="timeframe-bar">
-            {['1M', '5M', '15M', '1H', '4H', '1D', '1W'].map((tf, idx) => (
+            {['1m', '5m', '15m', '1H', '4H', '1D', '1W'].map((tf, idx) => (
               <div key={`${tf}-${idx}`} className={`time-unit ${tf === '1H' ? 'active' : ''}`}>
                 {tf}
               </div>

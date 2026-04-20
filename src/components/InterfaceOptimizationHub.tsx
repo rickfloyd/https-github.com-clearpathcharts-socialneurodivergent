@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { motion } from 'motion/react';
 import { useAuth } from '../contexts/FirebaseContext';
 import { 
@@ -9,6 +9,7 @@ import {
 import { INTERFACE_PROFILES } from '../lib/interface/profiles';
 import { InterfaceProfile } from '../types';
 import LegalFooter from './LegalFooter';
+import LiveChart from './LiveChart';
 
 interface InterfaceOptimizationHubProps {
   profile: InterfaceProfile;
@@ -17,23 +18,19 @@ interface InterfaceOptimizationHubProps {
 }
 
 const CATEGORIES = [
-  { id: 'analytical', label: 'NEURO-ANALYTICAL' },
-  { id: 'tactical', label: 'NEURO-TACTICAL' },
-  { id: 'standard', label: 'BASE PROTOCOL' }
+  { id: 'analytical', label: 'COGNITIVE ADAPTATIONS' },
+  { id: 'tactical', label: 'HIGH-INTENSITY' },
+  { id: 'standard', label: 'CORE PROTOCOLS' }
 ];
 
 const PROFILE_ICONS: Record<string, any> = {
+  focused_analysis: Shield, // AUTISM
+  numeric_precision: Activity, // ADHD
+  readable_terminal: Eye, // DYSLEXIA
+  predictable_matrix: ListChecks, // OCD
   dynamic_balance: Zap,
-  focused_analysis: Shield,
-  readable_terminal: Eye,
-  numeric_precision: Activity,
+  visual_safety: Activity,
   interface_friendly: Target,
-  stable_rhythm: Activity,
-  order_system: ListChecks,
-  calm_concentration: Heart,
-  low_stim_focus: AlertCircle,
-  consistency_matrix: Sun,
-  low_glare_mode: CloudRain,
   standard_trader: Layout,
   high_intensity: Users
 };
@@ -48,26 +45,27 @@ export default function InterfaceOptimizationHub({ profile, onProfileChange, onN
   const handleGoToCharts = (e: React.MouseEvent, p: InterfaceProfile) => {
     e.stopPropagation(); // Prevent card selection
     onProfileChange(p.id); // Apply profile first
-    onNavigate('Home'); // Then go to charts
+    onNavigate('Market'); // Then go to charts
   };
 
   const filteredProfiles = (Object.values(INTERFACE_PROFILES) as InterfaceProfile[]).filter(p => {
     if (activeCategory === 'analytical') {
-      return p.id !== 'high_intensity' && p.id !== 'standard_trader';
+      // Focus on the ND protocols explicitly
+      return ['focused_analysis', 'numeric_precision', 'readable_terminal', 'predictable_matrix'].includes(p.id);
     }
     if (activeCategory === 'tactical') {
-      return p.id === 'high_intensity';
+      return ['high_intensity', 'dynamic_balance', 'visual_safety', 'assistive_feed'].includes(p.id);
     }
-    return p.id === 'standard_trader';
+    return ['standard_trader', 'interface_friendly', 'predictable_matrix', 'high_contrast'].includes(p.id);
   });
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-12">
       <div className="text-center space-y-4">
         <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter italic">
-          <span className="lava-hot-text">NEURODIVERGENT</span> <span className="neon-indigo-text">INTERFACE</span> <span className="lava-hot-text">PROTOCOLS</span>
+          <span style={{ color: profile.ui.accent }}>NEURODIVERGENT</span> <span className="neon-indigo-text">INTERFACE</span> <span style={{ color: profile.ui.accent }}>PROTOCOLS</span>
         </h2>
-        <p className="lava-hot-text font-mono uppercase tracking-widest text-sm">
+        <p className="font-mono uppercase tracking-widest text-sm" style={{ color: profile.ui.accent }}>
           Calibrate visual sensory input for peak neuro-cognitive market performance
         </p>
       </div>
@@ -89,7 +87,7 @@ export default function InterfaceOptimizationHub({ profile, onProfileChange, onN
               color: activeCategory === cat.id ? '#000' : undefined
             }}
           >
-            <span className="lava-hot-text">{cat.label}</span>
+            <span style={{ color: activeCategory === cat.id ? '#000' : profile.ui.accent }}>{cat.label}</span>
           </button>
         ))}
       </div>
@@ -135,10 +133,10 @@ export default function InterfaceOptimizationHub({ profile, onProfileChange, onN
               </div>
 
               <div className="space-y-2 relative z-10">
-                <h3 className={`text-2xl font-black uppercase tracking-tight transition-colors duration-500 ${isActive ? 'lava-hot-text' : 'text-gray-400'}`}>
+                <h3 className={`text-2xl font-black uppercase tracking-tight transition-colors duration-500 ${isActive ? '' : 'text-gray-400'}`} style={{ color: isActive ? p.ui.accent : undefined }}>
                   {p.name}
                 </h3>
-                <p className={`text-xs leading-relaxed font-sans group-hover:text-gray-400 transition-colors ${isActive ? 'lava-hot-text' : 'text-gray-500'}`}>
+                <p className={`text-xs leading-relaxed font-sans transition-colors ${isActive ? '' : 'text-gray-500 group-hover:text-gray-400'}`} style={{ color: isActive ? p.ui.accent : undefined }}>
                   {p.description}
                 </p>
               </div>
@@ -148,7 +146,7 @@ export default function InterfaceOptimizationHub({ profile, onProfileChange, onN
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.ui.accent }} />
                     <span className="text-[10px] font-mono uppercase tracking-widest font-bold" style={{ color: p.ui.accent }}>
-                      <span className="lava-hot-text">Adaptation Protocol Active</span>
+                      <span>Adaptation Protocol Active</span>
                     </span>
                   </div>
                 ) : (

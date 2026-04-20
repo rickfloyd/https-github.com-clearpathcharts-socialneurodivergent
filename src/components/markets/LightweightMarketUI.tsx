@@ -113,7 +113,7 @@ export const LightweightMarketUI: React.FC<LightweightMarketUIProps> = ({ onBack
           </div>
 
           <div className="timeframe-bar overflow-x-auto whitespace-nowrap custom-scrollbar">
-            {['1S', '5S', '15S', '30S', '1M', '5M', '15M', '30M', '1H', '4H', '1D', '1W', '1M', '3M', '6M', 'YTD', '1Y', '5Y', 'ALL'].map((tf, idx) => (
+            {['1S', '5S', '15S', '30S', '1m', '5m', '15m', '30m', '1H', '4H', '1D', '1W', '1M', '3M', '6M', 'YTD', '1Y', '5Y', 'ALL'].map((tf, idx) => (
               <div key={`${tf}-${idx}`} className={`time-unit !py-1 !px-2 text-[10px] md:text-xs ${tf === '1H' ? 'active' : ''}`}>
                 {tf}
               </div>

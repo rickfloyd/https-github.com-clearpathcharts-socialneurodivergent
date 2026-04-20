@@ -9,13 +9,14 @@
   --color-lava-molten: #ff8c00;
   --color-neon-indigo: rgb(72, 0, 238);
   --color-neon-indigo-bright: rgb(112, 0, 255);
-  --color-fluorescent-green: #39FF14;
+  --color-fluorescent-green: #FF4500;
   --color-neon-cyan: #4D00FF;
 }
 
 /* 1. GRAYSCALE (High Contrast / No Distraction) */
 [data-theme='grayscale'] {
   --neon-accent: #ffffff;
+  --neon-accent-transparent: rgba(255, 255, 255, 0.2);
   --candle-up: #ffffff;
   --candle-down: #444444;
   --bg-main: #000000;
@@ -25,6 +26,7 @@
 /* 2. LOW-STIM (Reduced Sensory Load) */
 [data-theme='low-stim'] {
   --neon-accent: #7a8c7d; /* Muted Sage */
+  --neon-accent-transparent: rgba(122, 140, 125, 0.2);
   --candle-up: #5d6d5e;
   --candle-down: #6d5d5d;
   --bg-main: #1a1c20;
@@ -34,6 +36,7 @@
 /* 3. FOCUS MODE (Emerald & Royal Blue - The Money State) */
 [data-theme='focus'] {
   --neon-accent: #00ff88; /* Emerald */
+  --neon-accent-transparent: rgba(0, 255, 136, 0.2);
   --candle-up: #00ff88; 
   --candle-down: #0070ff; /* Royal Blue */
   --bg-main: #050505;
@@ -76,30 +79,32 @@
 
 @layer components {
   .price-text {
-    color: var(--color-fluorescent-green);
-    text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+    color: var(--neon-accent, #FF4500);
+    text-shadow: 0 0 10px var(--neon-accent-transparent, rgba(255, 69, 0, 0.5));
   }
 
   .name-text {
-    color: var(--color-neon-cyan);
+    color: var(--neon-accent, #FF4500);
     text-shadow: 
-      0.5px 0.5px 0px #ff4500, 
-      -0.5px -0.5px 0px #ff8c00, 
-      0 0 10px rgba(77, 0, 255, 0.5);
+      0 0 20px var(--neon-accent-transparent, rgba(255, 69, 0, 0.8)), 
+      0 0 40px var(--neon-accent-transparent, rgba(255, 69, 0, 0.4)),
+      2px 2px 0px #000;
+    font-weight: 900;
   }
 
   .symbol-text {
-    color: var(--color-neon-indigo);
+    color: var(--neon-accent, #FF4500);
     text-shadow: 
-      0.5px 0.5px 0px #ff4500, 
+      0.5px 0.5px 0px var(--neon-accent, #ff4500), 
       -0.5px -0.5px 0px #ff8c00, 
-      0 0 10px rgba(77, 0, 255, 0.5);
+      0 0 10px var(--neon-accent-transparent, rgba(255, 69, 0, 0.5));
   }
 
   .neon-indigo-card {
-    border: 6px solid #FF4500;
-    box-shadow: 0 0 30px rgba(255, 69, 0, 0.3);
+    border: 4px solid var(--neon-accent, #FF4500);
+    box-shadow: 0 0 25px var(--neon-accent-transparent, rgba(255, 69, 0, 0.2));
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(10, 10, 10, 0.95);
   }
 
   .neon-indigo-card:hover {
@@ -119,22 +124,53 @@
   }
 
   .bento-card {
-    background: rgba(255, 255, 255, 0.03);
+    background: linear-gradient(160deg, #020202 0%, #1c1c1e 100%) padding-box,
+                linear-gradient(135deg, #FF4500, #E0115F) border-box;
+    border: 3px solid transparent;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 24px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
     position: relative;
+    /* Constant static glow to lock in the presence */
+    box-shadow: 0 0 15px rgba(255, 69, 0, 0.5), 0 0 15px rgba(224, 17, 95, 0.5);
+  }
+
+  .bento-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.05;
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+  }
+
+  .bento-card::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+  }
+
+  .bento-card:hover::after {
+    opacity: 1;
   }
 
   .bento-card:hover {
     transform: scale(1.02) translateY(-4px);
     z-index: 10;
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    /* Must remain exactly the same background so it does not wear/transition */
+    background: linear-gradient(160deg, #020202 0%, #1c1c1e 100%) padding-box,
+                linear-gradient(135deg, #FF4500, #E0115F) border-box;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(255, 69, 0, 0.6), 0 0 25px rgba(224, 17, 95, 0.6);
   }
 
   .glass {
@@ -365,6 +401,8 @@ div[id^="tv-attr-"], .tv-lightweight-charts-logo {
   --electric-cyan: #4D00FF;
   --fluorescent-orange: #FF5F1F;
   --neon-indigo: #4D00FF;
+  --candle-up: #4169E1; /* Royal Blue */
+  --candle-down: #ef4444;
 }
 
 body {

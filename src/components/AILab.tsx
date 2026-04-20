@@ -96,6 +96,13 @@ export default function AILab() {
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!input.trim() || !user || isGenerating) return;
+    
+    // Support for /clear command to instantly wipe history
+    if (input.trim() === '/clear') {
+      await clearChat();
+      setInput('');
+      return;
+    }
 
     if (AI_MAINTENANCE_MODE) {
       setMessages(prev => [...prev, 

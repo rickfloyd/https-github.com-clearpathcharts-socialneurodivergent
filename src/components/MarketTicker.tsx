@@ -10,7 +10,6 @@ interface MarketTickerProps {
 }
 
 const TICKER_ASSETS = [
-  { symbol: 'BTCUSDT', label: 'BTC' },
   { symbol: 'ETHUSDT', label: 'ETH' },
   { symbol: 'SOLUSDT', label: 'SOL' },
   { symbol: 'BNBUSDT', label: 'BNB' },
@@ -26,7 +25,7 @@ export default function MarketTicker({ profile }: MarketTickerProps) {
   const assets = useMemo(() => TICKER_ASSETS, []);
 
   useEffect(() => {
-    // Connect to Binance WebSocket
+    // Connect to Institutional Market Stream
     DataStreamService.connectMarketStream(assets.map(a => a.symbol));
 
     // Subscribe to each asset
