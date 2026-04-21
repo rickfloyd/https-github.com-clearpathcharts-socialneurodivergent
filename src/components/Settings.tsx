@@ -45,12 +45,12 @@ const Settings: React.FC<SettingsProps> = ({ profile: interfaceProfile }) => {
   return (
     <div className="p-5 max-w-4xl mx-auto">
       <div className="flex items-center space-x-4 mb-10">
-        <div className="p-3 rounded-2xl border shadow-xl glass" style={{ background: `${interfaceProfile.ui.bgBottom}33`, borderColor: `${interfaceProfile.ui.accent}22` }}>
-          <SettingsIcon size={24} style={{ color: interfaceProfile.ui.accent }} />
+        <div className="p-3 rounded-2xl border shadow-xl glass" style={{ background: `${interfaceProfile.bgBottom}33`, borderColor: `${interfaceProfile.borderA}22` }}>
+          <SettingsIcon size={24} style={{ color: interfaceProfile.borderA }} />
         </div>
         <div>
-          <h2 className="text-3xl font-black tracking-tighter uppercase" style={{ color: interfaceProfile.ui.accent }}>Settings</h2>
-          <p className="text-sm font-medium opacity-50" style={{ color: interfaceProfile.ui.text }}>Manage your account and preferences</p>
+          <h2 className="text-3xl font-black tracking-tighter uppercase" style={{ color: interfaceProfile.borderA }}>Settings</h2>
+          <p className="text-sm font-medium opacity-50" style={{ color: interfaceProfile.text }}>Manage your account and preferences</p>
         </div>
       </div>
 
@@ -71,14 +71,14 @@ const Settings: React.FC<SettingsProps> = ({ profile: interfaceProfile }) => {
                 item.id === 'account' ? '' : 'border-transparent opacity-50 hover:opacity-100'
               }`}
               style={{ 
-                background: item.id === 'account' ? `${interfaceProfile.ui.accent}11` : 'transparent',
-                borderColor: item.id === 'account' ? `${interfaceProfile.ui.accent}33` : 'transparent',
-                color: item.id === 'account' ? interfaceProfile.ui.accent : interfaceProfile.ui.text
+                background: item.id === 'account' ? `${interfaceProfile.borderA}11` : 'transparent',
+                borderColor: item.id === 'account' ? `${interfaceProfile.borderA}33` : 'transparent',
+                color: item.id === 'account' ? interfaceProfile.borderA : interfaceProfile.text
               }}
             >
               <div className="flex items-center space-x-3">
                 <item.icon size={18} />
-                <span className="font-bold text-sm" style={{ color: interfaceProfile.ui.accent }}>{item.label}</span>
+                <span className="font-bold text-sm" style={{ color: interfaceProfile.borderA }}>{item.label}</span>
               </div>
               <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
             </button>
@@ -97,41 +97,41 @@ const Settings: React.FC<SettingsProps> = ({ profile: interfaceProfile }) => {
         {/* Content Area */}
         <div className="space-y-8">
           {/* Profile Section */}
-          <section className="rounded-3xl p-6 shadow-xl border glass" style={{ background: `${interfaceProfile.ui.bgBottom}33`, borderColor: `${interfaceProfile.ui.accent}22` }}>
-            <h3 className="text-lg font-bold mb-6 flex items-center" style={{ color: interfaceProfile.ui.accent }}>
+          <section className="rounded-3xl p-6 shadow-xl border glass" style={{ background: `${interfaceProfile.bgBottom}33`, borderColor: `${interfaceProfile.borderA}22` }}>
+            <h3 className="text-lg font-bold mb-6 flex items-center" style={{ color: interfaceProfile.borderA }}>
               <User size={18} className="mr-3" /> Public Profile
             </h3>
             <div className="space-y-6">
               <div className="flex items-center space-x-6">
                 <div className="relative group">
-                  <img src={userProfile?.photoURL || user?.photoURL || ''} className="w-20 h-20 rounded-full object-cover border-2 transition-all" style={{ borderColor: interfaceProfile.ui.accent }} />
+                  <img src={userProfile?.photoURL || user?.photoURL || ''} className="w-20 h-20 rounded-full object-cover border-2 transition-all" style={{ borderColor: interfaceProfile.borderA }} />
                   <button className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full text-white text-[10px] font-bold uppercase">
-                    <span style={{ color: interfaceProfile.ui.accent }}>Change</span>
+                    <span style={{ color: interfaceProfile.borderA }}>Change</span>
                   </button>
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-bold" style={{ color: interfaceProfile.ui.text }}>{userProfile?.displayName || user?.displayName}</h4>
-                  <p className="text-xs font-medium opacity-50" style={{ color: interfaceProfile.ui.text }}>{userProfile?.email || user?.email}</p>
+                  <h4 className="font-bold" style={{ color: interfaceProfile.text }}>{userProfile?.displayName || user?.displayName}</h4>
+                  <p className="text-xs font-medium opacity-50" style={{ color: interfaceProfile.text }}>{userProfile?.email || user?.email}</p>
                 </div>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest opacity-50" style={{ color: interfaceProfile.ui.text }}>Display Name</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest opacity-50" style={{ color: interfaceProfile.text }}>Display Name</label>
                   <input 
                     type="text" 
                     defaultValue={userProfile?.displayName || user?.displayName || ''}
                     className="w-full bg-black/20 border rounded-xl p-3 text-sm focus:outline-none transition-all"
-                    style={{ color: interfaceProfile.ui.text, borderColor: `${interfaceProfile.ui.accent}22` }}
+                    style={{ color: interfaceProfile.text, borderColor: `${interfaceProfile.borderA}22` }}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest opacity-50" style={{ color: interfaceProfile.ui.text }}>Location</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest opacity-50" style={{ color: interfaceProfile.text }}>Location</label>
                   <input 
                     type="text" 
                     defaultValue={userProfile?.intro?.location || ''}
                     className="w-full bg-black/20 border rounded-xl p-3 text-sm focus:outline-none transition-all"
-                    style={{ color: interfaceProfile.ui.text, borderColor: `${interfaceProfile.ui.accent}22` }}
+                    style={{ color: interfaceProfile.text, borderColor: `${interfaceProfile.borderA}22` }}
                   />
                 </div>
               </div>
@@ -139,8 +139,8 @@ const Settings: React.FC<SettingsProps> = ({ profile: interfaceProfile }) => {
           </section>
 
           {/* Preferences Section */}
-          <section className="rounded-3xl p-6 shadow-xl border glass" style={{ background: `${interfaceProfile.ui.bgBottom}33`, borderColor: `${interfaceProfile.ui.accent}22` }}>
-            <h3 className="text-lg font-bold mb-6 flex items-center" style={{ color: interfaceProfile.ui.accent }}>
+          <section className="rounded-3xl p-6 shadow-xl border glass" style={{ background: `${interfaceProfile.bgBottom}33`, borderColor: `${interfaceProfile.borderA}22` }}>
+            <h3 className="text-lg font-bold mb-6 flex items-center" style={{ color: interfaceProfile.borderA }}>
               <Palette size={18} className="mr-3" /> Preferences
             </h3>
             <div className="space-y-4">
@@ -150,20 +150,20 @@ const Settings: React.FC<SettingsProps> = ({ profile: interfaceProfile }) => {
                 { id: 'reduced_motion', label: 'Reduced Motion', icon: Monitor, value: false },
                 { id: 'sound_effects', label: 'Sound Effects', icon: Volume2, value: true },
               ].map((setting) => (
-                <div key={setting.id} className="flex items-center justify-between p-4 rounded-xl border" style={{ background: `${interfaceProfile.ui.accent}05`, borderColor: `${interfaceProfile.ui.accent}11` }}>
+                <div key={setting.id} className="flex items-center justify-between p-4 rounded-xl border" style={{ background: `${interfaceProfile.borderA}05`, borderColor: `${interfaceProfile.borderA}11` }}>
                   <div className="flex items-center space-x-4">
-                    <div className="p-2 rounded-lg" style={{ background: `${interfaceProfile.ui.accent}11`, color: interfaceProfile.ui.accent }}>
+                    <div className="p-2 rounded-lg" style={{ background: `${interfaceProfile.borderA}11`, color: interfaceProfile.borderA }}>
                       <setting.icon size={18} />
                     </div>
                     <div>
-                      <p className="text-sm font-bold" style={{ color: interfaceProfile.ui.accent }}>{setting.label}</p>
-                      <p className="text-[10px] font-medium opacity-50" style={{ color: interfaceProfile.ui.accent }}>Adjust your visual experience</p>
+                      <p className="text-sm font-bold" style={{ color: interfaceProfile.borderA }}>{setting.label}</p>
+                      <p className="text-[10px] font-medium opacity-50" style={{ color: interfaceProfile.borderA }}>Adjust your visual experience</p>
                     </div>
                   </div>
                   <button 
                     onClick={() => toggleSetting(setting.id)}
                     className="w-12 h-6 rounded-full relative transition-all"
-                    style={{ backgroundColor: setting.value ? interfaceProfile.ui.accent : '#333' }}
+                    style={{ backgroundColor: setting.value ? interfaceProfile.borderA : '#333' }}
                   >
                     <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${setting.value ? 'left-7' : 'left-1'}`} />
                   </button>
@@ -173,25 +173,25 @@ const Settings: React.FC<SettingsProps> = ({ profile: interfaceProfile }) => {
           </section>
 
           {/* Security Section */}
-          <section className="rounded-3xl p-6 shadow-xl border glass" style={{ background: `${interfaceProfile.ui.bgBottom}33`, borderColor: `${interfaceProfile.ui.accent}22` }}>
-            <h3 className="text-lg font-bold mb-6 flex items-center" style={{ color: interfaceProfile.ui.accent }}>
+          <section className="rounded-3xl p-6 shadow-xl border glass" style={{ background: `${interfaceProfile.bgBottom}33`, borderColor: `${interfaceProfile.borderA}22` }}>
+            <h3 className="text-lg font-bold mb-6 flex items-center" style={{ color: interfaceProfile.borderA }}>
               <Shield size={18} className="mr-3" /> Security
             </h3>
             <div className="space-y-4">
               <button 
                 className="w-full flex items-center justify-between p-4 rounded-xl border transition-all text-left"
-                style={{ background: `${interfaceProfile.ui.accent}05`, borderColor: `${interfaceProfile.ui.accent}11` }}
+                style={{ background: `${interfaceProfile.borderA}05`, borderColor: `${interfaceProfile.borderA}11` }}
               >
                 <div className="flex items-center space-x-4">
-                  <div className="p-2 rounded-lg" style={{ background: `${interfaceProfile.ui.accent}11`, color: interfaceProfile.ui.accent }}>
+                  <div className="p-2 rounded-lg" style={{ background: `${interfaceProfile.borderA}11`, color: interfaceProfile.borderA }}>
                     <Lock size={18} />
                   </div>
                   <div>
-                    <p className="text-sm font-bold" style={{ color: interfaceProfile.ui.accent }}>Two-Factor Authentication</p>
-                    <p className="text-[10px] font-medium opacity-50" style={{ color: interfaceProfile.ui.accent }}>Add an extra layer of security</p>
+                    <p className="text-sm font-bold" style={{ color: interfaceProfile.borderA }}>Two-Factor Authentication</p>
+                    <p className="text-[10px] font-medium opacity-50" style={{ color: interfaceProfile.borderA }}>Add an extra layer of security</p>
                   </div>
                 </div>
-                <ChevronRight size={18} className="opacity-50" style={{ color: interfaceProfile.ui.text }} />
+                <ChevronRight size={18} className="opacity-50" style={{ color: interfaceProfile.text }} />
               </button>
             </div>
           </section>

@@ -1,86 +1,12 @@
-export type InterfaceProfileId =
-  | "dynamic_flow"
-  | "structured_matrix"
-  | "high_legibility"
-  | "numeric_relief"
-  | "precision_navigation"
-  | "rhythmic_flow"
-  | "order_system"
-  | "calm_concentration"
-  | "low_stim_focus"
-  | "consistency_matrix"
-  | "low_glare_mode"
-  | "simplified_dashboard"
-  | "visual_guidance"
-  | "clarity_first"
-  | "workflow_logic"
-  | "grounded_ui"
-  | "low_friction_flow"
-  | "concrete_visuals"
-  | "icon_first_mode"
-  | "silent_interaction"
-  | "standard"
-  | "executive_tier"
-  | "high_intensity"
-  | "focused_analysis"
-  | "emergency_relief"
-  | "readable_terminal"
-  | "numeric_precision"
-  | "visual_safety"
-  | "assistive_feed"
-  | "workflow_support"
-  | "interface_friendly"
-  | "dynamic_balance"
-  | "hyper_concentration"
-  | "predictable_matrix"
-  | "stable_rhythm"
-  | "plain_institutional"
-  | "high_contrast"
-  | "custom_workflow_mix"
-  | "corporate_open"
-  | "institutional_standard"
-  | "modular_terminal"
-  | "asset_navigator"
-  | "standard_trader";
+import { NeuroProfile, NeuroProfileId } from './lib/neuro/profiles';
+
+export type InterfaceProfileId = NeuroProfileId;
 
 export type GlowLevel = 'none' | 'low' | 'medium' | 'high';
 
-export interface CandleProfile {
-  upColor: string;
-  downColor: string;
-  wickUpColor: string;
-  wickDownColor: string;
-  borderUpColor: string;
-  borderDownColor: string;
-}
-
-export interface UIProfile {
-  bgTop: string;
-  bgBottom: string;
-  panel: string;
-  borderA: string;
-  borderB: string;
-  text: string;
-  accent: string;
-  gridColor: string;
-}
-
 export type MotionLevel = 'static' | 'smooth' | 'dynamic';
 
-export interface InterfaceProfile {
-  id: InterfaceProfileId;
-  name: string;
-  description: string;
-  ui: UIProfile;
-  candles: CandleProfile;
-  behavior: {
-    glow: 'none' | 'low' | 'medium' | 'high';
-    spacing: 'tight' | 'normal' | 'relaxed';
-    dataDensity: 'high' | 'normal' | 'low';
-    motion: MotionLevel;
-  };
-  aiPersonality?: string;
-}
+export type InterfaceProfile = NeuroProfile;
 
 export interface TradeEntry {
   id?: string;

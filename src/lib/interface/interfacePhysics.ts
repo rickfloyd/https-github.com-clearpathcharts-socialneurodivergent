@@ -6,13 +6,13 @@ import { InterfaceProfile } from '../../types';
  */
 export const resolveInterfacePhysics = (profile: InterfaceProfile) => {
   return {
-    flickerReduced: profile.behavior.motion === 'static',
-    intensity: profile.behavior.glow === 'high' ? 1.0 : profile.behavior.glow === 'medium' ? 0.6 : 0.2,
-    smoothing: profile.behavior.motion !== 'static',
-    dataDensity: profile.behavior.dataDensity,
-    refreshRate: profile.behavior.motion === 'dynamic' ? 'sync' : 'stable',
+    flickerReduced: profile.motion === 'Off',
+    intensity: profile.glow === 'High' ? 1.0 : profile.glow === 'Medium' ? 0.6 : 0.2,
+    smoothing: profile.motion !== 'Off',
+    dataDensity: profile.dataDensity,
+    refreshRate: profile.motion === 'Normal' ? 'sync' : 'stable',
     colorCalibration: 'institutional-v4',
-    glowBlur: profile.behavior.glow === 'low' ? 5 : profile.behavior.glow === 'high' ? 20 : 12,
-    animationSpeed: profile.behavior.motion === 'static' ? 0 : profile.behavior.motion === 'dynamic' ? 1.5 : 0.8,
+    glowBlur: profile.glow === 'High' ? 20 : profile.glow === 'Medium' ? 12 : 5,
+    animationSpeed: profile.motion === 'Off' ? 0 : profile.motion === 'Normal' ? 1.5 : 0.8,
   };
 };

@@ -92,8 +92,8 @@ export default function NewsHub({ profile }: NewsHubProps) {
       {/* Header & Controls */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 px-4 md:px-0">
         <div className="space-y-1">
-          <h2 className="text-4xl font-black tracking-tighter uppercase italic" style={{ color: profile.ui.text }}>
-            <span style={{ color: profile.ui.accent }}>ClearPath</span> <span className="neon-indigo-text">Stream</span>
+          <h2 className="text-4xl font-black tracking-tighter uppercase italic" style={{ color: profile.text }}>
+            <span style={{ color: profile.borderA }}>ClearPath</span> <span className="neon-indigo-text">Stream</span>
           </h2>
           <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.4em] ml-1">Real-Time Institutional Intelligence Convergence</p>
         </div>
@@ -148,9 +148,9 @@ export default function NewsHub({ profile }: NewsHubProps) {
                 : 'bg-white/5 border-white/10 text-gray-500 hover:border-white/20'
             }`}
             style={{ 
-              backgroundColor: activeCategory === cat.id ? profile.ui.accent : undefined,
-              borderColor: activeCategory === cat.id ? profile.ui.accent : undefined,
-              boxShadow: activeCategory === cat.id ? `0 20px 50px ${profile.ui.accent}33` : undefined
+              backgroundColor: activeCategory === cat.id ? profile.borderA : undefined,
+              borderColor: activeCategory === cat.id ? profile.borderA : undefined,
+              boxShadow: activeCategory === cat.id ? `0 20px 50px ${profile.borderA}33` : undefined
             }}
           >
             <cat.icon size={14} />
@@ -162,7 +162,7 @@ export default function NewsHub({ profile }: NewsHubProps) {
       {/* Live Signal Stream (Media Webhooks) */}
       <section className="px-4 md:px-0 space-y-4">
         <div className="flex items-center space-x-3">
-          <Zap size={20} style={{ color: profile.ui.accent }} />
+          <Zap size={20} style={{ color: profile.borderA }} />
           <h3 className="text-sm font-black uppercase tracking-[0.3em] italic">Live Signal Stream // Media Webhooks</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -175,16 +175,16 @@ export default function NewsHub({ profile }: NewsHubProps) {
               key={i} 
               className="p-4 rounded-3xl border flex flex-col justify-between group transition-all"
               style={{ 
-                borderColor: `${profile.ui.accent}22`,
-                backgroundColor: `${profile.ui.accent}05`
+                borderColor: `${profile.borderA}22`,
+                backgroundColor: `${profile.borderA}05`
               }}
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded border"
                       style={{ 
-                        color: profile.ui.accent,
-                        backgroundColor: `${profile.ui.accent}11`,
-                        borderColor: `${profile.ui.accent}22`
+                        color: profile.borderA,
+                        backgroundColor: `${profile.borderA}11`,
+                        borderColor: `${profile.borderA}22`
                       }}>
                   {signal.type}
                 </span>
@@ -279,7 +279,7 @@ export default function NewsHub({ profile }: NewsHubProps) {
                          <ExternalLink size={14} />
                        </button>
                     </div>
-                    <h3 className={`font-black tracking-tight leading-[1.1] uppercase italic ${viewMode === 'grid' ? 'text-lg line-clamp-2' : 'text-xl'}`} style={{ color: profile.ui.text }}>
+                    <h3 className={`font-black tracking-tight leading-[1.1] uppercase italic ${viewMode === 'grid' ? 'text-lg line-clamp-2' : 'text-xl'}`} style={{ color: profile.text }}>
                       {item.title}
                     </h3>
                     <p className={`text-gray-400 text-xs font-medium leading-relaxed ${viewMode === 'grid' ? 'line-clamp-2' : 'line-clamp-1 opacity-60'}`}>

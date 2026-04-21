@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { INTERFACE_PROFILES } from '../../lib/interface/profiles';
+import { neuroProfiles, type NeuroProfile } from '../../lib/neuro/profiles';
 import { LightweightCandles } from '../charts/LightweightCandles';
 import { BackToDashboard } from '../nav/BackToDashboard';
 
@@ -10,14 +10,14 @@ const ASSETS = [
   { label: 'ETH/USD', value: 'ETH/USD' },
 ];
 
-const ChartWidget = ({ asset, profile }: { asset: typeof ASSETS[0], profile: any }) => {
+const ChartWidget = ({ asset, profile }: { asset: typeof ASSETS[0], profile: NeuroProfile }) => {
   return (
     <div className="individual-chart-wrapper !h-[450px] relative overflow-hidden rounded-2xl border border-white/5 shadow-2xl glass" id={`wrapper_${asset.value.replace('/', '_')}`}>
       <div className="absolute top-2 left-4 z-50 text-[10px] font-bold text-white bg-black/50 px-2 py-1 rounded border border-indigo-500/30 backdrop-blur-md">
         {asset.label} | INSTITUTIONAL FEED
       </div>
       <div className="w-full h-full">
-        <LightweightCandles profileId={profile.id} symbol={asset.label} timeframe="1h" />
+        <LightweightCandles profileId={profile.id} height={450} />
       </div>
       <div className="brand-mask-forced">
         <i className="fas fa-chart-line mr-2"></i> CLEAR PATH TRADER
@@ -28,7 +28,7 @@ const ChartWidget = ({ asset, profile }: { asset: typeof ASSETS[0], profile: any
 
 interface LightweightMarketUIProps {
   onBack: () => void;
-  profile: any;
+  profile: NeuroProfile;
 }
 
 export const LightweightMarketUI: React.FC<LightweightMarketUIProps> = ({ onBack, profile }) => {
@@ -53,14 +53,14 @@ export const LightweightMarketUI: React.FC<LightweightMarketUIProps> = ({ onBack
         className="flex items-center justify-between px-8 py-4 border-b glass"
         style={{ 
           backgroundColor: 'rgba(0,0,0,0.5)',
-          borderColor: `${profile.ui.accent}22`,
+          borderColor: `${profile.borderB}22`,
         }}
       >
         <div className="flex items-center space-x-6">
-          <BackToDashboard onBack={onBack} color={profile.ui.text} />
-          <div className="h-6 w-[1px]" style={{ backgroundColor: `${profile.ui.accent}22` }} />
-          <h1 className="text-2xl font-black tracking-tighter uppercase italic" style={{ color: profile.ui.text }}>
-            MARKET <span style={{ color: profile.ui.accent }}>TERMINAL</span>
+          <BackToDashboard onBack={onBack} color={profile.text} />
+          <div className="h-6 w-[1px]" style={{ backgroundColor: `${profile.borderA}22` }} />
+          <h1 className="text-2xl font-black tracking-tighter uppercase italic" style={{ color: profile.text }}>
+            MARKET <span style={{ color: profile.borderA }}>TERMINAL</span>
           </h1>
         </div>
 
@@ -73,13 +73,13 @@ export const LightweightMarketUI: React.FC<LightweightMarketUIProps> = ({ onBack
               placeholder="SEARCH SYMBOL (e.g. BTCUSD)"
               className="bg-black/50 border-2 px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-full focus:outline-none focus:ring-2 transition-all w-64"
               style={{ 
-                color: profile.ui.text,
-                borderColor: `${profile.ui.accent}44`,
-                boxShadow: `0 0 10px ${profile.ui.accent}11`
+                color: profile.text,
+                borderColor: `${profile.borderA}44`,
+                boxShadow: `0 0 10px ${profile.borderA}11`
               }}
             />
             <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2">
-              <i className="fas fa-search" style={{ color: profile.ui.accent }}></i>
+              <i className="fas fa-search" style={{ color: profile.borderA }}></i>
             </button>
           </div>
         </form>
@@ -89,8 +89,8 @@ export const LightweightMarketUI: React.FC<LightweightMarketUIProps> = ({ onBack
       <div className="flex-1 overflow-y-auto custom-scrollbar p-8" style={{ background: '#000000' }}>
         <div className="max-w-7xl mx-auto w-full space-y-8">
           <div className="flex items-center justify-between border-b border-indigo-500/20 pb-6">
-            <h1 className="text-3xl font-black tracking-tighter uppercase italic border-2 border-[#FF4500] shadow-[0_0_15px_#FF4500] px-4 py-2 rounded-lg" style={{ color: profile.ui.text }}>
-              CLEAR PATH <span style={{ color: profile.ui.accent }}>COMMAND TERMINAL</span>
+            <h1 className="text-3xl font-black tracking-tighter uppercase italic border-2 border-[#FF4500] shadow-[0_0_15px_#FF4500] px-4 py-2 rounded-lg" style={{ color: profile.text }}>
+              CLEAR PATH <span style={{ color: profile.borderA }}>COMMAND TERMINAL</span>
             </h1>
             <div className="flex items-center space-x-4">
               <div className="flex space-x-2 mr-4">
@@ -134,8 +134,8 @@ export const LightweightMarketUI: React.FC<LightweightMarketUIProps> = ({ onBack
         className="px-8 py-4 border-t text-[10px] font-mono uppercase tracking-widest opacity-50 text-center glass"
         style={{ 
           backgroundColor: 'rgba(0,0,0,0.5)',
-          borderColor: `${profile.ui.accent}22`,
-          color: profile.ui.text,
+          borderColor: `${profile.borderA}22`,
+          color: profile.text,
         }}
       >
         ⚖ Legal Positioning — “Provides financial data visualization with optional user-controlled presentation adjustments for accessibility and visual clarity. The system does not evaluate, alter, or advise on financial decisions.”

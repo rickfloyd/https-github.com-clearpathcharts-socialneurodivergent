@@ -46,14 +46,14 @@ export default function TodoList({ profile }: TodoListProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <Layout size={20} className="text-indigo-500" />
-          <h3 className="text-xl font-black tracking-tighter uppercase italic" style={{ color: profile.ui.text }}>
-            Tactical <span style={{ color: profile.ui.accent }}>Checklist</span>
+          <h3 className="text-xl font-black tracking-tighter uppercase italic" style={{ color: profile.text }}>
+            Tactical <span style={{ color: profile.borderA }}>Checklist</span>
           </h3>
         </div>
         <button 
           onClick={() => setIsAdding(!isAdding)}
           className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
-          style={{ color: profile.ui.accent }}
+          style={{ color: profile.borderA }}
         >
           <Plus size={20} className={isAdding ? 'rotate-45' : ''} />
         </button>
@@ -67,36 +67,36 @@ export default function TodoList({ profile }: TodoListProps) {
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <form onSubmit={handleSubmit} className="p-4 rounded-2xl border glass space-y-4 mb-6" style={{ borderColor: `${profile.ui.accent}22`, background: `${profile.ui.accent}05` }}>
+            <form onSubmit={handleSubmit} className="p-4 rounded-2xl border glass space-y-4 mb-6" style={{ borderColor: `${profile.borderA}22`, background: `${profile.borderA}05` }}>
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest opacity-50 block" style={{ color: profile.ui.text }}>Task Description</label>
+                <label className="text-[10px] font-black uppercase tracking-widest opacity-50 block" style={{ color: profile.text }}>Task Description</label>
                 <input 
                   type="text" 
                   value={newTask}
                   onChange={(e) => setNewTask(e.target.value)}
                   placeholder="Define mission objective..."
                   className="w-full bg-black/40 border rounded-xl p-3 text-sm focus:outline-none focus:border-indigo-500 transition-all"
-                  style={{ color: profile.ui.text, borderColor: `${profile.ui.accent}11` }}
+                  style={{ color: profile.text, borderColor: `${profile.borderA}11` }}
                   autoFocus
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest opacity-50 block" style={{ color: profile.ui.text }}>Due Date (Optional)</label>
+                <label className="text-[10px] font-black uppercase tracking-widest opacity-50 block" style={{ color: profile.text }}>Due Date (Optional)</label>
                 <div className="relative">
                   <input 
                     type="date" 
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
                     className="w-full bg-black/40 border rounded-xl p-3 text-sm focus:outline-none focus:border-indigo-500 transition-all pr-10"
-                    style={{ color: profile.ui.text, borderColor: `${profile.ui.accent}11`, colorScheme: 'dark' }}
+                    style={{ color: profile.text, borderColor: `${profile.borderA}11`, colorScheme: 'dark' }}
                   />
-                  <Calendar size={16} className="absolute right-3 top-1/2 -translate-y-1/2 opacity-30" style={{ color: profile.ui.accent }} />
+                  <Calendar size={16} className="absolute right-3 top-1/2 -translate-y-1/2 opacity-30" style={{ color: profile.borderA }} />
                 </div>
               </div>
               <button 
                 type="submit"
                 className="w-full py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-all hover:brightness-110"
-                style={{ backgroundColor: profile.ui.accent, color: '#000' }}
+                style={{ backgroundColor: profile.borderA, color: '#000' }}
               >
                 Assemble Task
               </button>
@@ -108,8 +108,8 @@ export default function TodoList({ profile }: TodoListProps) {
       <div className="space-y-3">
         {sortedTasks.length === 0 ? (
           <div className="text-center py-12 space-y-4 opacity-30">
-            <CheckCircle2 size={40} className="mx-auto" style={{ color: profile.ui.accent }} />
-            <p className="text-[10px] font-mono uppercase tracking-[0.2em]" style={{ color: profile.ui.text }}>Clear of all mission objectives</p>
+            <CheckCircle2 size={40} className="mx-auto" style={{ color: profile.borderA }} />
+            <p className="text-[10px] font-mono uppercase tracking-[0.2em]" style={{ color: profile.text }}>Clear of all mission objectives</p>
           </div>
         ) : (
           sortedTasks.map((task) => {
@@ -124,7 +124,7 @@ export default function TodoList({ profile }: TodoListProps) {
                 animate={{ opacity: 1, x: 0 }}
                 className={`p-4 rounded-2xl border glass flex items-center justify-between group transition-all ${task.completed ? 'opacity-50' : ''}`}
                 style={{ 
-                  borderColor: isOverdue ? '#ef444444' : `${profile.ui.accent}11`,
+                  borderColor: isOverdue ? '#ef444444' : `${profile.borderA}11`,
                   background: isOverdue ? 'rgba(239, 68, 68, 0.02)' : 'transparent'
                 }}
               >
@@ -132,12 +132,12 @@ export default function TodoList({ profile }: TodoListProps) {
                   <button 
                     onClick={() => toggleTask(task.id!, !task.completed)}
                     className="transition-transform active:scale-95"
-                    style={{ color: task.completed ? '#22c55e' : profile.ui.accent }}
+                    style={{ color: task.completed ? '#22c55e' : profile.borderA }}
                   >
                     {task.completed ? <CheckCircle2 size={22} /> : <Circle size={22} className="opacity-30 group-hover:opacity-100" />}
                   </button>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-bold truncate transition-all ${task.completed ? 'line-through text-gray-500' : ''}`} style={{ color: profile.ui.text }}>
+                    <p className={`text-sm font-bold truncate transition-all ${task.completed ? 'line-through text-gray-500' : ''}`} style={{ color: profile.text }}>
                       {task.title}
                     </p>
                     {date && (

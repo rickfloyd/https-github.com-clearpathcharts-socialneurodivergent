@@ -1,94 +1,76 @@
 
-import React, { useState } from 'react';
-import { INTERFACE_PROFILES } from '../../lib/interface/profiles';
+"use client";
 
-interface ChartFrameProps {
-  profileId: string;
-  symbol: string;
-  children: React.ReactNode;
-  onTimeframeChange?: (timeframe: string) => void;
-}
+import { ReactNode } from "react";
+import {
+  neuroProfiles,
+  type NeuroProfileId,
+} from "../../lib/neuro/profiles";
 
-const TIMEFRAMES = ['1m', '5m', '10m', '15m', '30m', '1h', '4h', '1d', '1w', '1M', 'YTD'];
+const TIMEFRAMES = ["1m", "5m", "10m", "15m", "30m", "1h", "4h", "1d", "1w", "1M", "YTD"];
 
-export const ChartFrame: React.FC<ChartFrameProps> = ({
+export function ChartFrame({
+  title,
   profileId,
-  symbol,
-  children,
+  timeframe,
   onTimeframeChange,
-}) => {
-  const [activeTimeframe, setActiveTimeframe] = useState('1h');
-  const profile = INTERFACE_PROFILES[profileId] || INTERFACE_PROFILES.standard_trader;
-
-  const handleTimeframeChange = (tf: string) => {
-    setActiveTimeframe(tf);
-    if (onTimeframeChange) onTimeframeChange(tf);
-  };
+  children,
+}: {
+  title: string;
+  profileId: string;
+  timeframe?: string;
+  onTimeframeChange?: (tf: string) => void;
+  children: ReactNode;
+}) {
+  const safeProfileId = (profileId as NeuroProfileId) in neuroProfiles ? (profileId as NeuroProfileId) : "standard_trader";
+  const profile = neuroProfiles[safeProfileId];
 
   return (
-    <div 
-      className="flex flex-col w-full h-full border-2 rounded-2xl overflow-hidden shadow-2xl transition-all duration-500 glass"
-      style={{ 
-        backgroundColor: `${profile.ui.bgBottom}33`,
-        borderColor: profile.ui.borderA,
+    <div
+      className="rounded-[24px] p-[2px] w-full h-full"
+      style={{
+        background: `linear-gradient(135deg, ${profile.borderA}, ${profile.borderB})`,
       }}
     >
-      {/* Header / Timeframe Controls */}
-      <div 
-        className="flex items-center justify-between px-4 py-2 border-b"
-        style={{ 
-          backgroundColor: profile.ui.panel,
-          borderColor: profile.ui.borderB,
+      <div
+        className="rounded-[22px] overflow-hidden w-full h-full flex flex-col"
+        style={{
+          background: `linear-gradient(180deg, ${profile.bgTop}, ${profile.bgBottom})`,
         }}
       >
-        <div className="flex items-center space-x-4">
-          <span className="text-sm font-black tracking-tighter uppercase" style={{ color: profile.ui.text }}>
-            {symbol}
-          </span>
-          <div className="h-4 w-[1px]" style={{ backgroundColor: profile.ui.borderB }} />
-          <div className="flex items-center space-x-1">
-            {TIMEFRAMES.map((tf, idx) => (
+        <div className="px-5 pt-4 pb-3 border-b border-white/10 shrink-0">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-semibold" style={{ color: profile.text }}>
+              {title}
+            </h3>
+            <span className="text-xs opacity-80" style={{ color: profile.text }}>
+              {profile.label}
+            </span>
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            {TIMEFRAMES.map((tf) => (
               <button
-                key={`${tf}-${idx}`}
-                onClick={() => handleTimeframeChange(tf)}
-                className={`px-2 py-1 text-[9px] font-bold uppercase tracking-widest rounded transition-all ${
-                  activeTimeframe === tf ? 'bg-opacity-100' : 'bg-opacity-0 hover:bg-opacity-10'
-                }`}
+                key={tf}
+                onClick={() => onTimeframeChange?.(tf)}
+                className="px-3 py-1 text-xs rounded-md border transition"
                 style={{
-                  backgroundColor: activeTimeframe === tf ? profile.ui.accent : profile.ui.text,
-                  color: activeTimeframe === tf ? profile.ui.bgBottom : profile.ui.text,
+                  color: profile.text,
+                  borderColor: timeframe === tf ? profile.borderA : "rgba(255,255,255,0.10)",
+                  background:
+                    timeframe === tf ? `${profile.borderA}22` : "rgba(255,255,255,0.03)",
                 }}
               >
-                {tf}
+                {tf.toUpperCase()}
               </button>
             ))}
           </div>
         </div>
-        
-        <div className="flex items-center space-x-2">
-          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: profile.ui.accent }} />
-          <span className="text-[9px] font-mono uppercase tracking-widest opacity-50" style={{ color: profile.ui.text }}>
-            Live Feed
-          </span>
+
+        <div className="p-4 flex-1 h-full" style={{ background: profile.panel }}>
+          {children}
         </div>
-      </div>
-
-      {/* Chart Viewport */}
-      <div className="flex-1 relative">
-        {children}
-      </div>
-
-      {/* Footer / Legal Positioning */}
-      <div 
-        className="px-4 py-2 border-t text-[8px] font-mono uppercase tracking-widest opacity-50 text-center"
-        style={{ 
-          backgroundColor: profile.ui.panel,
-          borderColor: profile.ui.borderB,
-          color: profile.ui.text,
-        }}
-      >
-        ⚖ Legal Positioning — “Provides financial data visualization with optional user-controlled presentation adjustments for accessibility and visual clarity. The system does not evaluate, alter, or advise on financial decisions.”
       </div>
     </div>
   );
-};
+}

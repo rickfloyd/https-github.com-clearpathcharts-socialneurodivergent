@@ -1,7 +1,7 @@
 import React from 'react';
 import { LightweightCandles } from '../charts/LightweightCandles';
 import { ChartFrame } from '../charts/ChartFrame';
-import { INTERFACE_PROFILES } from '../../lib/interface/profiles';
+import { neuroProfiles } from '../../lib/neuro/profiles';
 import { motion } from 'motion/react';
 import { TrendingUp, Users, Activity, Zap, Heart, MessageSquare } from 'lucide-react';
 
@@ -9,11 +9,11 @@ interface IntelligenceGatewayProps {
   onNavigate?: (tab: string) => void;
 }
 
-const SHOWCASE_PROFILES = [
-  'dynamic_balance',
-  'focused_analysis',
+const SHOWCASE_PROFILES: (keyof typeof neuroProfiles)[] = [
+  'adhd_hyperfocus',
+  'autism_predictable',
   'high_contrast',
-  'predictable_matrix'
+  'dyslexia_readable'
 ];
 
 const TRENDING_TOPICS = [
@@ -36,7 +36,7 @@ export const IntelligenceGateway: React.FC<IntelligenceGatewayProps> = ({ onNavi
       {/* Hero Section */}
       <section className="relative h-[70vh] min-h-[500px] rounded-b-[60px] overflow-hidden flex items-center px-6 md:px-12 border-b border-white/5 shadow-2xl glass">
         <div className="absolute inset-0 z-0">
-          <LightweightCandles profileId="standard_trader" symbol="XAU/USD" timeframe="1h" />
+          <LightweightCandles profileId="standard_trader" />
           <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
         </div>
         
@@ -97,13 +97,13 @@ export const IntelligenceGateway: React.FC<IntelligenceGatewayProps> = ({ onNavi
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {SHOWCASE_PROFILES.map((pid) => {
-                const p = INTERFACE_PROFILES[pid];
+                const p = neuroProfiles[pid];
                 if (!p) return null;
                 return (
                   <div key={pid} className="space-y-4 group">
                     <div className="flex items-center justify-between px-2">
-                      <span className="text-xs font-bold uppercase tracking-widest" style={{ color: p.ui.accent }}>
-                        {p.name}
+                      <span className="text-xs font-bold uppercase tracking-widest" style={{ color: p.text }}>
+                        {p.label}
                       </span>
                       <div className="flex items-center space-x-3 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Heart size={14} className="cursor-pointer hover:text-red-500" />
@@ -111,8 +111,8 @@ export const IntelligenceGateway: React.FC<IntelligenceGatewayProps> = ({ onNavi
                       </div>
                     </div>
                     <div className="h-[280px] rounded-3xl overflow-hidden border border-white/5 shadow-xl transition-transform hover:scale-[1.02] glass">
-                      <ChartFrame profileId={pid} symbol="BTC/USD">
-                        <LightweightCandles profileId={pid} symbol="BTC/USD" timeframe="15m" />
+                      <ChartFrame profileId={pid} title="BTC/USD">
+                        <LightweightCandles profileId={pid} height={280} />
                       </ChartFrame>
                     </div>
                   </div>

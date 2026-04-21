@@ -51,12 +51,12 @@ const ChartWidget = ({ asset, profile }: { asset: typeof ASSET_LIST[0], profile:
           "backgroundColor": "#131722",
           "gridColor": "rgba(255, 255, 255, 0.05)",
           "overrides": {
-            "mainSeriesProperties.candleStyle.upColor": profile.candles.upColor,
-            "mainSeriesProperties.candleStyle.downColor": profile.candles.downColor,
-            "mainSeriesProperties.candleStyle.borderUpColor": profile.candles.borderUpColor,
-            "mainSeriesProperties.candleStyle.borderDownColor": profile.candles.borderDownColor,
-            "mainSeriesProperties.candleStyle.wickUpColor": profile.candles.wickUpColor,
-            "mainSeriesProperties.candleStyle.wickDownColor": profile.candles.wickDownColor,
+            "mainSeriesProperties.candleStyle.upColor": profile.upColor,
+            "mainSeriesProperties.candleStyle.downColor": profile.downColor,
+            "mainSeriesProperties.candleStyle.borderUpColor": profile.borderUpColor,
+            "mainSeriesProperties.candleStyle.borderDownColor": profile.borderDownColor,
+            "mainSeriesProperties.candleStyle.wickUpColor": profile.wickUpColor,
+            "mainSeriesProperties.candleStyle.wickDownColor": profile.wickDownColor,
           }
         });
       } else {
@@ -148,8 +148,8 @@ export default function Timeline({ profile }: TimelineProps) {
         <div className="flex items-center justify-between border-b border-indigo-500/20 pb-4">
           <div className="flex items-center space-x-3">
             <Zap size={20} className="text-indigo-500" />
-            <h2 className="text-xl font-black tracking-tighter uppercase italic" style={{ color: profile.ui.text }}>
-              CLEAR PATH <span style={{ color: profile.ui.accent }}>CHART VISUALS</span>
+            <h2 className="text-xl font-black tracking-tighter uppercase italic" style={{ color: profile.text }}>
+              CLEAR PATH <span style={{ color: profile.borderA }}>CHART VISUALS</span>
             </h2>
           </div>
           <div className="timeframe-bar mb-0 p-1 flex items-center space-x-1 overflow-x-auto whitespace-nowrap custom-scrollbar">
@@ -171,7 +171,7 @@ export default function Timeline({ profile }: TimelineProps) {
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="max-w-2xl mx-auto space-y-6">
           {/* Create Post */}
-          <div className="border p-4 shadow-xl rounded-3xl glass" style={{ background: `${profile.ui.bgBottom}33`, borderColor: `${profile.ui.accent}22` }}>
+          <div className="border p-4 shadow-xl rounded-3xl glass" style={{ background: `${profile.bgBottom}33`, borderColor: `${profile.borderA}22` }}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex space-x-4">
             <div className="surfboard-profile-outline border-4 border-[#FF4500] shadow-[0_0_30px_#FF4500]">
@@ -186,12 +186,12 @@ export default function Timeline({ profile }: TimelineProps) {
               onChange={(e) => setNewPost(e.target.value)}
               placeholder="Post market intelligence or institutional chart analysis..."
               className="w-full bg-transparent border-none focus:ring-0 placeholder-gray-500 resize-none h-24 font-sans text-lg"
-              style={{ color: profile.ui.text }}
+              style={{ color: profile.text }}
             />
           </div>
 
           {selectedMedia && (
-            <div className="relative rounded-xl overflow-hidden border bg-black/40 group" style={{ borderColor: `${profile.ui.accent}22` }}>
+            <div className="relative rounded-xl overflow-hidden border bg-black/40 group" style={{ borderColor: `${profile.borderA}22` }}>
               {selectedMedia.type === 'image' ? (
                 <img 
                   src={markupDataUrl || selectedMedia.url} 
@@ -216,7 +216,7 @@ export default function Timeline({ profile }: TimelineProps) {
                   type="button"
                   onClick={() => setShowMarkupTool(true)}
                   className="p-2 text-black rounded-full shadow-lg hover:scale-110 transition-all"
-                  style={{ backgroundColor: profile.ui.accent }}
+                  style={{ backgroundColor: profile.borderA }}
                   title="Mark up Chart"
                 >
                   <TrendingUp size={16} />
@@ -232,33 +232,33 @@ export default function Timeline({ profile }: TimelineProps) {
             </div>
           )}
 
-          <div className="flex items-center justify-between pt-4 border-t" style={{ borderColor: `${profile.ui.accent}11` }}>
+          <div className="flex items-center justify-between pt-4 border-t" style={{ borderColor: `${profile.borderA}11` }}>
             <div className="flex space-x-4">
               <button 
                 type="button" 
                 onClick={() => fileInputRef.current?.click()}
                 className="flex items-center space-x-2 transition-colors text-xs font-bold uppercase tracking-wider"
-                style={{ color: `${profile.ui.accent}88` }}
+                style={{ color: `${profile.borderA}88` }}
               >
-                <i className="fas fa-image text-xl" style={{ color: profile.ui.accent }} aria-hidden="true"></i>
+                <i className="fas fa-image text-xl" style={{ color: profile.borderA }} aria-hidden="true"></i>
                 <span className="hidden sm:inline lava-hot-text">Photo</span>
               </button>
               <button 
                 type="button" 
                 onClick={() => videoInputRef.current?.click()}
                 className="flex items-center space-x-2 transition-colors text-xs font-bold uppercase tracking-wider"
-                style={{ color: `${profile.ui.accent}88` }}
+                style={{ color: `${profile.borderA}88` }}
               >
-                <i className="fas fa-video text-xl" style={{ color: profile.ui.accent }} aria-hidden="true"></i>
+                <i className="fas fa-video text-xl" style={{ color: profile.borderA }} aria-hidden="true"></i>
                 <span className="hidden sm:inline lava-hot-text">Video</span>
               </button>
               <button 
                 type="button"
                 onClick={() => liveInputRef.current?.click()}
                 className="flex items-center space-x-2 transition-colors text-xs font-bold uppercase tracking-wider"
-                style={{ color: `${profile.ui.accent}88` }}
+                style={{ color: `${profile.borderA}88` }}
               >
-                <i className="fas fa-camera text-xl" style={{ color: profile.ui.accent }} aria-hidden="true"></i>
+                <i className="fas fa-camera text-xl" style={{ color: profile.borderA }} aria-hidden="true"></i>
                 <span className="hidden sm:inline lava-hot-text">Live</span>
               </button>
               
@@ -295,8 +295,8 @@ export default function Timeline({ profile }: TimelineProps) {
               disabled={isSubmitting || (!newPost.trim() && !selectedMedia)}
               className="text-black px-8 py-2 rounded-full uppercase tracking-widest hover:brightness-110 transition-all disabled:opacity-50"
               style={{ 
-                backgroundColor: profile.ui.accent, 
-                boxShadow: `0 0 20px ${profile.ui.accent}44`,
+                backgroundColor: profile.borderA, 
+                boxShadow: `0 0 20px ${profile.borderA}44`,
                 fontWeight: 'bold',
                 fontSize: '14px',
                 borderColor: '#f00ce1',
@@ -320,7 +320,7 @@ export default function Timeline({ profile }: TimelineProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="border overflow-hidden shadow-xl rounded-3xl glass"
-              style={{ background: `${profile.ui.bgBottom}33`, borderColor: `${profile.ui.accent}22` }}
+              style={{ background: `${profile.bgBottom}33`, borderColor: `${profile.borderA}22` }}
             >
               {/* Post Header */}
               <div className="p-4 flex items-center justify-between">
@@ -333,8 +333,8 @@ export default function Timeline({ profile }: TimelineProps) {
                     />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold" style={{ color: profile.ui.text }}>{post.authorName}</h4>
-                    <p className="text-[10px] uppercase tracking-widest flex items-center space-x-2" style={{ color: `${profile.ui.text}66` }}>
+                    <h4 className="text-sm font-bold" style={{ color: profile.text }}>{post.authorName}</h4>
+                    <p className="text-[10px] uppercase tracking-widest flex items-center space-x-2" style={{ color: `${profile.text}66` }}>
                       <span>{post.createdAt?.seconds ? formatDistanceToNow(post.createdAt.seconds * 1000) : 'Just now'} ago</span>
                       {post.market_layer && post.market_layer !== 'GLOBAL' && (
                         <>
@@ -347,19 +347,19 @@ export default function Timeline({ profile }: TimelineProps) {
                     </p>
                   </div>
                 </div>
-                <button className="hover:opacity-70 transition-opacity" style={{ color: profile.ui.accent }}>
+                <button className="hover:opacity-70 transition-opacity" style={{ color: profile.borderA }}>
                   <MoreHorizontal size={20} />
                 </button>
               </div>
 
               {/* Post Content */}
               <div className="px-4 pb-4">
-                <p className="leading-relaxed whitespace-pre-wrap text-[15px]" style={{ color: `${profile.ui.text}dd` }}>{post.content}</p>
+                <p className="leading-relaxed whitespace-pre-wrap text-[15px]" style={{ color: `${profile.text}dd` }}>{post.content}</p>
               </div>
 
               {/* Media Display */}
               {post.mediaUrl && (
-                <div className="bg-black/50 relative overflow-hidden border-y" style={{ borderColor: `${profile.ui.accent}11` }}>
+                <div className="bg-black/50 relative overflow-hidden border-y" style={{ borderColor: `${profile.borderA}11` }}>
                   {post.mediaType === 'video' ? (
                     <video 
                       src={post.mediaUrl} 
@@ -380,22 +380,22 @@ export default function Timeline({ profile }: TimelineProps) {
               )}
 
               {/* Post Actions */}
-              <div className="p-4 border-t flex items-center justify-between" style={{ borderColor: `${profile.ui.accent}11` }}>
+              <div className="p-4 border-t flex items-center justify-between" style={{ borderColor: `${profile.borderA}11` }}>
                 <div className="flex space-x-6">
                   <button
                     onClick={() => toggleLike(post.id!, post.likesCount || 0)}
                     className="flex items-center space-x-2 transition-colors"
-                    style={{ color: post.likesCount ? '#FF007F' : `${profile.ui.accent}88` }}
+                    style={{ color: post.likesCount ? '#FF007F' : `${profile.borderA}88` }}
                   >
                     <Heart size={18} className={post.likesCount ? 'fill-current' : ''} />
                     <span className="text-xs font-mono">{post.likesCount || 0}</span>
                   </button>
-                  <button className="flex items-center space-x-2 transition-colors" style={{ color: `${profile.ui.accent}88` }}>
+                  <button className="flex items-center space-x-2 transition-colors" style={{ color: `${profile.borderA}88` }}>
                     <MessageSquare size={18} />
                     <span className="text-xs font-mono">0</span>
                   </button>
                 </div>
-                <button className="transition-colors hover:opacity-70" style={{ color: profile.ui.accent }}>
+                <button className="transition-colors hover:opacity-70" style={{ color: profile.borderA }}>
                   <Share2 size={18} />
                 </button>
               </div>
@@ -405,9 +405,9 @@ export default function Timeline({ profile }: TimelineProps) {
 
         {/* Trending Sidebar */}
         <div className="hidden lg:block space-y-6">
-          <div className="border p-6 rounded-3xl glass sticky top-24" style={{ background: `${profile.ui.bgBottom}33`, borderColor: `${profile.ui.accent}22` }}>
-            <h3 className="text-lg font-black tracking-tighter uppercase italic mb-6" style={{ color: profile.ui.text }}>
-              Trending <span style={{ color: profile.ui.accent }}>Insights</span>
+          <div className="border p-6 rounded-3xl glass sticky top-24" style={{ background: `${profile.bgBottom}33`, borderColor: `${profile.borderA}22` }}>
+            <h3 className="text-lg font-black tracking-tighter uppercase italic mb-6" style={{ color: profile.text }}>
+              Trending <span style={{ color: profile.borderA }}>Insights</span>
             </h3>
             <div className="space-y-4">
               {[
@@ -419,14 +419,14 @@ export default function Timeline({ profile }: TimelineProps) {
               ].map((item) => (
                 <div key={item.tag} className="flex items-center justify-between group cursor-pointer">
                   <div>
-                    <p className="text-sm font-bold group-hover:text-indigo-400 transition-colors" style={{ color: profile.ui.text }}>{item.tag}</p>
-                    <p className="text-[10px] uppercase tracking-widest opacity-50" style={{ color: profile.ui.text }}>{item.count} broadcasts</p>
+                    <p className="text-sm font-bold group-hover:text-indigo-400 transition-colors" style={{ color: profile.text }}>{item.tag}</p>
+                    <p className="text-[10px] uppercase tracking-widest opacity-50" style={{ color: profile.text }}>{item.count} broadcasts</p>
                   </div>
                   <TrendingUp size={14} className={item.trend === 'up' ? 'text-green-500' : 'text-red-500'} />
                 </div>
               ))}
             </div>
-            <button className="w-full mt-8 py-3 rounded-xl border border-indigo-500/30 text-[10px] font-black uppercase tracking-widest hover:bg-indigo-500/10 transition-all" style={{ color: profile.ui.accent }}>
+            <button className="w-full mt-8 py-3 rounded-xl border border-indigo-500/30 text-[10px] font-black uppercase tracking-widest hover:bg-indigo-500/10 transition-all" style={{ color: profile.borderA }}>
               View All Trends
             </button>
           </div>

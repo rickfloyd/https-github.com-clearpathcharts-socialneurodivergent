@@ -29,9 +29,9 @@ export default function PulseChart({ marketId, symbol, profile }: PulseChartProp
       <LiveChart 
         symbol={finalSymbol} 
         theme={{ 
-          upColor: profile.candles.upColor, 
-          downColor: profile.candles.downColor, 
-          accent: profile.ui.accent 
+          upColor: profile.upColor, 
+          downColor: profile.downColor, 
+          accent: profile.borderA 
         }} 
       />
     </div>

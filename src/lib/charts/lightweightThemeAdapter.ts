@@ -1,60 +1,47 @@
+import type { NeuroProfile } from "../neuro/profiles";
+import { chartPhysics } from "../neuro/chartPhysics";
 
-import { DeepPartial, ChartOptions, ColorType } from 'lightweight-charts';
-import { InterfaceProfile } from '../../types';
-
-export const adaptLightweightTheme = (profile: InterfaceProfile): DeepPartial<ChartOptions> => {
-  const { ui, candles } = profile;
+export function lightweightThemeAdapter(profile: NeuroProfile) {
+  const physics = chartPhysics(profile);
 
   return {
     layout: {
       background: {
-        type: ColorType.VerticalGradient,
-        topColor: ui.bgTop,
-        bottomColor: ui.bgBottom,
+        topColor: profile.bgTop,
+        bottomColor: profile.bgBottom,
       },
-      textColor: ui.text,
-      fontSize: 12,
-      fontFamily: 'Inter, sans-serif',
+      textColor: profile.text,
     },
     grid: {
-      vertLines: {
-        color: ui.gridColor,
-      },
-      horzLines: {
-        color: ui.gridColor,
-      },
-    },
-    rightPriceScale: {
-      borderColor: ui.borderA,
-      textColor: ui.text,
-    },
-    timeScale: {
-      borderColor: ui.borderA,
+      vertLines: { color: profile.grid },
+      horzLines: { color: profile.grid },
     },
     crosshair: {
       vertLine: {
-        color: ui.accent,
-        labelBackgroundColor: ui.accent,
+        color: profile.borderA,
+        labelBackgroundColor: profile.borderA,
       },
       horzLine: {
-        color: ui.accent,
-        labelBackgroundColor: ui.accent,
+        color: profile.borderB,
+        labelBackgroundColor: profile.borderB,
       },
     },
+    rightPriceScale: {
+      borderColor: profile.grid,
+    },
+    timeScale: {
+      borderColor: profile.grid,
+      timeVisible: true,
+      secondsVisible: false,
+    },
+    candleSeries: {
+      upColor: profile.upColor,
+      downColor: profile.downColor,
+      wickUpColor: profile.wickUpColor,
+      wickDownColor: profile.wickDownColor,
+      borderUpColor: profile.borderUpColor,
+      borderDownColor: profile.borderDownColor,
+    },
+    physics,
   };
-};
-
-export const adaptCandleSeriesOptions = (profile: InterfaceProfile) => {
-  const { candles } = profile;
-
-  return {
-    upColor: candles.upColor,
-    downColor: candles.downColor,
-    borderVisible: true,
-    wickVisible: true,
-    borderUpColor: candles.borderUpColor,
-    borderDownColor: candles.borderDownColor,
-    wickUpColor: candles.wickUpColor,
-    wickDownColor: candles.wickDownColor,
-  };
-};
+}

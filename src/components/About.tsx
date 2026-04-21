@@ -190,7 +190,7 @@ export default function About({ profile }: AboutProps) {
                 <button
                   onClick={handleSave}
                   className="px-6 py-2 rounded-full font-black uppercase tracking-widest text-xs transition-all flex items-center space-x-2"
-                  style={{ backgroundColor: profile.ui.accent, color: '#000' }}
+                  style={{ backgroundColor: profile.borderA, color: '#000' }}
                 >
                   <Save size={14} />
                   <span>Save Profile</span>
@@ -199,7 +199,7 @@ export default function About({ profile }: AboutProps) {
                 <button
                   onClick={() => setIsEditing(true)}
                   className="px-6 py-2 rounded-full border-2 font-black uppercase tracking-widest text-xs transition-all flex items-center space-x-2 hover:bg-white/5"
-                  style={{ borderColor: profile.ui.accent, color: profile.ui.accent }}
+                  style={{ borderColor: profile.borderA, color: profile.borderA }}
                 >
                   <Edit3 size={14} />
                   <span>Edit Profile</span>
@@ -224,7 +224,7 @@ export default function About({ profile }: AboutProps) {
                   onChange={e => setEditData({...editData, displayName: e.target.value})}
                   className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-xl font-black uppercase italic tracking-tighter"
                   placeholder="Display Name"
-                  style={{ color: profile.ui.accent }}
+                  style={{ color: profile.borderA }}
                 />
                 <div className="flex items-center bg-white/5 border border-white/10 rounded-lg px-4 py-2">
                   <span className="text-gray-500 mr-1">@</span>
@@ -233,13 +233,13 @@ export default function About({ profile }: AboutProps) {
                     onChange={e => setEditData({...editData, username: e.target.value})}
                     className="w-full bg-transparent border-none p-0 text-sm font-mono focus:ring-0"
                     placeholder="username"
-                    style={{ color: profile.ui.text }}
+                    style={{ color: profile.text }}
                   />
                 </div>
               </div>
             ) : (
               <>
-                <h1 className="text-3xl font-black tracking-tighter uppercase italic flex items-center gap-2" style={{ color: profile.ui.accent }}>
+                <h1 className="text-3xl font-black tracking-tighter uppercase italic flex items-center gap-2" style={{ color: profile.borderA }}>
                   {userProfile?.displayName || 'Anonymous Trader'}
                 </h1>
                 <p className="text-sm font-mono text-gray-500">
@@ -257,10 +257,10 @@ export default function About({ profile }: AboutProps) {
                 onChange={e => setEditData({...editData, bio: e.target.value})}
                 className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm leading-relaxed focus:ring-0 resize-none h-24"
                 placeholder="Describe your institutional focus and market edge..."
-                style={{ color: profile.ui.text }}
+                style={{ color: profile.text }}
               />
             ) : (
-              <p className="text-sm leading-relaxed max-w-2xl" style={{ color: profile.ui.text }}>
+              <p className="text-sm leading-relaxed max-w-2xl" style={{ color: profile.text }}>
                 {userProfile?.bio || "Institutional profile pending. Define your background for the network."}
               </p>
             )}

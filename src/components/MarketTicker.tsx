@@ -64,11 +64,11 @@ export default function MarketTicker({ profile }: MarketTickerProps) {
   return (
     <div 
       className="h-10 border-b flex items-center overflow-hidden glass relative z-20"
-      style={{ borderColor: `${profile.ui.accent}11`, background: `${profile.ui.bgBottom}44` }}
+      style={{ borderColor: `${profile.borderA}11`, background: `${profile.bgBottom}44` }}
     >
-      <div className="flex items-center px-4 border-r h-full bg-black/40 z-10" style={{ borderColor: `${profile.ui.accent}22` }}>
-        <Activity size={14} className="mr-2" style={{ color: profile.ui.accent }} />
-        <span className="text-[10px] font-black uppercase tracking-widest whitespace-nowrap" style={{ color: profile.ui.accent }}>Live Market Feed</span>
+      <div className="flex items-center px-4 border-r h-full bg-black/40 z-10" style={{ borderColor: `${profile.borderA}22` }}>
+        <Activity size={14} className="mr-2" style={{ color: profile.borderA }} />
+        <span className="text-[10px] font-black uppercase tracking-widest whitespace-nowrap" style={{ color: profile.borderA }}>Live Market Feed</span>
       </div>
 
       <div className="flex-1 relative overflow-hidden h-full">
@@ -87,8 +87,8 @@ export default function MarketTicker({ profile }: MarketTickerProps) {
             
             return (
               <div key={`${asset.symbol}-${idx}`} className="flex items-center space-x-2">
-                <span className="text-[10px] font-bold opacity-50 uppercase tracking-tighter" style={{ color: profile.ui.text }}>{asset.label}</span>
-                <span className="text-xs font-mono font-bold" style={{ color: profile.ui.text }}>
+                <span className="text-[10px] font-bold opacity-50 uppercase tracking-tighter" style={{ color: profile.text }}>{asset.label}</span>
+                <span className="text-xs font-mono font-bold" style={{ color: profile.text }}>
                   {data ? `$${data.price}` : '---'}
                 </span>
                 {data && (
@@ -103,9 +103,9 @@ export default function MarketTicker({ profile }: MarketTickerProps) {
         </motion.div>
       </div>
 
-      <div className="px-4 border-l h-full flex items-center bg-black/40 z-10" style={{ borderColor: `${profile.ui.accent}22` }}>
-        <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: profile.ui.accent }} />
-        <span className="text-[9px] font-mono uppercase tracking-widest ml-2 opacity-50" style={{ color: profile.ui.text }}>Syncing</span>
+      <div className="px-4 border-l h-full flex items-center bg-black/40 z-10" style={{ borderColor: `${profile.borderA}22` }}>
+        <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: profile.borderA }} />
+        <span className="text-[9px] font-mono uppercase tracking-widest ml-2 opacity-50" style={{ color: profile.text }}>Syncing</span>
       </div>
     </div>
   );

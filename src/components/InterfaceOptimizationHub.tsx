@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { useAuth } from '../contexts/FirebaseContext';
 import { 
@@ -6,95 +6,60 @@ import {
   Eye, Ear, ListChecks, AlertCircle, CloudRain, 
   Sun, UserPlus, VolumeX, Target, Layout, Brain
 } from 'lucide-react';
-import { INTERFACE_PROFILES } from '../lib/interface/profiles';
-import { InterfaceProfile } from '../types';
+import { neuroProfiles, type NeuroProfile } from '../lib/neuro/profiles';
 import LegalFooter from './LegalFooter';
 import LiveChart from './LiveChart';
 
 interface InterfaceOptimizationHubProps {
-  profile: InterfaceProfile;
+  profile: NeuroProfile;
   onProfileChange: (profileId: string) => void;
   onNavigate: (tab: string) => void;
 }
 
-const CATEGORIES = [
-  { id: 'analytical', label: 'COGNITIVE ADAPTATIONS' },
-  { id: 'tactical', label: 'HIGH-INTENSITY' },
-  { id: 'standard', label: 'CORE PROTOCOLS' }
-];
-
-const PROFILE_ICONS: Record<string, any> = {
-  focused_analysis: Shield, // AUTISM
-  numeric_precision: Activity, // ADHD
-  readable_terminal: Eye, // DYSLEXIA
-  predictable_matrix: ListChecks, // OCD
-  dynamic_balance: Zap,
-  visual_safety: Activity,
-  interface_friendly: Target,
-  standard_trader: Layout,
-  high_intensity: Users
-};
-
 export default function InterfaceOptimizationHub({ profile, onProfileChange, onNavigate }: InterfaceOptimizationHubProps) {
-  const [activeCategory, setActiveCategory] = useState('analytical');
-
-  const handleSelect = (p: InterfaceProfile) => {
+  const handleSelect = (p: NeuroProfile) => {
     onProfileChange(p.id);
   };
 
-  const handleGoToCharts = (e: React.MouseEvent, p: InterfaceProfile) => {
-    e.stopPropagation(); // Prevent card selection
+  const handleGoToCharts = (e: React.MouseEvent, p: NeuroProfile) => {
+    e.stopPropagation(); // Prevent card selection purely
     onProfileChange(p.id); // Apply profile first
-    onNavigate('Market'); // Then go to charts
+    onNavigate('StrictlyCharts'); // Hide dashboard & open purely charts
   };
 
-  const filteredProfiles = (Object.values(INTERFACE_PROFILES) as InterfaceProfile[]).filter(p => {
-    if (activeCategory === 'analytical') {
-      // Focus on the ND protocols explicitly
-      return ['focused_analysis', 'numeric_precision', 'readable_terminal', 'predictable_matrix'].includes(p.id);
-    }
-    if (activeCategory === 'tactical') {
-      return ['high_intensity', 'dynamic_balance', 'visual_safety', 'assistive_feed'].includes(p.id);
-    }
-    return ['standard_trader', 'interface_friendly', 'predictable_matrix', 'high_contrast'].includes(p.id);
-  });
+  const selectedKeys: (keyof typeof neuroProfiles)[] = [
+    'autism_predictable',
+    'calm_focus',
+    'low_stim_emergency',
+    'dyslexia_readable',
+    'dyscalculia_numeric_relief',
+    'visual_processing_safe',
+    'apd_assist',
+    'executive_function_support',
+    'motor_friendly',
+    'adhd_dopamine_balanced',
+    'adhd_hyperfocus',
+    'tourette_tic_friendly',
+    'plain_language',
+    'high_contrast',
+    'retail_chaos' // Renamed to HFT Scanner
+  ];
+
+  const profilesArray = selectedKeys.map(k => neuroProfiles[k]);
 
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-12">
+    <div className="max-w-[1400px] mx-auto p-4 md:p-8 space-y-12">
       <div className="text-center space-y-4">
         <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter italic">
-          <span style={{ color: profile.ui.accent }}>NEURODIVERGENT</span> <span className="neon-indigo-text">INTERFACE</span> <span style={{ color: profile.ui.accent }}>PROTOCOLS</span>
+          <span style={{ color: profile.borderA }}>NEURODIVERGENT</span> <span className="neon-indigo-text">INTERFACE</span> <span style={{ color: profile.borderB }}>PROTOCOLS</span>
         </h2>
-        <p className="font-mono uppercase tracking-widest text-sm" style={{ color: profile.ui.accent }}>
+        <p className="font-mono uppercase tracking-widest text-sm" style={{ color: profile.text }}>
           Calibrate visual sensory input for peak neuro-cognitive market performance
         </p>
       </div>
 
-      {/* Category Tabs */}
-      <div className="flex justify-center space-x-4">
-        {CATEGORIES.map(cat => (
-          <button
-            key={cat.id}
-            onClick={() => setActiveCategory(cat.id)}
-            className={`px-8 py-3 rounded-full font-black uppercase tracking-widest text-xs transition-all border-2 ${
-              activeCategory === cat.id 
-                ? 'bg-white text-black border-white' 
-                : 'text-gray-500 border-white/10 hover:border-white/30'
-            }`}
-            style={{ 
-              backgroundColor: activeCategory === cat.id ? profile.ui.accent : 'transparent',
-              borderColor: activeCategory === cat.id ? profile.ui.accent : undefined,
-              color: activeCategory === cat.id ? '#000' : undefined
-            }}
-          >
-            <span style={{ color: activeCategory === cat.id ? '#000' : profile.ui.accent }}>{cat.label}</span>
-          </button>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProfiles.map((p) => {
-          const Icon = PROFILE_ICONS[p.id] || Layout;
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {profilesArray.map((p) => {
           const isActive = profile.id === p.id;
 
           return (
@@ -102,51 +67,39 @@ export default function InterfaceOptimizationHub({ profile, onProfileChange, onN
               key={p.id}
               whileHover={{ scale: 1.02 }}
               onClick={() => handleSelect(p)}
-              className={`p-8 rounded-3xl text-left transition-all duration-500 space-y-4 relative overflow-hidden group border-2 glass cursor-pointer ${
+              className={`p-6 rounded-3xl text-left transition-all duration-500 space-y-8 relative overflow-hidden group border-2 glass cursor-pointer ${
                 isActive 
-                  ? 'bg-white/5 shadow-[0_0_50px_rgba(255,255,255,0.05)]' 
-                  : 'bg-[#0a0a0a] border-white/5 hover:border-white/20'
+                  ? 'shadow-[0_0_50px_rgba(255,255,255,0.05)]' 
+                  : 'hover:border-white/20'
               }`}
               style={{ 
-                borderColor: isActive ? p.ui.accent : undefined,
-                background: isActive ? `linear-gradient(to bottom right, ${p.ui.bgTop}, ${p.ui.bgBottom})` : undefined
+                borderColor: isActive ? '#ffffff' : 'rgba(255,255,255,0.1)',
+                background: 'linear-gradient(135deg, #FF4500 0%, #FF00FF 100%)'
               }}
             >
               {/* Active Glow */}
               {isActive && (
                 <div 
-                  className="absolute top-0 right-0 w-40 h-40 blur-[80px] opacity-30"
-                  style={{ backgroundColor: p.ui.accent }}
+                  className="absolute top-0 right-0 w-40 h-40 blur-[80px] opacity-30 bg-white"
                 />
               )}
 
-              <div 
-                className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${
-                  isActive ? 'text-black scale-110' : 'bg-white/5 text-gray-500 group-hover:text-white'
-                }`}
-                style={{ 
-                  backgroundColor: isActive ? p.ui.accent : 'rgba(255,255,255,0.05)',
-                  boxShadow: isActive ? `0 0 20px ${p.ui.accent}` : 'none'
-                }}
-              >
-                <Icon size={28} />
-              </div>
-
-              <div className="space-y-2 relative z-10">
-                <h3 className={`text-2xl font-black uppercase tracking-tight transition-colors duration-500 ${isActive ? '' : 'text-gray-400'}`} style={{ color: isActive ? p.ui.accent : undefined }}>
-                  {p.name}
+              <div className="space-y-1 relative z-10 flex-col flex flex-1">
+                <h3 className={`text-xl font-black uppercase tracking-tight transition-colors duration-500 text-white`}>
+                  {p.label}
                 </h3>
-                <p className={`text-xs leading-relaxed font-sans transition-colors ${isActive ? '' : 'text-gray-500 group-hover:text-gray-400'}`} style={{ color: isActive ? p.ui.accent : undefined }}>
-                  {p.description}
-                </p>
+                <div className="flex gap-2 text-[9px] font-mono uppercase opacity-90 text-white/80">
+                  <span>DENSITY: {p.dataDensity}</span>
+                  <span>GLOW: {p.glow}</span>
+                </div>
               </div>
 
               <div className="pt-4 flex items-center justify-between relative z-10">
                 {isActive ? (
                   <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.ui.accent }} />
-                    <span className="text-[10px] font-mono uppercase tracking-widest font-bold" style={{ color: p.ui.accent }}>
-                      <span>Adaptation Protocol Active</span>
+                    <div className="w-2 h-2 rounded-full shadow-[0_0_10px_currentColor] bg-white text-white" />
+                    <span className="text-[9px] font-mono uppercase tracking-widest font-bold text-white">
+                      Active
                     </span>
                   </div>
                 ) : (
@@ -155,11 +108,11 @@ export default function InterfaceOptimizationHub({ profile, onProfileChange, onN
                 
                 <button
                   onClick={(e) => handleGoToCharts(e, p)}
-                  className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group/btn"
+                  className="flex items-center space-x-2 px-6 py-3 rounded-xl bg-black/60 border border-white/20 hover:bg-black transition-all group/btn w-full justify-center mt-2"
                 >
-                  <BarChart3 size={14} className="text-gray-400 group-hover/btn:text-white" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 group-hover/btn:text-white">
-                    Go to workspace
+                  <BarChart3 size={16} className="text-white group-hover/btn:text-[#FF4500]" />
+                  <span className="text-[12px] font-black uppercase tracking-widest text-white group-hover/btn:text-[#FF4500]">
+                    GO TO CHART
                   </span>
                 </button>
               </div>
@@ -184,7 +137,7 @@ export default function InterfaceOptimizationHub({ profile, onProfileChange, onN
         </div>
       </div>
       <div className="mt-12">
-        <LegalFooter profile={profile} />
+        <LegalFooter profile={profile as any} />
       </div>
     </div>
   );

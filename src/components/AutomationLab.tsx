@@ -79,8 +79,8 @@ export default function AutomationLab({ profile }: AutomationLabProps) {
             <div className="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
               <Cpu size={24} className="text-indigo-500" />
             </div>
-            <h2 className="text-3xl font-black tracking-tighter uppercase italic" style={{ color: profile.ui.text }}>
-              Automation <span style={{ color: profile.ui.accent }}>Nexus</span>
+            <h2 className="text-3xl font-black tracking-tighter uppercase italic" style={{ color: profile.text }}>
+              Automation <span style={{ color: profile.borderA }}>Nexus</span>
             </h2>
           </div>
           <p className="text-gray-500 text-xs font-medium uppercase tracking-[0.2em] ml-1">Autonomous Crew Orchestration // v1.0.2</p>

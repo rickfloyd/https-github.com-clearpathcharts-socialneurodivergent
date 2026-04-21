@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, onAuthStateChanged, auth, db, doc, getDoc, setDoc, collection, query, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, limit, serverTimestamp, handleFirestoreError, OperationType } from '../firebase';
 import { InterfaceProfile, UserProfile, TimelinePost, AboutContent, TradeEntry, JournalSettings, Task } from '../types';
-import { INTERFACE_PROFILES } from '../lib/interface/profiles';
+import { neuroProfiles } from '../lib/neuro/profiles';
 
 interface FirebaseContextType {
   user: User | null;

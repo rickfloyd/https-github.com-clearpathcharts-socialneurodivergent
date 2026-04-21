@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { INTERFACE_PROFILES } from './lib/interface/profiles';
+import { neuroProfiles, type NeuroProfile } from './lib/neuro/profiles';
 import { InterfaceProfile } from './types';
 import { FirebaseProvider, useAuth } from './contexts/FirebaseContext';
 import { loginWithGoogle } from './firebase';
@@ -56,7 +56,7 @@ function LoadingScreen({ message, onRetry }: { message: string, onRetry?: () => 
 
 function AppContent() {
   const { user, loading, userProfile, updateProfile, retryConnection, quotaExceeded } = useAuth();
-  const [activeProfile, setActiveProfile] = useState<InterfaceProfile>(INTERFACE_PROFILES.standard_trader);
+  const [activeProfile, setActiveProfile] = useState<NeuroProfile>(neuroProfiles.standard_trader);
 
   useEffect(() => {
     // Initialize global institutional data stream
@@ -71,7 +71,7 @@ function AppContent() {
 
   useEffect(() => {
     if (userProfile?.interfaceType) {
-      const profile = Object.values(INTERFACE_PROFILES).find(p => p.id === userProfile.interfaceType);
+      const profile = Object.values(neuroProfiles).find(p => p.id === userProfile.interfaceType);
       if (profile) {
         setActiveProfile(profile);
       }
@@ -79,7 +79,7 @@ function AppContent() {
   }, [userProfile]);
 
   const handleProfileChange = async (profileId: string) => {
-    const profile = INTERFACE_PROFILES[profileId as keyof typeof INTERFACE_PROFILES];
+    const profile = neuroProfiles[profileId as keyof typeof neuroProfiles];
     if (profile) {
       setActiveProfile(profile);
       if (user) {

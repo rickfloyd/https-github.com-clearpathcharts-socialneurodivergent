@@ -392,8 +392,8 @@ export default function TradingJournal({ profile, onBackToDashboard }: TradingJo
     datasets: [{
       label: 'Equity',
       data: metrics.equitySeries,
-      borderColor: profile.ui.accent,
-      backgroundColor: `${profile.ui.accent}11`,
+      borderColor: profile.borderA,
+      backgroundColor: `${profile.borderA}11`,
       fill: true,
       tension: 0.4,
       pointRadius: 2
@@ -420,7 +420,7 @@ export default function TradingJournal({ profile, onBackToDashboard }: TradingJo
         filteredTrades.filter(t => t.outcome === 'good').length,
         filteredTrades.filter(t => t.outcome === 'bad').length
       ],
-      backgroundColor: [profile.ui.accent, '#FF3131'],
+      backgroundColor: [profile.borderA, '#FF3131'],
       borderWidth: 0
     }]
   };
@@ -451,7 +451,7 @@ export default function TradingJournal({ profile, onBackToDashboard }: TradingJo
           <button 
             onClick={onBackToDashboard}
             className="p-2 hover:bg-white/5 rounded-full transition-colors"
-            style={{ color: profile.ui.accent }}
+            style={{ color: profile.borderA }}
           >
             <ChevronLeft size={24} />
           </button>

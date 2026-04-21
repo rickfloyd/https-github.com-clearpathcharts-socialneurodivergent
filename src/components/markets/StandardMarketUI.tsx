@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { INTERFACE_PROFILES } from '../../lib/interface/profiles';
+import { neuroProfiles, type NeuroProfile } from '../../lib/neuro/profiles';
 import { BackToDashboard } from '../nav/BackToDashboard';
 
 const ASSETS = [
@@ -35,12 +35,12 @@ const ChartWidget = ({ asset, profile }: { asset: typeof ASSETS[0], profile: any
           "backgroundColor": "#131722",
           "gridColor": "rgba(255, 255, 255, 0.05)",
           "overrides": {
-            "mainSeriesProperties.candleStyle.upColor": profile.candles.upColor,
-            "mainSeriesProperties.candleStyle.downColor": profile.candles.downColor,
-            "mainSeriesProperties.candleStyle.borderUpColor": profile.candles.borderUpColor,
-            "mainSeriesProperties.candleStyle.borderDownColor": profile.candles.borderDownColor,
-            "mainSeriesProperties.candleStyle.wickUpColor": profile.candles.wickUpColor,
-            "mainSeriesProperties.candleStyle.wickDownColor": profile.candles.wickDownColor,
+            "mainSeriesProperties.candleStyle.upColor": profile.upColor,
+            "mainSeriesProperties.candleStyle.downColor": profile.downColor,
+            "mainSeriesProperties.candleStyle.borderUpColor": profile.borderUpColor,
+            "mainSeriesProperties.candleStyle.borderDownColor": profile.borderDownColor,
+            "mainSeriesProperties.candleStyle.wickUpColor": profile.wickUpColor,
+            "mainSeriesProperties.candleStyle.wickDownColor": profile.wickDownColor,
           }
         });
       } else {
@@ -75,7 +75,7 @@ const ChartWidget = ({ asset, profile }: { asset: typeof ASSETS[0], profile: any
 
 interface StandardMarketUIProps {
   onBack: () => void;
-  profile: any;
+  profile: NeuroProfile;
 }
 
 export const StandardMarketUI: React.FC<StandardMarketUIProps> = ({ onBack, profile }) => {
@@ -101,14 +101,14 @@ export const StandardMarketUI: React.FC<StandardMarketUIProps> = ({ onBack, prof
         className="flex items-center justify-between px-8 py-4 border-b glass"
         style={{ 
           backgroundColor: 'rgba(0,0,0,0.5)',
-          borderColor: `${profile.ui.accent}22`,
+          borderColor: `${profile.borderB}22`,
         }}
       >
         <div className="flex items-center space-x-6">
-          <BackToDashboard onBack={onBack} color={profile.ui.text} />
-          <div className="h-6 w-[1px]" style={{ backgroundColor: `${profile.ui.accent}22` }} />
-          <h1 className="text-2xl font-black tracking-tighter uppercase italic" style={{ color: profile.ui.text }}>
-            STANDARD <span style={{ color: profile.ui.accent }}>EXCHANGE</span>
+          <BackToDashboard onBack={onBack} color={profile.text} />
+          <div className="h-6 w-[1px]" style={{ backgroundColor: `${profile.borderB}22` }} />
+          <h1 className="text-2xl font-black tracking-tighter uppercase italic" style={{ color: profile.text }}>
+            STANDARD <span style={{ color: profile.borderA }}>EXCHANGE</span>
           </h1>
         </div>
 
@@ -121,13 +121,13 @@ export const StandardMarketUI: React.FC<StandardMarketUIProps> = ({ onBack, prof
               placeholder="SEARCH SYMBOL"
               className="bg-black/50 border-2 px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-full focus:outline-none focus:ring-2 transition-all w-64"
               style={{ 
-                color: profile.ui.text,
-                borderColor: `${profile.ui.accent}44`,
-                boxShadow: `0 0 10px ${profile.ui.accent}11`
+                color: profile.text,
+                borderColor: `${profile.borderA}44`,
+                boxShadow: `0 0 10px ${profile.borderA}11`
               }}
             />
             <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2">
-              <i className="fas fa-search" style={{ color: profile.ui.accent }}></i>
+              <i className="fas fa-search" style={{ color: profile.borderA }}></i>
             </button>
           </div>
         </form>
@@ -137,8 +137,8 @@ export const StandardMarketUI: React.FC<StandardMarketUIProps> = ({ onBack, prof
       <div className="flex-1 overflow-y-auto custom-scrollbar p-8" style={{ background: '#000000' }}>
         <div className="max-w-7xl mx-auto w-full space-y-8">
           <div className="flex items-center justify-between border-b border-indigo-500/20 pb-6">
-            <h1 className="text-3xl font-black tracking-tighter uppercase italic" style={{ color: profile.ui.text }}>
-              EXCHANGE <span style={{ color: profile.ui.accent }}>COMMAND CENTER</span>
+            <h1 className="text-3xl font-black tracking-tighter uppercase italic" style={{ color: profile.text }}>
+              EXCHANGE <span style={{ color: profile.borderA }}>COMMAND CENTER</span>
             </h1>
             <div className="flex items-center space-x-4">
               <div className="flex space-x-2 mr-4">
@@ -182,8 +182,8 @@ export const StandardMarketUI: React.FC<StandardMarketUIProps> = ({ onBack, prof
         className="px-8 py-4 border-t text-[10px] font-mono uppercase tracking-widest opacity-50 text-center glass"
         style={{ 
           backgroundColor: 'rgba(0,0,0,0.5)',
-          borderColor: `${profile.ui.accent}22`,
-          color: profile.ui.text,
+          borderColor: `${profile.borderA}22`,
+          color: profile.text,
         }}
       >
         ⚖ Legal Positioning — “Provides financial data visualization with optional user-controlled presentation adjustments for accessibility and visual clarity. The system does not evaluate, alter, or advise on financial decisions.”

@@ -373,7 +373,7 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
               >
                 {/* INSTITUTIONAL NEURAL PATTERN */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-                     style={{ backgroundImage: `radial-gradient(${profile.ui.accent} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
+                     style={{ backgroundImage: `radial-gradient(${profile.borderA} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent via-black/20 to-black/40 pointer-events-none" />
                 
                 {/* Content */}
@@ -420,7 +420,7 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
                 <div key={`master-${i}`} className="bento-card md:col-span-2 glass rounded-2xl p-6 relative overflow-hidden group">
                   {/* INSTITUTIONAL NEURAL PATTERN */}
                   <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-                       style={{ backgroundImage: `radial-gradient(${profile.ui.accent} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
+                       style={{ backgroundImage: `radial-gradient(${profile.borderA} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
                   <div className="relative z-10 h-full flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-center mb-4">
@@ -460,7 +460,7 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
               <div className={`bento-card md:col-span-4 glass rounded-2xl p-6 border-l-4 ${gridStatus.status === 'Normal' ? 'border-green-500' : 'border-red-500'} relative overflow-hidden`}>
                 {/* INSTITUTIONAL NEURAL PATTERN */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-                     style={{ backgroundImage: `radial-gradient(${profile.ui.accent} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
+                     style={{ backgroundImage: `radial-gradient(${profile.borderA} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
                 <div className="relative z-10">
                   <div className="flex justify-between items-center mb-6">
                     <div className="flex items-center space-x-3">
@@ -506,7 +506,7 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
               <div className="bento-card md:col-span-2 lg:col-span-2 glass rounded-2xl p-6 flex flex-col">
                 {/* INSTITUTIONAL NEURAL PATTERN */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-                     style={{ backgroundImage: `radial-gradient(${profile.ui.accent} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
+                     style={{ backgroundImage: `radial-gradient(${profile.borderA} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
                 <div className="relative z-10">
                   <h3 className="text-xs font-bold mb-4 flex items-center uppercase tracking-widest" style={{ color: '#E0115F' }}>
                     <i className="fas fa-map-marker-alt mr-2"></i>
@@ -531,7 +531,7 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
             <div className="bento-card md:col-span-2 lg:col-span-2 glass rounded-2xl p-6 flex flex-col justify-between">
               {/* INSTITUTIONAL NEURAL PATTERN */}
               <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-                   style={{ backgroundImage: `radial-gradient(${profile.ui.accent} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
+                   style={{ backgroundImage: `radial-gradient(${profile.borderA} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
               <div className="relative z-10">
                 <h3 className="text-lg font-bold mb-4 flex items-center" style={{ color: '#E0115F' }}>
                   <i className="fas fa-bolt mr-2 text-purple-400"></i>
@@ -558,7 +558,7 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
             <div className="bento-card md:col-span-2 lg:col-span-2 glass rounded-2xl p-6 flex flex-col" data-category="risk">
               {/* INSTITUTIONAL NEURAL PATTERN */}
               <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-                   style={{ backgroundImage: `radial-gradient(${profile.ui.accent} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
+                   style={{ backgroundImage: `radial-gradient(${profile.borderA} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
               <div className="relative z-10">
                 <h3 className="text-sm font-bold mb-4 flex items-center uppercase tracking-widest" style={{ color: '#E0115F' }}>
                   <i className="fas fa-exclamation-triangle mr-2"></i>
@@ -579,7 +579,7 @@ export default function NewsTerminal({ profile }: NewsTerminalProps) {
             <div className="bento-card md:col-span-2 lg:col-span-2 glass rounded-2xl p-6 flex flex-col justify-center items-center text-center">
               {/* INSTITUTIONAL NEURAL PATTERN */}
               <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-                   style={{ backgroundImage: `radial-gradient(${profile.ui.accent} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
+                   style={{ backgroundImage: `radial-gradient(${profile.borderA} 0.5px, transparent 0.5px)`, backgroundSize: '10px 10px' }} />
               <div className="relative z-10">
                 <h3 className="text-sm font-bold mb-4 flex items-center uppercase tracking-widest justify-center" style={{ color: '#E0115F' }}>
                   <i className="fas fa-vote-yea mr-2"></i>

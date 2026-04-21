@@ -82,7 +82,7 @@ export default function CptBible({ profile }: CptBibleProps) {
         animate={{ opacity: 1, y: 0 }}
         className="text-center space-y-4 mb-16"
       >
-        <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic" style={{ color: profile.ui.accent }}>
+        <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic" style={{ color: profile.borderA }}>
           THE CPT BIBLE
         </h1>
         <div className="flex flex-wrap justify-center gap-4 text-[10px] font-black uppercase tracking-[0.3em] opacity-60">
@@ -120,7 +120,7 @@ export default function CptBible({ profile }: CptBibleProps) {
           >
             <div className="flex items-center space-x-4 mb-6">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/5 border border-white/10">
-                <section.icon size={24} style={{ color: section.highlight ? '#ff00ff' : profile.ui.accent }} />
+                <section.icon size={24} style={{ color: section.highlight ? '#ff00ff' : profile.borderA }} />
               </div>
               <h3 className={`text-sm font-black uppercase tracking-[0.2em] ${section.highlight ? 'text-[#ff00ff]' : 'text-white'}`}>
                 {section.title}

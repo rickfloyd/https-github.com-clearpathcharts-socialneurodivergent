@@ -101,8 +101,8 @@ export default function MarketAssetsList({ profile, onAddChart }: MarketAssetsLi
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center p-10 space-y-4">
-        <div className="w-10 h-10 border-4 border-t-transparent animate-spin rounded-full" style={{ borderColor: `${profile.ui.accent} transparent ${profile.ui.accent} transparent` }} />
-        <span className="text-xs font-mono uppercase tracking-widest opacity-50" style={{ color: profile.ui.accent }}>Scanning Global Markets...</span>
+        <div className="w-10 h-10 border-4 border-t-transparent animate-spin rounded-full" style={{ borderColor: `${profile.borderA} transparent ${profile.borderA} transparent` }} />
+        <span className="text-xs font-mono uppercase tracking-widest opacity-50" style={{ color: profile.borderA }}>Scanning Global Markets...</span>
       </div>
     );
   }
@@ -121,8 +121,8 @@ export default function MarketAssetsList({ profile, onAddChart }: MarketAssetsLi
             transition={{ delay: idx * 0.05 }}
             className="border rounded-2xl overflow-hidden shadow-xl glass transition-all duration-300"
             style={{ 
-              background: `${profile.ui.bgBottom}44`, 
-              borderColor: isCollapsed ? `${profile.ui.accent}11` : `${profile.ui.accent}33`,
+              background: `${profile.bgBottom}44`, 
+              borderColor: isCollapsed ? `${profile.borderA}11` : `${profile.borderA}33`,
               maxHeight: isCollapsed ? '70px' : '1000px'
             }}
           >
@@ -133,12 +133,12 @@ export default function MarketAssetsList({ profile, onAddChart }: MarketAssetsLi
               <div className="flex items-center space-x-4">
                 <div 
                   className="p-2 rounded-lg transition-all group-hover/header:scale-110"
-                  style={{ background: `${profile.ui.accent}11`, color: profile.ui.accent }}
+                  style={{ background: `${profile.borderA}11`, color: profile.borderA }}
                 >
                   <Icon size={20} />
                 </div>
                 <div className="text-left">
-                  <h3 className="text-lg font-black tracking-tight" style={{ color: profile.ui.text }}>{group.name}</h3>
+                  <h3 className="text-lg font-black tracking-tight" style={{ color: profile.text }}>{group.name}</h3>
                   <p className="text-[10px] opacity-40 leading-none mt-1">{group.assets.length} TRADING ASSETS DETECTED</p>
                 </div>
               </div>
@@ -147,7 +147,7 @@ export default function MarketAssetsList({ profile, onAddChart }: MarketAssetsLi
                 {!isCollapsed && <span className="text-[10px] opacity-30 hidden sm:inline">Top Performers // Live Feed</span>}
                 <div 
                   className={`w-8 h-8 rounded-full flex items-center justify-center border transition-all duration-500 ${isCollapsed ? 'rotate-0' : 'rotate-180'}`}
-                  style={{ borderColor: `${profile.ui.accent}22`, color: profile.ui.accent }}
+                  style={{ borderColor: `${profile.borderA}22`, color: profile.borderA }}
                 >
                    <TrendingUp size={16} />
                 </div>
@@ -167,20 +167,20 @@ export default function MarketAssetsList({ profile, onAddChart }: MarketAssetsLi
                       <div 
                         key={asset.symbol} 
                         className="flex items-center justify-between p-4 rounded-xl transition-all group/asset border hover:scale-[1.02]"
-                        style={{ background: `${profile.ui.accent}05`, borderColor: 'transparent' }}
+                        style={{ background: `${profile.borderA}05`, borderColor: 'transparent' }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = `${profile.ui.accent}11`;
-                          e.currentTarget.style.borderColor = `${profile.ui.accent}22`;
+                          e.currentTarget.style.background = `${profile.borderA}11`;
+                          e.currentTarget.style.borderColor = `${profile.borderA}22`;
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = `${profile.ui.accent}05`;
+                          e.currentTarget.style.background = `${profile.borderA}05`;
                           e.currentTarget.style.borderColor = 'transparent';
                         }}
                       >
                         <div className="flex items-center space-x-3">
                           <div 
                             className="w-10 h-10 rounded-lg flex items-center justify-center font-black text-xs shadow-inner"
-                            style={{ background: `${profile.ui.accent}22`, color: profile.ui.accent }}
+                            style={{ background: `${profile.borderA}22`, color: profile.borderA }}
                           >
                             {asset.symbol.substring(0, 3)}
                           </div>
@@ -188,16 +188,16 @@ export default function MarketAssetsList({ profile, onAddChart }: MarketAssetsLi
                             <div 
                               onClick={() => onAddChart(asset.symbol)}
                               className="text-sm font-bold hover:opacity-80 cursor-pointer flex items-center group/title"
-                              style={{ color: profile.ui.text }}
+                              style={{ color: profile.text }}
                             >
                               {asset.symbol}
-                              <Maximize2 size={12} className="ml-2 opacity-0 group-hover/title:opacity-100 transition-opacity" style={{ color: profile.ui.accent }} />
+                              <Maximize2 size={12} className="ml-2 opacity-0 group-hover/title:opacity-100 transition-opacity" style={{ color: profile.borderA }} />
                             </div>
-                            <div className="text-[9px] truncate max-w-[100px] font-bold opacity-50" style={{ color: profile.ui.text }}>{asset.name}</div>
+                            <div className="text-[9px] truncate max-w-[100px] font-bold opacity-50" style={{ color: profile.text }}>{asset.name}</div>
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-xs font-mono flex items-center justify-end font-bold" style={{ color: profile.ui.accent }}>
+                          <div className="text-xs font-mono flex items-center justify-end font-bold" style={{ color: profile.borderA }}>
                             {prices[asset.symbol] ? (
                               <span>${prices[asset.symbol]}</span>
                             ) : (

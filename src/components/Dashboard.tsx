@@ -50,7 +50,7 @@ interface DashboardProps {
   onProfileChange: (profileId: string) => void;
 }
 
-import { INTERFACE_PROFILES } from '../lib/interface/profiles';
+import { neuroProfiles, type NeuroProfile } from '../lib/neuro/profiles';
 import { useAuth } from '../contexts/FirebaseContext';
 import { DailyLegalModal } from './DailyLegalModal';
 import SEO from './SEO';
@@ -90,7 +90,7 @@ function TabLoading() {
 }
 
 export default function Dashboard({ profile: initialProfile, onProfileChange }: DashboardProps) {
-  const profile = initialProfile || INTERFACE_PROFILES.standard_trader;
+  const profile = initialProfile || neuroProfiles.standard_trader as any; // Cast as any temporarily to avoid type errors since initialProfile is still typed loosely in some places
   const { 
     user: authUser, 
     userProfile, 
@@ -105,7 +105,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
   } = useAuth();
   const [leftSide, setLeftSide] = useState(true);
   const [rightSide, setRightSide] = useState(false);
-  const [activeTab, setActiveTab] = useState('Market');
+  const [activeTab, setActiveTab] = useState('Neurodivergent');
   const [isAiWidgetOpen, setIsAiWidgetOpen] = useState(false);
   const [isEditingIntro, setIsEditingIntro] = useState(false);
   const [statusText, setStatusText] = useState('');
@@ -247,11 +247,8 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
   };
 
   const menuItems = [
-    { id: 'Market', icon: TrendingUp, label: 'MARKET HUB' },
-    { id: 'Intelligence', icon: Newspaper, label: 'INTELLIGENCE' },
-    { id: 'Timeline', icon: Terminal, label: 'CLEARPATH STREAM' },
-    { id: 'Automations', icon: Cpu, label: 'CREW AUTOMATIONS' },
-    { id: 'Neurodivergent', icon: Brain, label: 'NEURODIVERGENT HUB' },
+    { id: 'Neurodivergent', icon: Brain, label: 'THE 15-NODE GRID (HOME)' },
+    { id: 'Market', icon: TrendingUp, label: 'STANDARD MARKET' },
     { id: 'Biography', icon: Bot, label: 'NEURAL IDENTITY' },
     { id: 'Sentinel', icon: Shield, label: 'NEURAL ASSAILLANT' },
     { id: 'Journal', icon: BookOpen, label: 'TRADING JOURNAL' },
@@ -303,7 +300,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
   return (
     <div 
       className="flex w-full h-[100dvh] overflow-hidden text-[#ccc8db] font-sans selection:bg-indigo-500 transition-colors duration-1000"
-      style={{ background: profile.ui.bgTop }}
+      style={{ background: profile.bgTop }}
     >
       <SEO title={seoData.title} description={seoData.description} />
       {/* Left Sidebar */}
@@ -312,7 +309,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
         lg:relative lg:translate-x-0
         ${leftSide ? 'translate-x-0' : '-translate-x-full'}
       `}
-      style={{ borderColor: `${profile.ui.accent}22` }}
+      style={{ borderColor: `${profile.borderA}22` }}
       >
         <div 
           className="flex items-center px-6 h-[80px] border-b border-[#ffffff08] sticky top-0 z-10 cursor-pointer hover:opacity-80 transition-opacity" 
@@ -410,7 +407,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
             <Share2 size={16} className="mr-2" />
             ClearPath Protocol Access
           </div>
-          <div className="absolute inset-0 bg-[#ffffff05] flex items-center px-5 translate-y-[-100%] group-hover:translate-y-0 transition-transform duration-300" style={{ color: profile.ui.accent }}>
+          <div className="absolute inset-0 bg-[#ffffff05] flex items-center px-5 translate-y-[-100%] group-hover:translate-y-0 transition-transform duration-300" style={{ color: profile.borderA }}>
             <img src={userProfile?.photoURL || authUser?.photoURL || ''} className="w-[26px] h-[26px] rounded-full mr-2 object-cover border border-[#ffffff20]" />
             <span className="text-[10px] font-black uppercase tracking-widest">{userProfile?.displayName || authUser?.displayName || 'EXECUTIVE'}</span>
           </div>
@@ -418,7 +415,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden relative" style={{ background: profile.ui.bgTop }}>
+      <div className="flex-1 flex flex-col overflow-hidden relative" style={{ background: profile.bgTop }}>
         {/* TOP INSTITUTIONAL TICKER */}
         <div className="z-40">
           <Suspense fallback={<div className="h-10 bg-black/40 animate-pulse border-b border-white/5" />}>
@@ -427,14 +424,14 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
         </div>
 
         {/* Search Bar */}
-        {activeTab !== 'Insights' && (
+        {activeTab !== 'Insights' && activeTab !== 'StrictlyCharts' && (
           <>
-            <div className="h-[60px] flex items-center px-6 relative z-30 border-b glass" style={{ borderColor: `${profile.ui.accent}11` }}>
+            <div className="h-[60px] flex items-center px-6 relative z-30 border-b glass" style={{ borderColor: `${profile.borderA}11` }}>
               <div className="flex items-center space-x-4 mr-8">
                 <button 
                   onClick={() => setLeftSide(!leftSide)}
                   className="p-2 mr-2 rounded-lg transition-all hover:bg-white/5"
-                  style={{ color: profile.ui.accent }}
+                  style={{ color: profile.borderA }}
                   title={leftSide ? "Collapse Sidebar" : "Expand Sidebar"}
                 >
                   <Menu size={20} />
@@ -443,9 +440,9 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                   onClick={() => setActiveTab('Market')}
                   className="flex items-center space-x-2 px-4 py-1.5 rounded-full border transition-all hover:scale-105"
                   style={{ 
-                    background: activeTab === 'Market' ? profile.ui.accent : 'transparent',
-                    borderColor: profile.ui.accent,
-                    color: activeTab === 'Market' ? profile.ui.bgTop : profile.ui.accent
+                    background: activeTab === 'Market' ? profile.borderA : 'transparent',
+                    borderColor: profile.borderA,
+                    color: activeTab === 'Market' ? profile.bgTop : profile.borderA
                   }}
                 >
                   <Home size={16} />
@@ -459,14 +456,14 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                   type="text" 
                   placeholder="Search" 
                   className="w-full h-10 bg-transparent border-none pl-12 pr-4 font-semibold placeholder:text-[#5c5d71] focus:outline-none"
-                  style={{ color: profile.ui.accent }}
+                  style={{ color: profile.borderA }}
                 />
               </div>
               <div className="flex items-center space-x-4">
                 <button 
                   onClick={() => setRightSide(!rightSide)}
                   className="lg:hidden p-3 transition-colors rounded-full shadow-lg z-[60]"
-                  style={{ background: `${profile.ui.accent}ee`, color: '#000' }}
+                  style={{ background: `${profile.borderA}ee`, color: '#000' }}
                 >
                   <MessageSquare size={24} />
                 </button>
@@ -476,9 +473,9 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
         )}
 
         {/* Scrollable Container */}
-        <div className={`flex-1 overflow-y-auto custom-scrollbar ${activeTab === 'Insights' ? 'p-0' : 'p-3 md:p-5'}`} style={{ background: profile.ui.bgTop }}>
+        <div className={`flex-1 overflow-y-auto custom-scrollbar ${activeTab === 'Insights' ? 'p-0' : 'p-3 md:p-5'}`} style={{ background: profile.bgTop }}>
           {/* Profile Section */}
-          {activeTab !== 'Insights' && (
+          {activeTab !== 'Insights' && activeTab !== 'StrictlyCharts' && (
             <div className="relative h-[40vh] min-h-[250px] max-h-[350px] rounded-lg overflow-hidden mb-5 group">
               <img 
                 src={user.cover} 
@@ -496,9 +493,9 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                   <span className="text-[10px] font-black uppercase tracking-widest">URL/GIF</span>
                 </button>
                 <label className="flex items-center space-x-2 bg-black/40 hover:bg-black/60 backdrop-blur-md px-3 py-2 rounded-lg cursor-pointer transition-all border"
-                       style={{ color: profile.ui.accent, borderColor: `${profile.ui.accent}33` }}>
+                       style={{ color: profile.borderA, borderColor: `${profile.borderA}33` }}>
                   <ImageIcon size={14} />
-                  <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: profile.ui.accent }}>Upload</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: profile.borderA }}>Upload</span>
                   <input 
                     type="file" 
                     className="hidden" 
@@ -509,7 +506,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
               </div>
 
               <div className="absolute bottom-0 left-0 w-full h-[60px] flex items-center glass"
-                   style={{ borderTop: `1px solid ${profile.ui.accent}22` }}>
+                   style={{ borderTop: `1px solid ${profile.borderA}22` }}>
                 <div className="flex items-center gap-4 px-6 w-full overflow-x-auto custom-scrollbar no-scrollbar scroll-smooth">
                    <div className="text-[10px] font-black uppercase tracking-[0.3em] opacity-30 px-4">
                      Identity Header Active // Use Sidebar for Navigation
@@ -519,7 +516,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
 
               <div className="absolute bottom-6 left-12 flex items-end z-10 group/avatar">
                 <div className="relative">
-                  <div className="surfboard-profile-outline neon-indigo-card overflow-hidden z-10 shadow-[0_0_30px_rgba(99,102,241,0.3)]" style={{ width: '130px', height: '220px', borderColor: profile.ui.accent }}>
+                  <div className="surfboard-profile-outline neon-indigo-card overflow-hidden z-10 shadow-[0_0_30px_rgba(99,102,241,0.3)]" style={{ width: '130px', height: '220px', borderColor: profile.borderA }}>
                     <img 
                       src={user.avatar} 
                       className="surfboard-img" 
@@ -553,7 +550,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                   <h2 className="text-5xl font-black tracking-tighter uppercase italic flex items-center gap-4 name-text">
                     {user.name} <CheckCircle2 size={40} className="fill-indigo-500/20 text-indigo-500 drop-shadow-[0_0_10px_#6366f1]" />
                   </h2>
-                  <p className="text-sm font-mono uppercase tracking-[0.5em] font-black" style={{ color: profile.ui.accent }}>
+                  <p className="text-sm font-mono uppercase tracking-[0.5em] font-black" style={{ color: profile.borderA }}>
                     @{user.name.toLowerCase().replace(/\s+/g, '_')} // Institutional Executive // V4.1 Bridge
                   </p>
                 </div>
@@ -614,7 +611,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                 {/* Visuals Header */}
                 <div className="space-y-4">
                   <h1 className="text-4xl font-black italic tracking-tighter flex items-center gap-4">
-                    <Zap size={32} className="fill-indigo-500/20" style={{ color: profile.ui.accent }} />
+                    <Zap size={32} className="fill-indigo-500/20" style={{ color: profile.borderA }} />
                     <span className="name-text">CLEARPATH</span>
                     <span className="text-white">TRADER</span>
                   </h1>
@@ -633,37 +630,37 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                     ))}
                   </div>
                   <div className="h-2 w-full bg-black/40 rounded-full overflow-hidden border border-white/5 relative">
-                    <div className="absolute top-0 left-0 h-full w-[40%] bg-indigo-500 shadow-[0_0_15px_#6366f1]" style={{ background: `linear-gradient(to right, ${profile.ui.accent}, ${profile.ui.accent}88)` }} />
+                    <div className="absolute top-0 left-0 h-full w-[40%] bg-indigo-500 shadow-[0_0_15px_#6366f1]" style={{ background: `linear-gradient(to right, ${profile.borderA}, ${profile.borderA}88)` }} />
                   </div>
                 </div>
 
                 {/* 4-CHART INSTITUTIONAL GRID */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* CHART 1: XAUUSD */}
-                  <ChartFrame profileId={profile.id} symbol="GOLD">
+                  <ChartFrame profileId={profile.id} title="GOLD" timeframe="1h">
                     <div className="h-[450px] w-full">
-                      <LightweightCandles profileId={profile.id} symbol="XAUUSD" timeframe="1h" />
+                      <LightweightCandles profileId={profile.id} height={450} />
                     </div>
                   </ChartFrame>
 
                   {/* CHART 2: OIL */}
-                  <ChartFrame profileId={profile.id} symbol="OIL">
+                  <ChartFrame profileId={profile.id} title="OIL" timeframe="1h">
                     <div className="h-[450px] w-full">
-                      <LightweightCandles profileId={profile.id} symbol="WTI" timeframe="1h" />
+                      <LightweightCandles profileId={profile.id} height={450} />
                     </div>
                   </ChartFrame>
 
                   {/* CHART 3: EURUSD */}
-                  <ChartFrame profileId={profile.id} symbol="EUR/USD">
+                  <ChartFrame profileId={profile.id} title="EUR/USD" timeframe="1h">
                     <div className="h-[450px] w-full">
-                      <LightweightCandles profileId={profile.id} symbol="EURUSD" timeframe="1h" />
+                      <LightweightCandles profileId={profile.id} height={450} />
                     </div>
                   </ChartFrame>
 
                   {/* CHART 4: BTCUSD */}
-                  <ChartFrame profileId={profile.id} symbol="BTC/USD">
+                  <ChartFrame profileId={profile.id} title="BTC/USD" timeframe="1h">
                     <div className="h-[450px] w-full">
-                      <LightweightCandles profileId={profile.id} symbol="BTCUSD" timeframe="1h" />
+                      <LightweightCandles profileId={profile.id} height={450} />
                     </div>
                   </ChartFrame>
                 </div>
@@ -679,15 +676,15 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                 className="max-w-7xl mx-auto px-6 pt-12 space-y-16 pb-32"
               >
                 {/* News Terminal Section */}
-                <div className="neon-indigo-card rounded-3xl overflow-hidden glass border-4 shadow-[0_0_30px_rgba(99,102,241,0.2)]" style={{ borderColor: profile.ui.accent }}>
-                  <div className="p-6 border-b bg-black/40 flex items-center justify-between" style={{ borderColor: `${profile.ui.accent}33` }}>
+                <div className="neon-indigo-card rounded-3xl overflow-hidden glass border-4 shadow-[0_0_30px_rgba(99,102,241,0.2)]" style={{ borderColor: profile.borderA }}>
+                  <div className="p-6 border-b bg-black/40 flex items-center justify-between" style={{ borderColor: `${profile.borderA}33` }}>
                     <div className="flex items-center space-x-3">
-                      <Newspaper size={24} style={{ color: profile.ui.accent }} />
-                      <span className="text-xl font-black uppercase tracking-[0.4em]" style={{ color: profile.ui.text }}>CLEARPATH INTELLIGENCE STREAM</span>
+                      <Newspaper size={24} style={{ color: profile.borderA }} />
+                      <span className="text-xl font-black uppercase tracking-[0.4em]" style={{ color: profile.text }}>CLEARPATH INTELLIGENCE STREAM</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: profile.ui.accent }} />
-                      <span className="text-[10px] font-mono font-bold" style={{ color: profile.ui.accent }}>CONNECTED // ZERO LATENCY</span>
+                      <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: profile.borderA }} />
+                      <span className="text-[10px] font-mono font-bold" style={{ color: profile.borderA }}>CONNECTED // ZERO LATENCY</span>
                     </div>
                   </div>
                   <div className="min-h-[700px] bg-black/20 p-6">
@@ -874,6 +871,58 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
               </motion.div>
             )}
 
+            { activeTab === 'StrictlyCharts' && (
+              <motion.div 
+                key="strictly-charts"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="w-full h-full min-h-[90vh] bg-black p-4 space-y-8"
+              >
+                <div className="flex items-center justify-between px-4 pb-4 border-b border-white/10 pt-4">
+                  <h1 className="text-2xl font-black italic tracking-tighter flex items-center gap-3">
+                    <BarChart3 size={24} className="text-[#FF4500]" />
+                    <span className="text-white">STRICTLY</span>
+                    <span className="text-[#FF4500]">CHARTS</span>
+                  </h1>
+                  <button onClick={() => setActiveTab('Market')} className="px-4 py-2 border border-white/20 text-white rounded hover:bg-white/10 uppercase font-black text-xs">
+                    EXIT TO HOME
+                  </button>
+                </div>
+                
+                {/* 4-CHART INSTITUTIONAL GRID */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[calc(100vh-120px)]">
+                  {/* CHART 1: XAUUSD */}
+                  <ChartFrame profileId={profile.id} title="GOLD" timeframe="1h">
+                    <div className="w-full h-full min-h-[300px]">
+                      <LightweightCandles profileId={profile.id} height={500} />
+                    </div>
+                  </ChartFrame>
+
+                  {/* CHART 2: OIL */}
+                  <ChartFrame profileId={profile.id} title="OIL" timeframe="1h">
+                    <div className="w-full h-full min-h-[300px]">
+                      <LightweightCandles profileId={profile.id} height={500} />
+                    </div>
+                  </ChartFrame>
+
+                  {/* CHART 3: EURUSD */}
+                  <ChartFrame profileId={profile.id} title="EUR/USD" timeframe="1h">
+                    <div className="w-full h-full min-h-[300px]">
+                      <LightweightCandles profileId={profile.id} height={500} />
+                    </div>
+                  </ChartFrame>
+
+                  {/* CHART 4: BTCUSD */}
+                  <ChartFrame profileId={profile.id} title="BTC/USD" timeframe="1h">
+                    <div className="w-full h-full min-h-[300px]">
+                      <LightweightCandles profileId={profile.id} height={500} />
+                    </div>
+                  </ChartFrame>
+                </div>
+              </motion.div>
+            )}
+
             </AnimatePresence>
           </Suspense>
           
@@ -884,34 +933,35 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
       </div>
 
       {/* Right Sidebar */}
+      {activeTab !== 'StrictlyCharts' && (
       <div className={`
         fixed inset-y-0 right-0 z-50 w-[280px] border-l flex flex-col transition-all duration-300 glass
         xl:relative xl:translate-x-0
         ${rightSide ? 'translate-x-0' : 'translate-x-full xl:translate-x-0'}
       `}
-      style={{ borderColor: `${profile.ui.accent}22` }}
+      style={{ borderColor: `${profile.borderA}22` }}
       >
-        <div className="h-[60px] flex items-center justify-around px-4 sticky top-0 z-10" style={{ background: profile.ui.bgBottom }}>
+        <div className="h-[60px] flex items-center justify-around px-4 sticky top-0 z-10" style={{ background: profile.bgBottom }}>
           <VoiceAssistant />
-          <button className="text-[#64677a] hover:text-white relative" style={{ color: `${profile.ui.accent}88` }}>
+          <button className="text-[#64677a] hover:text-white relative" style={{ color: `${profile.borderA}88` }}>
             <Mail size={20} />
-            <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border-2" style={{ background: profile.ui.accent, borderColor: profile.ui.bgBottom }} />
+            <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border-2" style={{ background: profile.borderA, borderColor: profile.bgBottom }} />
           </button>
-          <button className="text-[#64677a] hover:text-white relative" style={{ color: `${profile.ui.accent}88` }}>
+          <button className="text-[#64677a] hover:text-white relative" style={{ color: `${profile.borderA}88` }}>
             <Bell size={20} />
-            <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border-2" style={{ background: profile.ui.accent, borderColor: profile.ui.bgBottom }} />
+            <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border-2" style={{ background: profile.borderA, borderColor: profile.bgBottom }} />
           </button>
           <div className="flex items-center text-[#64677a] font-semibold text-sm cursor-pointer hover:text-white transition-colors">
-            <span className="name-text font-bold" style={{ color: profile.ui.accent }}>{user.name}</span>
+            <span className="name-text font-bold" style={{ color: profile.borderA }}>{user.name}</span>
             <div className="surfboard-profile-outline mx-3 border-2 border-[#FF4500] shadow-[0_0_15px_#FF4500]" style={{ width: '28px', height: '46px' }}>
               <img src={user.avatar} className="surfboard-img" />
             </div>
-            <ChevronDown size={10} style={{ color: profile.ui.accent }} />
+            <ChevronDown size={10} style={{ color: profile.borderA }} />
           </div>
         </div>
 
         <div className="flex-1 overflow-y-auto custom-scrollbar">
-          <div className="px-6 py-8 border-b" style={{ borderColor: `${profile.ui.accent}22` }}>
+          <div className="px-6 py-8 border-b" style={{ borderColor: `${profile.borderA}22` }}>
             <div className="text-[#5c5e6e] text-[15px] font-black uppercase tracking-[0.2em] mb-6">Stories</div>
             <div className="space-y-6">
               {stories.map((story) => (
@@ -920,7 +970,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                     <img src={story.img} className="surfboard-img" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[14px] font-black uppercase tracking-tighter name-text truncate" style={{ color: profile.ui.accent }}>{story.name}</div>
+                    <div className="text-[14px] font-black uppercase tracking-tighter name-text truncate" style={{ color: profile.borderA }}>{story.name}</div>
                     <div className="text-[#595c6c] text-[10px] uppercase font-mono mt-1">{story.time}</div>
                   </div>
                 </div>
@@ -937,9 +987,9 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
                     <img src={contact.img} className="surfboard-img" />
                   </div>
                   <div className="flex-1 flex items-center justify-between">
-                    <span className="text-[14px] font-black uppercase tracking-tighter" style={{ color: profile.ui.accent }}>{contact.name}</span>
+                    <span className="text-[14px] font-black uppercase tracking-tighter" style={{ color: profile.borderA }}>{contact.name}</span>
                     <div className={`w-2 h-2 rounded-full ${contact.status === 'online' ? '' : 'opacity-30'}`} 
-                         style={{ background: contact.status === 'online' ? profile.ui.accent : '#606a8d' }} />
+                         style={{ background: contact.status === 'online' ? profile.borderA : '#606a8d' }} />
                   </div>
                 </div>
               ))}
@@ -947,21 +997,22 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
           </div>
         </div>
 
-        <div className="h-[60px] border-t flex items-center px-4 sticky bottom-0" style={{ background: profile.ui.bgBottom, borderColor: `${profile.ui.accent}22` }}>
+        <div className="h-[60px] border-t flex items-center px-4 sticky bottom-0" style={{ background: profile.bgBottom, borderColor: `${profile.borderA}22` }}>
           <div className="relative flex-1">
             <input 
               type="text" 
               placeholder="Search" 
               className="w-full h-8 bg-transparent border-none pr-10 text-sm placeholder:text-[#5c5d71] focus:outline-none"
-              style={{ color: profile.ui.accent }}
+              style={{ color: profile.borderA }}
             />
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex space-x-3" style={{ color: profile.ui.accent }}>
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex space-x-3" style={{ color: profile.borderA }}>
               <Plus size={16} className="cursor-pointer hover:opacity-70" />
               <MoreHorizontal size={16} className="cursor-pointer hover:opacity-70" />
             </div>
           </div>
         </div>
       </div>
+      )}
 
       {/* Overlay */}
       <AnimatePresence>
@@ -984,7 +1035,7 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
         <button
           onClick={() => setIsAiWidgetOpen(!isAiWidgetOpen)}
           className="w-14 h-14 rounded-full shadow-[0_0_20px_rgba(77,0,255,0.4)] flex items-center justify-center transition-all hover:scale-105 active:scale-95 z-50 relative"
-          style={{ background: isAiWidgetOpen ? '#FF4500' : profile.ui.accent, color: isAiWidgetOpen ? '#fff' : '#000' }}
+          style={{ background: isAiWidgetOpen ? '#FF4500' : profile.borderA, color: isAiWidgetOpen ? '#fff' : '#000' }}
         >
           {isAiWidgetOpen ? <span className="text-xl font-bold">×</span> : <Bot size={28} />}
         </button>
@@ -996,13 +1047,13 @@ export default function Dashboard({ profile: initialProfile, onProfileChange }: 
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
               className="absolute bottom-20 right-0 w-[400px] h-[600px] z-[40] rounded-2xl overflow-hidden glass shadow-2xl border"
-              style={{ borderColor: `${profile.ui.accent}33` }}
+              style={{ borderColor: `${profile.borderA}33` }}
             >
               <div className="absolute top-0 w-full h-full bg-[#0a0a0a]/90 backdrop-blur-3xl overflow-y-auto flex flex-col">
-                <div className="p-4 border-b flex justify-between items-center flex-shrink-0" style={{ borderColor: `${profile.ui.accent}22`, background: `${profile.ui.accent}11` }}>
+                <div className="p-4 border-b flex justify-between items-center flex-shrink-0" style={{ borderColor: `${profile.borderA}22`, background: `${profile.borderA}11` }}>
                   <div className="flex items-center space-x-2">
-                    <Bot size={20} style={{ color: profile.ui.accent }} />
-                    <span className="font-bold uppercase tracking-widest text-sm" style={{ color: profile.ui.accent }}>Global Trading Assistant</span>
+                    <Bot size={20} style={{ color: profile.borderA }} />
+                    <span className="font-bold uppercase tracking-widest text-sm" style={{ color: profile.borderA }}>Global Trading Assistant</span>
                   </div>
                 </div>
                 <div className="flex-1 overflow-hidden relative">
